@@ -1,0 +1,17 @@
+services:
+    phpbbstudio.dtst.listener:
+        class: phpbbstudio\dtst\event\main_listener
+        arguments:
+            - '@auth'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '@language'
+            - '@phpbbstudio.dtst.dtst_utils'
+        tags:
+            - { name: event.listener }
+
+    phpbbstudio.dtst.dtst_utils:
+        class: phpbbstudio\dtst\core\operator
+        arguments:
+            - '@dbal.conn'

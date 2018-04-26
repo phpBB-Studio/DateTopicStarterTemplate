@@ -1,0 +1,23 @@
+/* CSS style*/
+.dtst-div-1 {
+	padding: 5px 10px;
+	border-radius: 7px;
+	margin: 10px 0;
+	box-shadow: 1px 2px 3px grey;
+	font-size: 14px;
+	/* color: #105289; */ /* Useable to override the content class color */
+}
+
+.dtst-span-1 {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+@media all and (max-width: 700px) {
+	.dtst-div-1 {
+		margin: 0 -5px 10px;
+		border-radius: 0;
+		box-shadow: none;
+		padding: 0 5px;
+	}
+}

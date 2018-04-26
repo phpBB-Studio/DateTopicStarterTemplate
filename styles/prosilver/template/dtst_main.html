@@ -1,0 +1,30 @@
+{# Include Datepicker - CSS #}
+{% if not definition.INCLUDED_DATEPICKERMINCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/datepicker.min.css' %}
+	{% DEFINE INCLUDED_DATEPICKERMINCSS = true %}
+{% endif %}
+
+{% if S_DTST_TOPIC %}
+	<dl>
+		<dt><label for="dtst_location">{{ lang('DTST_LOCATION') ~ lang('COLON') }}</label></dt>
+		<dd><input name="dtst_location" id="dtst_location" class="inputbox autowidth" tabindex="2" type="text" size="45" maxlength="255" value="{{ DTST_LOCATION }}" placeholder="{{ DTST_LOCATION_HOLDER }}" /></dd>
+	</dl>
+	<dl>
+		<dt><label for="dtst_host">{{ lang('DTST_HOST') ~ lang('COLON') }}</label></dt>
+		<dd><input name="dtst_host" id="dtst_host" type="text" class="inputbox autowidth" tabindex="3" size="45" maxlength="255" value="{{ DTST_HOST }}" placeholder="{{ DTST_HOST_HOLDER }}" /></dd>
+	</dl>
+	<dl>
+		<dt><label for="dtst_date">{{ lang('DTST_DATE') ~ lang('COLON') }}</label></dt>
+		{# Extra inputs are disallowed here for the sake of Date validation #}
+		<dd><input name="dtst_date" id="dtst_date" type="text" class="inputbox autowidth" tabindex="4" value="{{ DTST_DATE }}" readonly="readonly" /></dd>
+	</dl>
+{% endif %}
+
+{# Include Datepicker - Javascript: https://github.com/fengyuanchen/datepicker #}
+{% if not definition.INCLUDED_DATEPICKERMINJS %}
+	{% INCLUDEJS '@phpbbstudio_dtst/js/datepicker.min.js' %}
+	{% DEFINE INCLUDED_DATEPICKERMINJS = true %}
+{% endif %}
+
+{# Initiate jQuery Datepicker #}
+{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_date.js' %}
