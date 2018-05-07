@@ -14,4 +14,8 @@ services:
     phpbbstudio.dtst.dtst_utils:
         class: phpbbstudio\dtst\core\operator
         arguments:
+            - '@auth'
+            - '@config_text'
             - '@dbal.conn'
+            - '%core.root_path%'
+            - '%core.php_ext%'

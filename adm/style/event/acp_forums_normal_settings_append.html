@@ -1,22 +1,26 @@
-{% if not INCLUDED_DTST_ACP_CSS %}
+{# Include our ACP - CSS #}
+{% if not definition.INCLUDED_DTST_ACPCSS %}
 	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
-	{% set INCLUDED_DTST_ACP_CSS = true %}
+	{% DEFINE INCLUDED_DTST_ACPCSS = true %}
 {% endif %}
 
 <fieldset class="dtst-acp-outer">
 	<legend>{{ lang('ACP_DTST_FORUMS_LEGEND') }}</legend>
+
 	<dl>
 		<dt><label for="dtst_f_enable">{{ lang('ACP_DTST_FORUMS_ENABLE') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_DTST_FORUMS_ENABLE_EXPLAIN') }}</span></dt>
-		<dd><label><input type="radio" class="radio" name="dtst_f_enable" value="1" id="dtst_f_enable"{% if S_DTST_F_ENABLE %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
-			<label><input type="radio" class="radio" name="dtst_f_enable" value="0" id="dtst_f_enable"{% if not S_DTST_F_ENABLE %} checked="checked"{% endif %} /> {{ lang('NO') }}</label></dd>
+		<dd>
+			<label><input type="radio" class="radio" name="dtst_f_enable" value="1" id="dtst_f_enable"{% if S_DTST_F_ENABLE %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label><input type="radio" class="radio" name="dtst_f_enable" value="0" id="dtst_f_enable"{% if not S_DTST_F_ENABLE %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
 	</dl>
-	<dl>
-		<dt><label for="dtst_f_location">{{ lang('ACP_DTST_F_LOCATION') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_DTST_F_LOCATION_EXPLAIN') }}</span></dt>
-		<dd><input class="text medium" type="text" id="dtst_f_location" name="dtst_f_location" value="{{ DTST_F_LOCATION }}" maxlength="255" /></dd>
-	</dl>
+
 	<dl>
 		<dt><label for="dtst_f_forced_fields">{{ lang('ACP_DTST_F_FORCED_FIELDS') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_DTST_F_FORCED_FIELDS_EXPLAIN') }}</span></dt>
-		<dd><label><input type="radio" class="radio" name="dtst_f_forced_fields" value="1" id="dtst_f_forced_fields"{% if S_DTST_F_FORCED_FIELDS %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
-			<label><input type="radio" class="radio" name="dtst_f_forced_fields" value="0" id="dtst_f_forced_fields"{% if not S_DTST_F_FORCED_FIELDS %} checked="checked"{% endif %} /> {{ lang('NO') }}</label></dd>
+		<dd>
+			<label><input type="radio" class="radio" name="dtst_f_forced_fields" value="1" id="dtst_f_forced_fields"{% if S_DTST_F_FORCED_FIELDS %} checked="checked"{% endif %} /> {{ lang('YES') }}</label>
+			<label><input type="radio" class="radio" name="dtst_f_forced_fields" value="0" id="dtst_f_forced_fields"{% if not S_DTST_F_FORCED_FIELDS %} checked="checked"{% endif %} /> {{ lang('NO') }}</label>
+		</dd>
 	</dl>
+
 </fieldset>

@@ -1,29 +1,64 @@
-{% if (DTST_LOCATION) || (DTST_HOST) || (DTST_DATE) %}
-	{% if not INCLUDED_DTST_CSS %}
-		{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
-		{% set INCLUDED_DTST_CSS = true %}
+{# Don't show on topic edit mode #}
+{% if not S_DTST_TOPIC_EDIT %}
+
+	{% if (DTST_LOCATION) || (DTST_HOST) || (DTST_DATE) || (DTST_EVENT_TYPE) %}
+
+		{% if not definition.INCLUDED_DTSTCSS %}
+			{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
+			{% DEFINE INCLUDED_DTSTCSS = true %}
+		{% endif %}
+
+		<div class="content dtst-div-1">
+			{{ lang('DTST_LOCATION') ~ lang('COLON') }}&nbsp;
+			{% if DTST_LOCATION %}
+				<span class="dtst-span-1">{{ DTST_LOCATION }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_LOC_CUSTOM') ~ lang('COLON') }}&nbsp;
+			{% if DTST_LOC_CUSTOM %}
+				<span class="dtst-span-1">{{ DTST_LOC_CUSTOM }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_HOST') ~ lang('COLON') }}&nbsp;
+			{% if DTST_HOST %}
+				<span class="dtst-span-1">{{ DTST_HOST }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_DATE') ~ lang('COLON') }}&nbsp;
+			{# Watch out for null values with date() #}
+			{% if DTST_DATE is not empty %}
+				<span class="dtst-span-1">
+					{{ DTST_DATE|date('d-m-Y') }}
+				</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_EVENT_TYPE') ~ lang('COLON') }}&nbsp;
+			{% if DTST_EVENT_TYPE %}
+				<span class="dtst-span-1">{{ DTST_EVENT_TYPE }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_AGE_MIN') ~ lang('COLON') }}&nbsp;
+			{% if DTST_AGE_MIN %}
+				<span class="dtst-span-1">{{ DTST_AGE_MIN }}</span>
+			{% else %}
+				<span class="dtst-span-1">{{ lang('DTST_AGE_RANGE_NO') }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_AGE_MAX') ~ lang('COLON') }}&nbsp;
+			{% if DTST_AGE_MAX %}
+				<span class="dtst-span-1">{{ DTST_AGE_MAX }}</span>
+			{% else %}
+				<span class="dtst-span-1">{{ lang('DTST_AGE_RANGE_NO') }}</span>
+			{% endif %}
+			<br>
+			{{ lang('DTST_PARTECIPANTS') ~ lang('COLON') }}&nbsp;
+			{% if DTST_PARTECIPANTS %}
+				<span class="dtst-span-1">{{ DTST_PARTECIPANTS }}</span>
+			{% else %}
+				<span class="dtst-span-1">{{ lang('DTST_UNLIMITED') }}</span>
+			{% endif %}
+			<br>
+		</div>
 	{% endif %}
 
-	<div class="content dtst-div-1">
-		{{ lang('DTST_LOCATION') ~ lang('COLON') }}&nbsp;
-		{% if DTST_LOCATION %}
-			<span class="dtst-span-1">{{ DTST_LOCATION }}</span>
-		{% endif %}
-		<br>
-		{{ lang('DTST_HOST') ~ lang('COLON') }}&nbsp;
-		{% if DTST_HOST %}
-			<span class="dtst-span-1">{{ DTST_HOST }}</span>
-		{% endif %}
-		<br>
-		{{ lang('DTST_DATE') ~ lang('COLON') }}&nbsp;
-		{% if DTST_DATE %}
-			<span class="dtst-span-1">
-				{# Watch out for null values #}
-				{% if DTST_DATE is not empty %}
-					{{ DTST_DATE|date('d-m-Y') }}
-				{% endif %}
-			</span>
-		{% endif %}
-		<br>
-	</div>
 {% endif %}

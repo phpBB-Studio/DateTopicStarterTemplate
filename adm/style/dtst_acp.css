@@ -1,10 +1,43 @@
 /* CSS Document */
+
+.dtst-acp-select select {
+	background: transparent;
+	width: auto;
+	padding: 5px;
+	font-size: 0.9em;
+	line-height: inherit;
+	border: 0;
+	border-radius: 0;
+	height: 26px;
+	webkit-appearance: none;
+}
+
+.dtst-acp-inner {
+}
+
+.dtst-acp-middle {
+	background-color: #F3F3F3; /* light grey */ 
+}
+
 .dtst-acp-outer {
 	background-image: url("../images/dtst_acp_gfx.png");
 	background-position: center;
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-attachment: scroll;
+}
+
+.dtst-acp-submit {
+}
+
+/* That's the native phpBB prosilver class "rules" slightly modified */
+.dtst-acp-rules {
+	margin-bottom: 10px;
+	font-size: 0.9em;
+	padding: 5px 10px;
+	border-radius: 7px;
+	background-color: #d6e9cf; /* light green */
+	color: #125814; /* dark green */
 }
 
 /* Better alignment than the core phpbb */

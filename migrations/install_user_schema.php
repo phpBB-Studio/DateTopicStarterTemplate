@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Date Topic Starter Template. An extension for the phpBB Forum Software package.
+ * Date Topic Event Calendar. An extension for the phpBB Forum Software package.
  *
  * @copyright (c) 2018, phpBB Studio, https://www.phpbbstudio.com
  * @license GNU General Public License, version 2 (GPL-2.0)
@@ -28,13 +28,18 @@ class install_user_schema extends \phpbb\db\migration\migration
 		return array(
 			'add_columns'	=> array(
 				$this->table_prefix . 'topics'		=> array(
-					'dtst_location'		=>	array('TEXT_UNI', null), /* The location for the topic, user input */
-					'dtst_host'			=>	array('TEXT_UNI', null), /* The Host for the topic, user input */
-					'dtst_date'			=>	array('VCHAR_UNI', null), /* The Date stored as string, user input */
+					'dtst_location'			=>	array('TEXT_UNI', null), /* The preset location for the topic, user input */
+					'dtst_loc_custom'		=>	array('TEXT_UNI', null), /* The custom location for the topic, user input */
+					'dtst_host'				=>	array('TEXT_UNI', null), /* The Host for the topic, user input */
+					'dtst_date'				=>	array('VCHAR_UNI', null), /* The Date stored as string, user input */
+					'dtst_event_type'		=>	array('UINT', 0), /* The type of event for the topic, user input */
+					'dtst_age_min'			=>	array('TINT:2', 0), /* The min age for the topic, user input - min 0 = open */
+					'dtst_age_max'			=>	array('TINT:2', 0), /* The max age for the topic, user input - max 99 - min 0 = open */
+					'dtst_partecipants'		=>	array('UINT', 0), /* The # of partecipants for the topic, user input - min 0 = unlimited (16,777,215 ) */
 				),
 				$this->table_prefix . 'forums'		=> array(
-					'dtst_f_enable'		=>	array('BOOL', 1), /* All the existing/newly created forums will be enabled as default */
-					'dtst_f_location'	=>	array('TEXT_UNI', null), /* The Location for the forum, admin input */
+					'dtst_f_enable'			=>	array('BOOL', 0), /* Does not affect the existing forums */
+					'dtst_f_forced_fields'	=>	array('BOOL', 0), /* Does not affect the existing forums */
 				),
 			),
 		);
@@ -46,12 +51,17 @@ class install_user_schema extends \phpbb\db\migration\migration
 			'drop_columns' => array(
 				$this->table_prefix . 'topics'	=> array(
 					'dtst_location',
+					'dtst_loc_custom',
 					'dtst_host',
 					'dtst_date',
+					'dtst_event_type',
+					'dtst_age_min',
+					'dtst_age_max',
+					'dtst_partecipants',
 		),
 				$this->table_prefix . 'forums'	=> array(
 					'dtst_f_enable',
-					'dtst_f_location',
+					'dtst_f_forced_fields',
 				),
 			),
 		);

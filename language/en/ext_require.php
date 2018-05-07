@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Date Topic Starter Template. An extension for the phpBB Forum Software package.
+ * Date Topic Event Calendar. An extension for the phpBB Forum Software package.
  *
  * @copyright (c) 2018, phpBB Studio, https://www.phpbbstudio.com
  * @license GNU General Public License, version 2 (GPL-2.0)
