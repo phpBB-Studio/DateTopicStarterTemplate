@@ -63,7 +63,7 @@ class dtst_module
 					$forum_dtst_preset_location = $dtst_utils->dtst_json_decode_locations();
 
 					/* Get locations values from the form */
-					$forum_dtst_preset_location_add[] = trim(htmlspecialchars($request->variable('forum_dtst_preset_location_add', '', true), ENT_COMPAT, 'UTF-8'));
+					$forum_dtst_preset_location_add[] = trim($request->variable('forum_dtst_preset_location_add', '', true));
 
 					if (!check_form_key('phpbbstudio_dtst'))
 					{

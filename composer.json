@@ -5,7 +5,7 @@
 	"homepage": "https://www.phpbbstudio.com",
 	"version": "1.2.0-beta",
 	"time": "2018-05-07",
-	"license": "GPL-2.0",
+	"license": "GPL-2.0-only",
 	"authors": [
 		{
 			"name": "phpBB Studio",
