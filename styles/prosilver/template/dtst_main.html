@@ -18,7 +18,12 @@
 
 	<dl>
 		<dt><label for="dtst_location">{{ lang('DTST_LOCATION') ~ lang('COLON') }}</label></dt>
-		<dd><select name="dtst_location" id="dtst_location" >{{ DTST_LOCATION }}</select>&nbsp;{{ lang('DTST_LOCATION_EXPLAIN') }}</dd>
+		<dd>
+			<select name="dtst_location" id="dtst_location" >{{ DTST_LOCATION }}</select>&nbsp;{{ lang('DTST_LOCATION_EXPLAIN') }}
+		</dd>
+		
+		{# tabindex ?¿ #}
+
 	</dl>
 
 	<dl>
@@ -40,6 +45,9 @@
 	<dl>
 		<dt><label for="dtst_event_type">{{ lang('DTST_EVENT_TYPE') ~ lang('COLON') }}</label></dt>
 		<dd>{{ DTST_EVENT_TYPE }}</dd>
+
+		{# tabindex ?¿ #}
+
 	</dl>
 
 	<dl>
@@ -51,6 +59,7 @@
 		<dt><label for="dtst_age_max">{{ lang('DTST_AGE_MAX') ~ lang('COLON') }}</label></dt>
 		<dd><input type="number" min="0" max="99" maxlength="2" pattern="[0-9]{{ '{' }}2{{ '}' }}" name="dtst_age_max" id="dtst_age_max" tabindex="7" size="2" value="{{ DTST_AGE_MAX }}" />&nbsp;{{ lang('DTST_AGE_RANGE_ZERO') }}</dd>
 	</dl>
+
 	<dl>
 		<dt><label for="dtst_partecipants">{{ lang('DTST_PARTECIPANTS') ~ lang('COLON') }}</label></dt>
 		<dd><input type="number" min="0" max="16777215" maxlength="8" pattern="[0-9]{{ '{' }}8{{ '}' }}" name="dtst_partecipants" id="dtst_partecipants" tabindex="8" size="8" value="{{ DTST_PARTECIPANTS }}" />&nbsp;{{ lang('DTST_PARTECIPANTS_ZERO') }}</dd>
