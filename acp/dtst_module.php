@@ -95,7 +95,7 @@ class dtst_module
 					}
 
 					/**
-					 * Check the number of min chars allowed. 
+					 * Check the number of min chars allowed.
 					 * https://en.wikipedia.org/wiki/List_of_short_place_names
 					 */
 					if (utf8_strlen($string) < 1)
