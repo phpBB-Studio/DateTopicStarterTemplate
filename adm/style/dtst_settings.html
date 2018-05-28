@@ -1,0 +1,48 @@
+{# Include our ACP - CSS #}
+{% if not definition.INCLUDED_DTST_ACPCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
+	{% DEFINE INCLUDED_DTST_ACPCSS = true %}
+{% endif %}
+
+{% INCLUDE 'overall_header.html' %}
+
+<h1>{{ lang('ACP_DTST_TITLE') }}</h1>
+
+{% if S_ERRORS %}
+{# Non invasive error reporting #}
+<fieldset>
+	<legend>{{ lang('ACP_DTST_ERRORS') }}</legend>
+	<p class="error">
+		{{ ERRORS_MSG }}
+	</p>
+</fieldset>
+{% endif %}
+
+<form id="phpbbstudio_dtst_settings" method="post" action="{U_ACTION}">
+	<fieldset class="dtst-acp-outer">
+		<fieldset class="dtst-acp-middle">
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_SETTINGS_MANAGEMENT') }}</legend>
+				<dl>
+					<dt>
+						<label for="dtst_locked_withdrawal">{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL_EXP') }}
+					</dt>
+					<dd>
+						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="1"{% if ACP_SETTINGS_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %}/> {{ lang('YES') }}
+						&nbsp;
+						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="0"{% if not ACP_SETTINGS_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %} /> {{ lang('NO') }}
+					</dd>
+				</dl>
+			</fieldset>
+		</fieldset>
+	<fieldset>
+
+	<fieldset class="dtst-acp-submit">
+		<fieldset class="submit-buttons">
+			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+		</fieldset>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+
+{% INCLUDE 'overall_footer.html' %}

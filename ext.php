@@ -29,6 +29,7 @@ class ext extends \phpbb\extension\base
 		$user = $this->container->get('user');
 		$user->add_lang_ext('phpbbstudio/dtst', 'ext_require');
 		$lang = $user->lang;
+		$db = $this->container->get('dbal.conn');
 
 		if ( !(phpbb_version_compare(PHPBB_VERSION, '3.2.2', '>=') && phpbb_version_compare(PHPBB_VERSION, '3.3.0@dev', '<')) )
 		{
@@ -39,6 +40,12 @@ class ext extends \phpbb\extension\base
 		if (!phpbb_version_compare(PHP_VERSION, '5.5', '>='))
 		{
 			$lang['EXTENSION_NOT_ENABLEABLE'] .= '<br>' . $user->lang('DTST_ERROR_PHP_VERSION');
+			$is_enableable = false;
+		}
+
+		if ( !in_array($db->get_sql_layer(), array('mysqli', 'mysql4')) )
+		{
+			$lang['EXTENSION_NOT_ENABLEABLE'] .= '<br>' . $user->lang('DTST_ERROR_DBMS_TYPE');
 			$is_enableable = false;
 		}
 

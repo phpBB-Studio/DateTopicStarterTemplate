@@ -5,12 +5,37 @@
 	margin: 10px 0;
 	box-shadow: 1px 2px 3px grey;
 	font-size: 14px;
-	/* color: #105289; */ /* Useable to override the content class color */
+}
+
+.dtst-fieldset-1 {
+	padding: 5px 10px;
+	border-radius: 7px;
+	margin: 10px 0;
+	box-shadow: 1px 2px 3px grey;
+	font-size: inherit;
+	/* background-color: #105289; Useable to style the background */
 }
 
 .dtst-span-1 {
 	font-size: 16px;
 	font-weight: bold;
+}
+
+.dtst-span-2 {
+	font-size: 13px;
+	font-weight: bold;
+	padding: 15px;
+}
+
+#dtst_date {
+	margin-right: 0;
+}
+
+#dtst_date_reset {
+	padding: 2px 6px 2px 5px;
+	font-size: 10px;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 @media all and (max-width: 700px) {
@@ -19,5 +44,178 @@
 		border-radius: 0;
 		box-shadow: none;
 		padding: 0 5px;
+	}
+}
+
+/* Opt-in/out participants*/
+.green {color: #3B5221;}
+.light-green {color: #27AA19;}
+.blue {color: #105289;}
+.red {color: #D31141;}
+.gray {color: #888888 !important;}
+.dark {color: #000000;}
+
+.strikethrough {
+	text-decoration: line-through;
+}
+
+.dtst-participants-bar {
+	clear:both;
+	color: inherit;
+	display: inline-block;
+	font-size: inherit;
+	margin-top: 2px;
+	padding: 4px;
+}
+
+/* Date reset */
+.dtst-main-date-reset:hover {
+	cursor: pointer;
+}
+
+/* Date reset icon fix */
+.dtst-main-date-reset > i {
+	vertical-align: -1px;
+}
+
+/**
+ * Overview flexy
+ */
+.dtst-div-2 {
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.dtst-div-2 > div {
+	flex: 1;
+	margin: 0 1px;
+	padding: 0;
+	width: 160px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dtst-div-2 dl.details {
+	margin-left: 3px;
+	font-size: 12px;
+}
+
+.dtst-div-2 dl.details > dt {
+	width: 40%;
+}
+
+.dtst-div-2 dl.details > dd {
+	width: 55%;
+	font-weight: bold;
+}
+
+.dtst-div-2 > div > h3 {
+	padding: 5px 5px 2px;
+	margin-top: 0;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+}
+
+.dtst-div-2 > div > h3 > i {
+	font-size: 13px;
+}
+
+.dtst-div-2 > div > div {
+	padding: 0 7px;
+}
+
+.dtst-div-2 > div > div:not(.dtst-centered) {
+	text-align: center;
+	margin: 18px 0;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.dtst-attendees-list {
+	margin: 4px 0 0;
+	display: none;
+	font-weight: bold;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 1em;
+}
+
+.dtst-attendees-list > h4 {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.dtst-attendees-count {
+	display: inline-block;
+	width: 40px;
+	text-align: center;
+	font-style: italic;
+	font-weight: normal;
+}
+
+.dtst-centered {
+	text-align: center;
+}
+
+.dtst-radius-inherit {
+	border-radius: inherit;
+}
+
+.dtst-button {
+	margin: 2px 0;
+}
+
+.dtst-button:hover {
+	/* Resets */
+	background-image: none;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	filter: none;
+	text-shadow: none;
+}
+
+.dtst-button-red:hover {
+	background-color: #D31141;
+	border-color: #7e0a27;
+	color: #fefefe;
+}
+
+.dtst-button-red:hover > i {
+	color: #7e0a27 !important;
+}
+
+.dtst-button-green:hover {
+	background-color: #629163;
+	border-color: #2a522a;
+	color: #fefefe;
+}
+
+.dtst-button-green:hover > i {
+	color: #2a522a !important;
+}
+
+#dtst_participants_view:hover {
+	cursor: pointer;
+}
+
+@media all and (max-width: 1024px) {
+	.dtst-div-2 {
+		flex-flow: row wrap;
+		justify-content: space-around;
+	}
+
+	.dtst-div-2 > div {
+		flex: 0 32%;
+		margin-top: 3px;
+	}
+
+	.dtst-div-2 > div:last-of-type {
+		flex: 0 32%;
+	}
+}
+
+@media all and (max-width: 350px) {
+	.dtst-button {
+		font-size: 10px;
 	}
 }

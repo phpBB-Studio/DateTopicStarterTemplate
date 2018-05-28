@@ -26,9 +26,11 @@ class install_permissions extends \phpbb\db\migration\migration
 		return array(
 			/* Add permissions NOT set */
 			array('permission.add', array('u_allow_dtst')),
+			array('permission.add', array('u_dtst_attendees')),
 			array('permission.add', array('a_dtst_admin')),
 			/* Now do set those permissions */
 			array('permission.permission_set', array('REGISTERED', 'u_allow_dtst', 'group')),
+			array('permission.permission_set', array('REGISTERED', 'u_dtst_attendees', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'a_dtst_admin', 'group')),
 		);
 	}

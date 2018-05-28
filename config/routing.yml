@@ -1,0 +1,5 @@
+dtst_controller:
+    path: /dtst/{topic_id}
+    defaults: { _controller: phpbbstudio.dtst.controller:handle }
+    requirements:
+        topic_id: \d+

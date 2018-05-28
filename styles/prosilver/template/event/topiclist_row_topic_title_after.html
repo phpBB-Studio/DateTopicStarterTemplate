@@ -22,26 +22,9 @@
 	<div>{{ topicrow.DTST_DATE }}</div>
 {% endif %}
 
-{% if searchresults.DTST_EVENT_TYPE %}
-	<div>{{ searchresults.DTST_EVENT_TYPE }}</div>
-{% elseif topicrow.DTST_EVENT_TYPE %}
-	<div>{{ topicrow.DTST_EVENT_TYPE }}</div>
-{% endif %}
-
 {% if searchresults.DTST_AGE_MIN %}
 	<div>{{ searchresults.DTST_AGE_MIN }}</div>
 {% elseif topicrow.DTST_AGE_MIN %}
 	<div>{{ topicrow.DTST_AGE_MIN }}</div>
 {% endif %}
 
-{% if searchresults.DTST_AGE_MAX %}
-	<div>{{ searchresults.DTST_AGE_MAX }}</div>
-{% elseif topicrow.DTST_AGE_MAX %}
-	<div>{{ topicrow.DTST_AGE_MAX }}</div>
-{% endif %}
-
-{% if searchresults.DTST_PARTECIPANTS %}
-	<div>{{ searchresults.DTST_PARTECIPANTS }}</div>
-{% elseif topicrow.DTST_PARTECIPANTS %}
-	<div>{{ topicrow.DTST_PARTECIPANTS }}</div>
-{% endif %}

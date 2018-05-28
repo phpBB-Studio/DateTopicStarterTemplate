@@ -1,0 +1,2 @@
+parameters:
+    phpbbstudio.dtst.tables.dtst_slots: '%core.table_prefix%dtst_slots'

@@ -1,0 +1,185 @@
+.dtst-filters {
+	float: left;
+	clear: left;
+	width: 175px;
+}
+
+/* No posts found panel */
+.dtst-filters + div.panel,
+/* Regular topic list panel */
+.dtst-filters + .forumbg,
+/* Announcement topic list panel */
+.dtst-filters + .forumbg + .forumbg {
+	margin-left: 190px;
+	width: auto;
+	clear: right;
+}
+
+/* Fake class for JS filters */
+.dtst-auto-reload {
+}
+
+/* Padding */
+.dtst-filters li.row {
+	padding: 2px 4px;
+}
+
+/* Remove hover color */
+.dtst-filters li.row:hover {
+	background-color: inherit;
+}
+
+/* Manage long names */
+.dtst-label {
+	white-space: nowrap;
+	width: 145px;
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: text-bottom;
+}
+
+/* Date input */
+.dtst-li {
+	margin-bottom: 2px !important;
+}
+
+.dtst-input {
+	width: auto;
+	height: 16px;
+}
+
+.dtst-input-icon {
+	color: #404040;
+	height: 16px;
+	padding: 1px 5px;
+	display: inline-block;
+	border-top: 1px solid #a5a5a5;
+	border-left: 1px solid #a5a5a5;
+	border-bottom: 1px solid #a5a5a5;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+	background-color: #dfdfdf;
+}
+
+/* Slider margin fix */
+.dtst-filters .slider-container {
+	margin: 20px 5px;
+}
+
+/* Submit and Reset buttons */
+.dtst-sorting-submit {
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.dtst-sorting-submit input {
+	flex: 1 auto;
+	border-radius: 0;
+}
+
+.dtst-sorting-submit a {
+	flex: 1 auto;
+	border-radius: 0;
+}
+
+/* Date reset */
+.dtst-date-reset:hover {
+	cursor: pointer;
+}
+
+/* Date reset icon fix */
+.dtst-date-reset > i {
+	vertical-align: -1px;
+}
+
+/* Clearfix */
+@media all and (min-width: 800px) {
+	/* No posts found */
+	.dtst-filters + div.panel > div.inner:after,
+	/* Regular topic list */
+	.dtst-filters + .forumbg ul.linklist:after,
+	.dtst-filters + .forumbg .inner:after,
+	.dtst-filters + .forumbg .row:after,
+	/* Regular topic list with announcements */
+	.dtst-filters + .forumbg + .forumbg ul.linklist:after,
+	.dtst-filters + .forumbg + .forumbg .inner:after,
+	.dtst-filters + .forumbg + .forumbg .row:after {
+		display: none;
+	}
+
+	.dtst-filters ~ .action-bar.bar-bottom {
+		clear: left;
+	}
+}
+
+/* Responsiveness */
+@media all and (max-width: 800px) {
+	.dtst-filters {
+		float: none;
+		clear: both;
+		width: initial;
+	}
+
+	/* No posts found panel */
+	.dtst-filters + div.panel,
+		/* Regular topic list panel */
+	.dtst-filters + .forumbg,
+		/* Announcement topic list panel */
+	.dtst-filters + .forumbg + .forumbg {
+		clear: both;
+		margin-left: inherit;
+		width: initial;
+	}
+
+	/* Set up a flex display */
+	.dtst-filters ul.topiclist.topics {
+		display: flex;
+		flex-flow: row wrap;
+	}
+
+	.dtst-filters ul.topiclist.topics > li {
+		flex: 1 200px;
+	}
+}
+
+/* Mix phpBB's breakpoint */
+@media all and (max-width: 700px) {
+	/* No posts found panel */
+	.dtst-filters + div.panel,
+		/* Regular topic list panel */
+	.dtst-filters + .forumbg,
+		/* Announcement topic list panel */
+	.dtst-filters + .forumbg + .forumbg {
+		margin-left: -5px;
+	}
+}
+
+@media all and (max-width: 525px) {
+	/* Event type */
+	.dtst-filters ul.topiclist.topics > li:nth-of-type(1) { flex: 1 40%; }
+	/* Event location */
+	.dtst-filters ul.topiclist.topics > li:nth-of-type(2) { flex: 1 40%; }
+	/* Event date */
+	.dtst-filters ul.topiclist.topics > li:nth-of-type(3) { flex: 1 100%; }
+	/* Event age range */
+	.dtst-filters ul.topiclist.topics > li:nth-of-type(4) { flex: 1 40%; }
+	/* Event guests range */
+	.dtst-filters ul.topiclist.topics > li:nth-of-type(5) { flex: 1 40%; }
+
+	.dtst-li:first-of-type {
+		float: left;
+		clear: left;
+		width: 48%;
+	}
+
+	.dtst-li:last-of-type {
+		float: right;
+		clear: right;
+		width: 48%;
+	}
+
+	.dtst-input {
+		width: 130px;
+	}
+}

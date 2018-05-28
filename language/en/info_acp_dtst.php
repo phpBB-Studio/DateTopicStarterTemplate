@@ -19,17 +19,23 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, array(
+	// Cat
+	'ACL_CAT_PHPBB_STUDIO'					=> 'phpBB Studio',
 	// ACP
 	'ACP_DTST_TITLE'						=> 'Date Topic Event Calendar',
-	'ACP_DTST_SETTINGS'						=> 'Settings',
-	'ACP_DTST_SETTING_SAVED'				=> 'Date Topic Event Calendar Settings saved.',
+	'ACP_DTST_LOCATIONS'					=> 'Locations',
+	'ACP_DTST_LOCATIONS_SAVED'				=> 'Date Topic Event Calendar Locations saved.',
 	'ACP_DTST_LOCATION_ADDED'				=> 'Date Topic Event Calendar location successfully added.',
 	'ACP_DTST_LOCATION_REMOVED'				=> 'Date Topic Event Calendar location successfully removed.',
+	'ACP_DTST_SETTINGS'						=> 'Settings',
+	'ACP_DTST_SETTING_SAVED'				=> 'Date Topic Event Calendar Settings saved.',
 
 	// ACP - Log
-	'DTST_LOG_CONFIG_SAVED'					=> '<strong>Date Topic Event Calendar general configuration saved.</strong>',
+	'DTST_LOG_CONFIG_SAVED'					=> '<strong>Date Topic Event Calendar</strong> Locations configuration saved.',
 	'DTST_LOG_LOCATION_ADDED'				=> '<strong>Date Topic Event Calendar location added.</strong><br>» %s',
 	'DTST_LOG_LOCATION_REMOVED'				=> '<strong>Date Topic Event Calendar location removed.</strong><br>» %s',
+
+	'DTST_LOG_SETTINGS_SAVED'				=> '<strong>Date Topic Event Calendar</strong> Settings configuration saved.',
 
 	// ACP Forums
 	'ACP_DTST_FORUMS_LEGEND'				=> 'Extended settings',

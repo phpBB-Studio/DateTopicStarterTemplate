@@ -17,6 +17,14 @@
 			weekStart: 1,
 			yearFirst: false,
 		});
+
+		$('#dtst_date_reset').on('click', function(event) {
+			// We have to prevent the default action when clicking a <button>
+			event.preventDefault();
+
+			// Reset the datepicker
+			$('#dtst_date').datepicker('setDate', '').val('');
+		});
 	});
 
 })(jQuery); // Avoid conflicts with other libraries

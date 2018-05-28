@@ -40,7 +40,7 @@
 
 		<fieldset class="dtst-acp-inner">
 			<legend>{{ lang('ACP_REMOVE_PRESET_LOCATION') }}</legend>
-			<form id="phpbbstudio_dtst_remove" name="phpbbstudio_dtst_remove" method="post" action="{{ U_ACTION_REMOVE }}">
+			<form id="phpbbstudio_dtst_remove" name="phpbbstudio_dtst_remove" method="post" action="{{ U_ACTION_REMOVE }}" data-ajax="true" data-refresh="true">
 				<dl>
 					<dt><label for="forum_dtst_preset_location_rem">{{ lang('ACP_DTST_LOCATION') ~ lang('COLON') }}</label><br>{{ lang('ACP_REMOVE_PRESET_LOCATION_EXPLAIN') }}</dt>
 					<dd>
@@ -53,7 +53,6 @@
 				<p class="quick">
 					<input class="button1" name="forum_dtst_preset_location_remove" value="{{ lang('SUBMIT') }}" type="submit">
 				</p>
-				{{ S_FORM_TOKEN }}
 			</form>
 		</fieldset>
 	</fieldset>

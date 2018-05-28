@@ -11,7 +11,7 @@
 namespace phpbbstudio\dtst\acp;
 
 /**
- * Top Poster Of The Month ACP module info.
+ * Date Topic Event Calendar ACP module info.
  */
 class dtst_info
 {
@@ -21,11 +21,16 @@ class dtst_info
 			'filename'	=> '\phpbbstudio\dtst\acp\dtst_module',
 			'title'		=> 'ACP_DTST_TITLE',
 			'modes'		=> [
-				'settings'	=> [
+				'locations'	=> array(
+					'title'	=> 'ACP_DTST_LOCATIONS',
+					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
+				'settings'	=> array(
 					'title'	=> 'ACP_DTST_SETTINGS',
 					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
-					'cat'	=> ['ACP_DTST_TITLE']
-				],
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
 			],
 		];
 	}

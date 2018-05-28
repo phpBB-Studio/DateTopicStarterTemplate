@@ -8,18 +8,23 @@
  *
  */
 
+/**
+* @ignore
+*/
 if (!defined('IN_PHPBB'))
 {
 	exit;
 }
 
+/**
+* DO NOT CHANGE
+*/
 if (empty($lang) || !is_array($lang))
 {
 	$lang = array();
 }
 
 $lang = array_merge($lang, array(
-	'ACL_U_ALLOW_DTST'			=> '<strong>Date Topic Event Calendar</strong> - Can post calendar topics',
-	'ACL_U_ALLOW_ATTENDEES'		=> '<strong>Date Topic Event Calendar</strong> - Can view the attendees',
-	'ACL_A_DTST_ADMIN'			=> '<strong>Date Topic Event Calendar</strong> - Can administer the extension',
+'DTST_AUTO_RELOAD'			=> 'Date Topic Event Calendar extension',
+'DTST_AUTO_RELOAD_EXPLAIN'	=> 'Toggle automatic page reload on filters. <strong>No</strong> to disable it.',
 ));

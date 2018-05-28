@@ -1,13 +1,40 @@
+imports:
+    - { resource: parameters.yml }
+
 services:
     phpbbstudio.dtst.listener:
         class: phpbbstudio\dtst\event\main_listener
         arguments:
             - '@auth'
+            - '@config'
+            - '@dbal.conn'
             - '@request'
             - '@template'
             - '@user'
             - '@language'
             - '@phpbbstudio.dtst.dtst_utils'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%phpbbstudio.dtst.tables.dtst_slots%'
+            - '@controller.helper'
+        tags:
+            - { name: event.listener }
+
+    phpbbstudio.dtst.ucp_listener:
+        class: phpbbstudio\dtst\event\ucp_listener
+        arguments:
+            - '@request'
+            - '@template'
+            - '@user'
+            - '@language'
+            - '@phpbbstudio.dtst.dtst_utils'
+        tags:
+            - { name: event.listener }
+
+    phpbbstudio.dtst.acp_listener:
+        class: phpbbstudio\dtst\event\acp_listener
+        arguments:
+            - '@request'
         tags:
             - { name: event.listener }
 
@@ -17,5 +44,20 @@ services:
             - '@auth'
             - '@config_text'
             - '@dbal.conn'
+            - '@template'
+            - '@user'
             - '%core.root_path%'
             - '%core.php_ext%'
+            - '%phpbbstudio.dtst.tables.dtst_slots%'
+
+    phpbbstudio.dtst.controller:
+        class: phpbbstudio\dtst\controller\controller
+        arguments:
+            - '@auth'
+            - '@config'
+            - '@dbal.conn'
+            - '@user'
+            - '@request'
+            - '%phpbbstudio.dtst.tables.dtst_slots%'
+            - '@language'
+            - '@phpbbstudio.dtst.dtst_utils'

@@ -1,10 +1,10 @@
 {
 	"name": "phpbbstudio/dtst",
 	"type": "phpbb-extension",
-	"description": "Have a Date Topic Event Calendar template with calendar picker on a per forum basis, like a Meeting's forum. Add the possibility of being able to describe topics, in posting page. Descriptions are displayed in view and reply to topics with a nice Styled header under the topic title. Moreover are shown as text in viewforum, search results (only display results as topic) and MCP Forum.",
+	"description": "Have a topic starter calendar template on a per forum basis, like it would be for a Meeting's forum.",
 	"homepage": "https://www.phpbbstudio.com",
-	"version": "1.2.0-beta",
-	"time": "2018-05-07",
+	"version": "1.4.0-beta",
+	"time": "2018-05-28",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{

@@ -1,0 +1,12 @@
+	{% if S_DTST_UCP_PERMS %}
+		<h3></h3>
+
+		<dl>
+			<dt><label for="dtst_auto_reload1">{{ lang('DTST_AUTO_RELOAD') }}{{ lang('COLON') }}</label><br><span>{{ lang('DTST_AUTO_RELOAD_EXPLAIN') }}</span></dt>
+			<dd>
+				<label for="dtst_auto_reload1"><input type="radio" name="dtst_auto_reload" id="dtst_auto_reload1" value="1" {% if S_DTST_AUTO_RELOAD %} checked="checked" {% endif %} /> {{ lang('YES') }}</label>
+
+				<label for="dtst_auto_reload0"><input type="radio" name="dtst_auto_reload" id="dtst_auto_reload0" value="0" {% if not S_DTST_AUTO_RELOAD %} checked="checked" {% endif %} /> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+	{% endif %}

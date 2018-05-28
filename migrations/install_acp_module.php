@@ -19,20 +19,20 @@ class install_acp_module extends \phpbb\db\migration\migration
 
 	public function update_data()
 	{
-		return [
-			['module.add', [
+		return array(
+			array('module.add', array(
 				'acp',
 				'ACP_CAT_DOT_MODS',
 				'ACP_DTST_TITLE'
-			]],
-			['module.add', [
+			)),
+			array('module.add', array(
 				'acp',
 				'ACP_DTST_TITLE',
-				[
+				array(
 					'module_basename'	=> '\phpbbstudio\dtst\acp\dtst_module',
-					'modes'				=> ['settings'],
-				],
-			]],
-		];
+					'modes'				=> array('locations', 'settings'),
+				),
+			)),
+		);
 	}
 }
