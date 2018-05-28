@@ -766,11 +766,11 @@ class main_listener implements EventSubscriberInterface
 
 		$sql_ary = $event['sql_ary'];
 
-		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . $age_min . ' AND t.dtst_age_max <= ' . $age_max : '';
-		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && $age_max !== 99 ? ' AND t.dtst_age_max <= ' . $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . (int) $age_min . ' AND t.dtst_age_max <= ' . (int) $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && (int) $age_max !== 99 ? ' AND t.dtst_age_max <= ' . (int) $age_max : '';
 
-		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . $participants_min  . ' AND t.dtst_participants <= ' . $participants_max: '';
-		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && $participants_max !== 999 ? ' AND t.dtst_participants <= ' . $participants_max : '';
+		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . (int) $participants_min  . ' AND t.dtst_participants <= ' . (int) $participants_max: '';
+		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && (int) $participants_max !== 999 ? ' AND t.dtst_participants <= ' . (int) $participants_max : '';
 		$sql_ary['WHERE'] .= $participants_unl ? ' AND t.dtst_participants = 0' : '';
 
 		$sql_ary['WHERE'] .= !empty($date_after) ? ' AND str_to_date(t.dtst_date, "%d-%m-%Y") > "' . $this->db->sql_escape($date_after) . '"' : '';

@@ -120,7 +120,7 @@ class controller
 			case 'withdrawing':
 				$opt_sql = 'UPDATE ' . $this->dtst_slots . ' SET active = 0, inactive = 1, post_time = ' . time() . '
 						WHERE user_id = ' . (int) $this->user->data['user_id'] . '
-							AND topic_id = ' . $topic_id;
+							AND topic_id = ' . (int) $topic_id;
 
 				$message = $this->lang->lang('DTST_OPTED_OUT');
 				$button_text = $this->lang->lang('DTST_OPT_REATTEND');
@@ -133,7 +133,7 @@ class controller
 			case 'reattending':
 				$opt_sql = 'UPDATE ' . $this->dtst_slots . ' SET active = 1, inactive = 0, post_time = ' . time() . '
 						WHERE user_id = ' . (int) $this->user->data['user_id'] . '
-							AND topic_id = ' . $topic_id;
+							AND topic_id = ' . (int) $topic_id;
 
 				$message = $this->lang->lang('DTST_OPTED_IN');
 				$button_text = $this->lang->lang('DTST_OPT_WITHDRAW');
