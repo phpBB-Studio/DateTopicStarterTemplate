@@ -3,4 +3,4 @@ If you are running a board that is using events, in any way what so ever, this t
 
 Copy to: ./ext/phpbbstudio/dtst
 
-[ ![Date Topic Starter](https://user-images.githubusercontent.com/480857/41687085-c3746b44-74e6-11e8-9192-50211b2edc3e.png) ](https://user-images.githubusercontent.com/480857/41687041-9d795904-74e6-11e8-8c9f-03ca52289d35.png)
+[ ![Date Topic Starter](https://user-images.githubusercontent.com/480857/41687041-9d795904-74e6-11e8-8c9f-03ca52289d35.png) ](https://user-images.githubusercontent.com/480857/41687085-c3746b44-74e6-11e8-9192-50211b2edc3e.png)
