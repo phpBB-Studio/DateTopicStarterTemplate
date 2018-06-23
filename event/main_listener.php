@@ -501,7 +501,7 @@ class main_listener implements EventSubscriberInterface
 			/* Increment post count for the accepted user */
 			$sql = 'UPDATE ' . USERS_TABLE . ' 
 					SET user_lastpost_time = ' . time() . ', user_posts = user_posts + 1 
-					WHERE user_id = ' . $dtst_user_id;
+					WHERE user_id = ' . (int) $dtst_user_id;
 			$this->db->sql_query($sql);
 
 			$event['sql_data'] = $sql_data;
@@ -912,11 +912,11 @@ class main_listener implements EventSubscriberInterface
 
 		$sql_ary = $event['sql_ary'];
 
-		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . $age_min . ' AND t.dtst_age_max <= ' . $age_max : '';
-		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && $age_max !== 99 ? ' AND t.dtst_age_max <= ' . $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . (int) $age_min . ' AND t.dtst_age_max <= ' . (int) $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && $age_max !== 99 ? ' AND t.dtst_age_max <= ' . (int) $age_max : '';
 
-		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . $participants_min  . ' AND t.dtst_participants <= ' . $participants_max : '';
-		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && $participants_max !== 999 ? ' AND t.dtst_participants <= ' . $participants_max : '';
+		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . (int) $participants_min  . ' AND t.dtst_participants <= ' . (int) $participants_max : '';
+		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && $participants_max !== 999 ? ' AND t.dtst_participants <= ' . (int) $participants_max : '';
 		$sql_ary['WHERE'] .= $participants_unl ? ' AND t.dtst_participants = 0' : '';
 
 		$sql_ary['WHERE'] .= !empty($date_after) ? ' AND t.dtst_date_unix > ' . (int) $date_after : '';

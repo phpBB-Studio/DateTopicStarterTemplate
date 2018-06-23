@@ -169,7 +169,7 @@ class controller
 		$this->db->sql_freeresult($result);
 
 		/* Check if this user is the host of the event and grab the topic title */
-		$sql = 'SELECT topic_poster as host, topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . $topic_id;
+		$sql = 'SELECT topic_poster as host, topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $topic_id;
 		$result = $this->db->sql_query($sql);
 		$topic = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
@@ -307,7 +307,7 @@ class controller
 		$this->lang->add_lang('common', 'phpbbstudio/dtst');
 
 		/* Check if this user is the host of the event and grab the topic title */
-		$sql = 'SELECT topic_poster as host, topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . $topic_id;
+		$sql = 'SELECT topic_poster as host, topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $topic_id;
 		$result = $this->db->sql_query($sql);
 		$topic = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
@@ -449,7 +449,7 @@ class controller
 		/* Get information about this event */
 		$sql = 'SELECT topic_poster as host, dtst_participants as participants_limit, dtst_participants_unl as participants_unlimited 
 				FROM ' . TOPICS_TABLE . '
-				WHERE topic_id = ' . $topic_id;
+				WHERE topic_id = ' . (int) $topic_id;
 		$result = $this->db->sql_query_limit($sql, 1);
 		$topic_data = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
@@ -558,7 +558,7 @@ class controller
 			$dtst_user_data = $this->request->variable('dtst_user_data', array(0 => array('' => '')));
 
 			/* Grab the topic title */
-			$sql = 'SELECT topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . $topic_id;
+			$sql = 'SELECT topic_title FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $topic_id;
 			$result = $this->db->sql_query($sql);
 			$topic_title = $this->db->sql_fetchfield('topic_title');
 			$this->db->sql_freeresult($result);
