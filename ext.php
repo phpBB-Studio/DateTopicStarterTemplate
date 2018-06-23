@@ -15,6 +15,17 @@ namespace phpbbstudio\dtst;
  */
 class ext extends \phpbb\extension\base
 {
+	/* Define constants to be used everywhere */
+	const DTST_STATUS_PENDING = 1;
+	const DTST_STATUS_ACCEPTED = 2;
+	const DTST_STATUS_DENIED = 3;
+	const DTST_STATUS_CANCELED = 4;
+	const DTST_STATUS_WITHDRAWN = 5;
+
+	const DTST_STATUS_PM_APPLY = 1;
+	const DTST_STATUS_PM_CANCEL = 2;
+	const DTST_STATUS_PM_WITHDRAWAL = 3;
+
 	/**
 	 * Check whether the extension can be enabled.
 	 * Provides meaningful(s) error message(s) and the back-link on failure.
@@ -29,7 +40,6 @@ class ext extends \phpbb\extension\base
 		$user = $this->container->get('user');
 		$user->add_lang_ext('phpbbstudio/dtst', 'ext_require');
 		$lang = $user->lang;
-		$db = $this->container->get('dbal.conn');
 
 		if ( !(phpbb_version_compare(PHPBB_VERSION, '3.2.2', '>=') && phpbb_version_compare(PHPBB_VERSION, '3.3.0@dev', '<')) )
 		{
@@ -43,14 +53,89 @@ class ext extends \phpbb\extension\base
 			$is_enableable = false;
 		}
 
-		if ( !in_array($db->get_sql_layer(), array('mysqli', 'mysql4')) )
-		{
-			$lang['EXTENSION_NOT_ENABLEABLE'] .= '<br>' . $user->lang('DTST_ERROR_DBMS_TYPE');
-			$is_enableable = false;
-		}
-
 		$user->lang = $lang;
 
 		return $is_enableable;
+	}
+
+	/**
+	 * Enable notifications for the extension
+	 *
+	 * @param mixed $old_state State returned by previous call of this method
+	 *
+	 * @return mixed Returns false after last step, otherwise temporary state
+	 */
+	public function enable_step($old_state)
+	{
+		switch ($old_state)
+		{
+			case '': // Empty means nothing has run yet
+
+				$phpbb_notifications = $this->container->get('notification_manager');
+				$phpbb_notifications->enable_notifications('phpbbstudio.dtst.notification.type.opting');
+				return 'notification';
+
+			break;
+
+			default:
+
+				return parent::enable_step($old_state);
+
+			break;
+		}
+	}
+
+	/**
+	 * Disable notifications for the extension
+	 *
+	 * @param mixed $old_state State returned by previous call of this method
+	 *
+	 * @return mixed Returns false after last step, otherwise temporary state
+	 */
+	public function disable_step($old_state)
+	{
+		switch ($old_state)
+		{
+			case '': // Empty means nothing has run yet
+
+				$phpbb_notifications = $this->container->get('notification_manager');
+				$phpbb_notifications->disable_notifications('phpbbstudio.dtst.notification.type.opting');
+				return 'notification';
+
+			break;
+
+			default:
+
+				return parent::disable_step($old_state);
+
+			break;
+		}
+	}
+
+	/**
+	 * Purge notifications for the extension
+	 *
+	 * @param mixed $old_state State returned by previous call of this method
+	 *
+	 * @return mixed Returns false after last step, otherwise temporary state
+	 */
+	public function purge_step($old_state)
+	{
+		switch ($old_state)
+		{
+			case '': // Empty means nothing has run yet
+
+				$phpbb_notifications = $this->container->get('notification_manager');
+				$phpbb_notifications->purge_notifications('phpbbstudio.dtst.notification.type.opting');
+				return 'notification';
+
+			break;
+
+			default:
+
+				return parent::purge_step($old_state);
+
+			break;
+		}
 	}
 }

@@ -1,5 +1,11 @@
 dtst_controller:
-    path: /dtst/{topic_id}
+    path: /dtst
     defaults: { _controller: phpbbstudio.dtst.controller:handle }
-    requirements:
-        topic_id: \d+
+
+dtst_manager:
+    path: /dtst/manage
+    defaults: { _controller: phpbbstudio.dtst.controller:manage }
+
+dtst_cancel:
+    path: /dtst/cancel
+    defaults: { _controller: phpbbstudio.dtst.controller:cancel }

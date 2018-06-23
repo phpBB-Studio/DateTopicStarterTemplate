@@ -1,0 +1,57 @@
+.dtst-filters {
+	float: right;
+	clear: right;
+}
+
+/* No posts found panel */
+.dtst-filters + div.panel,
+/* Regular topic list panel */
+.dtst-filters + .forumbg,
+/* Announcement topic list panel */
+.dtst-filters + .forumbg + .forumbg {
+	margin-right: 190px;
+	clear: left;
+}
+
+/* Clearfix */
+@media all and (min-width: 800px) {
+	.dtst-filters ~ .action-bar.bar-bottom {
+		clear: right;
+	}
+}
+
+/* Responsiveness */
+@media all and (max-width: 800px) {
+	/* No posts found panel */
+	.dtst-filters + div.panel,
+		/* Regular topic list panel */
+	.dtst-filters + .forumbg,
+		/* Announcement topic list panel */
+	.dtst-filters + .forumbg + .forumbg {
+		margin-right: inherit;
+	}
+}
+
+/* Mix phpBB's breakpoint */
+@media all and (max-width: 700px) {
+	/* No posts found panel */
+	.dtst-filters + div.panel,
+		/* Regular topic list panel */
+	.dtst-filters + .forumbg,
+		/* Announcement topic list panel */
+	.dtst-filters + .forumbg + .forumbg {
+		margin-right: -5px;
+	}
+}
+
+@media all and (max-width: 525px) {
+	.dtst-li:first-of-type {
+		float: right;
+		clear: right;
+	}
+
+	.dtst-li:last-of-type {
+		float: left;
+		clear: left;
+	}
+}

@@ -1,2 +1,3 @@
 parameters:
     phpbbstudio.dtst.tables.dtst_slots: '%core.table_prefix%dtst_slots'
+    phpbbstudio.dtst.tables.dtst_privmsg: '%core.table_prefix%dtst_privmsg'

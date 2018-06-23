@@ -42,13 +42,16 @@ services:
         class: phpbbstudio\dtst\core\operator
         arguments:
             - '@auth'
+            - '@config'
             - '@config_text'
             - '@dbal.conn'
+            - '@language'
             - '@template'
             - '@user'
             - '%core.root_path%'
             - '%core.php_ext%'
             - '%phpbbstudio.dtst.tables.dtst_slots%'
+            - '%phpbbstudio.dtst.tables.dtst_privmsg%'
 
     phpbbstudio.dtst.controller:
         class: phpbbstudio\dtst\controller\controller
@@ -56,8 +59,25 @@ services:
             - '@auth'
             - '@config'
             - '@dbal.conn'
-            - '@user'
-            - '@request'
-            - '%phpbbstudio.dtst.tables.dtst_slots%'
+            - '@controller.helper'
             - '@language'
+            - '@log'
+            - '@notification_manager'
+            - '@path_helper'
+            - '@request'
+            - '@template'
+            - '@user'
             - '@phpbbstudio.dtst.dtst_utils'
+            - '%phpbbstudio.dtst.tables.dtst_slots%'
+            - '%phpbbstudio.dtst.tables.dtst_privmsg%'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
+    phpbbstudio.dtst.notification.type.opting:
+        class: phpbbstudio\dtst\notification\type\opting
+        shared: false # service MUST not be shared for this to work!
+        parent: notification.type.base
+        calls:
+            - [set_user_loader, ['@user_loader']]
+        tags:
+            - { name: notification.type }

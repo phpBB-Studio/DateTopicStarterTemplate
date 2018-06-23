@@ -1,0 +1,29 @@
+		<h6><span class="arrow-r"></span>{{ lang('ACP_DTST_PM_TOKENS_TITLE') }}</h6>
+		<div>
+			<fieldset class="dtst-acp-outer">
+				<fieldset class="dtst-acp-middle">
+					<legend>{{ lang('ACP_DTST_PM_TOKENS') }}</legend>
+					<fieldset class="dtst-acp-inner">
+						<legend>{{ lang('ACP_DTST_PM_TOKENS_EXPLAIN') }}</legend>
+
+						<table cellspacing="1" id="down">
+							<thead>
+								<tr>
+									<th>{{ lang('ACP_DTST_PM_TOKEN') }}</th>
+									<th>{{ lang('ACP_DTST_PM_TOKEN_DEFINITION') }}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for dtst_tokens in loops.dtst_tokens %}
+									<tr valign="top">
+										<td class="row1">{dtst_tokens.TOKEN}</td>
+										<td class="row2">{dtst_tokens.EXPLAIN}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+
+					</fieldset>
+				</fieldset>
+			</fieldset>
+		</div>

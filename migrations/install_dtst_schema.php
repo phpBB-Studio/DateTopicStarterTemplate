@@ -23,14 +23,16 @@ class install_dtst_schema extends \phpbb\db\migration\migration
 			'add_tables'	=> array(
 			$this->table_prefix . 'dtst_slots' => array(
 				'COLUMNS'		=> array(
-					'user_id'	=> array('UINT', 0),
-					'topic_id'	=> array('UINT', 0),
-					'active'	=> array('BOOL', 0),
-					'inactive'	=> array('BOOL', 0), // for the new idea of management of this part
-					'post_time' => array('TIMESTAMP', 0),
+					'user_id'			=> array('ULINT', 0),
+					'topic_id'			=> array('ULINT', 0),
+					'dtst_time' 		=> array('TIMESTAMP', 0),
+					'dtst_status'		=> array('TINT:5', 1),
+					'dtst_reason'		=> array('VCHAR_UNI', null),
+					'dtst_host_time'	=> array('TIMESTAMP', 0),
+					'dtst_host_reason'	=> array('VCHAR_UNI', null),
 				),
 				'KEYS'			=> array(
-					'id'		=> array('UNIQUE', array('user_id', 'topic_id')))
+					'id'				=> array('UNIQUE', array('user_id', 'topic_id')))
 				)
 			)
 		);

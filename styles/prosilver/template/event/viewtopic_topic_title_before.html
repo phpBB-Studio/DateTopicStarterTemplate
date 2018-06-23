@@ -1,0 +1,12 @@
+{% if not S_DTST_TOPIC_EDIT %}
+	{% if (DTST_LOCATION) || (DTST_LOC_CUSTOM) || (DTST_HOST) || (DTST_DATE) %}
+		{% if S_DTST_IS_HOST and not S_DTST_EVENT_CANCELED %}
+			<div class="right-box">
+				<a href="{{ U_DTST_CANCEL }}" class="button dtst-button dtst-button-red" title="{{ lang('DTST_EVENT_CANCEL') }}" data-ajax="true" data-refresh="true">
+					<span>{{ lang('DTST_EVENT_CANCEL') }}</span>
+					<i class="icon fa-ban fa-fw" aria-hidden="true"></i>
+				</a>
+			</div>
+		{% endif %}
+	{% endif %}
+{% endif %}

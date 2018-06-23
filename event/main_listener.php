@@ -14,6 +14,7 @@ namespace phpbbstudio\dtst\event;
  * @ignore
  */
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use phpbbstudio\dtst\ext;
 
 /**
  * Date Topic Event Calendar Event listener.
@@ -58,16 +59,18 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Constructor
 	 *
-	 * @param  \phpbb\auth\auth						$auth			Auth object
-	 * @param  \phpbb\config\config					$config			Configuration object
-	 * @param  \phpbb\db\driver\driver_interface	$db				Database object
-	 * @param  \phpbb\request\request				$request		Request object
-	 * @param  \phpbb\template\template				$template		Template object
-	 * @param  \phpbb\user							$user			User object
-	 * @param  \phpbb\language\language				$lang			Language object
-	 * @param  \phpbbstudio\dtst\core\operator		$dtst_utils		Functions to be used by Classes
-	 * @param  string								$root_path		phpBB root path
-	 * @param  string								$php_ext		php File extension
+	 * @param \phpbb\auth\auth					$auth			Auth object
+	 * @param \phpbb\config\config				$config			Configuration object
+	 * @param \phpbb\db\driver\driver_interface	$db				Database object
+	 * @param \phpbb\request\request			$request		Request	object
+	 * @param \phpbb\template\template			$template		Template object
+	 * @param \phpbb\user						$user			User object
+	 * @param \phpbb\language\language			$lang			Language object
+	 * @param \phpbbstudio\dtst\core\operator	$dtst_utils		Functions to be	used by	Classes
+	 * @param string							$root_path		phpBB root path
+	 * @param string							$php_ext		php	File extension
+	 * @param string							$dtst_slots		The	DTST slots table
+	 * @param \phpbb\controller\helper			$helper			Helper object
 	 * @access public
 	 */
 	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\db\driver\driver_interface $db, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbb\language\language $lang, \phpbbstudio\dtst\core\operator $dtst_utils, $root_path, $php_ext, $dtst_slots, \phpbb\controller\helper $helper)
@@ -96,13 +99,14 @@ class main_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return array(
+			'core.user_setup'							=> 'dtst_notification_language',
 			'core.page_header_after'					=> 'dtst_template_switch',
 			'core.permissions'							=> 'dtst_add_permissions',
 			'core.posting_modify_template_vars'			=> 'dtst_topic_data_topic',
 			'core.posting_modify_submission_errors'		=> 'dtst_topic_add_to_post_data',
 			'core.posting_modify_submit_post_before'	=> 'dtst_topic_add',
 			'core.posting_modify_message_text'			=> 'dtst_modify_message_text',
-			'core.submit_post_modify_sql_data'			=> 'dtst_submit_post_modify_sql_data',
+			'core.submit_post_modify_sql_data'			=> array(array('dtst_submit_post_modify_sql_data'), array('dtst_modify_reply_data')),
 			'core.viewtopic_modify_post_data'			=> 'dtst_viewtopic_modify_post_data',
 			'core.viewtopic_modify_page_title'			=> 'dtst_topic_add_viewtopic',
 			'core.viewforum_modify_topicrow'			=> 'dtst_modify_topicrow',
@@ -111,6 +115,24 @@ class main_listener implements EventSubscriberInterface
 			'core.viewforum_modify_page_title'			=> 'dtst_viewforum_filters',
 			'core.viewforum_get_topic_ids_data'			=> 'dtst_viewforum_apply_filters',
 		);
+	}
+
+	/**
+	 * Load common language files during user setup
+	 *
+	 * @param	\phpbb\event\data		$event		Event object
+	 * @event	core.user_setup
+	 * @return	void
+	 * @access	public
+	 */
+	public function dtst_notification_language($event)
+	{
+		$lang_set_ext = $event['lang_set_ext'];
+		$lang_set_ext[] = array(
+			'ext_name' => 'phpbbstudio/dtst',
+			'lang_set' => 'notifications_dtst',
+		);
+		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
 	/**
@@ -252,18 +274,45 @@ class main_listener implements EventSubscriberInterface
 		/* Check if Date Topic Event Calendar is enabled for this forum */
 		if ( $this->dtst_utils->forum_dtst_enabled('forum_id', $event['forum_id']) )
 		{
+			$error = $event['error'];
+
+			/* Add our errors language file only if needed */
+			$this->lang->add_lang('common_errors', 'phpbbstudio/dtst');
+
+			/* Request the new participants limit */
+			$dtst_participants = (int) $this->request->variable('dtst_participants', 0);
+			$dtst_participants_unlimited = $dtst_participants === 0;
+
+			/* Request the date */
+			$dtst_date = $this->request->variable('dtst_date', '', true);
+
+			/* If we are editing a topic, we check the possible new participants limit */
+			if ($event['mode'] === 'edit')
+			{
+				/* Grab the current amount of people accepted for this event */
+				$sql = 'SELECT COUNT(user_id) as attendees
+						FROM ' . $this->dtst_slots . ' 
+						WHERE topic_id = ' . (int) $event['topic_id'] . '
+							AND dtst_status = ' . (int) ext::DTST_STATUS_ACCEPTED;
+				$result = $this->db->sql_query($sql);
+				$current_attendees = $this->db->sql_fetchfield('attendees');
+				$this->db->sql_freeresult($result);
+
+				/* If the participants limit is not unlimited and the current attendees are more than the the (new) limit, we throw an error */
+				if (!$dtst_participants_unlimited && ($current_attendees > $dtst_participants))
+				{
+					$error[] = $this->lang->lang('DTST_PARTICIPANTS_TOO_LOW', $dtst_participants, $current_attendees);
+				}
+			}
+
 			/* Check if the fields are all mandatory for this forum */
 			if ( $this->dtst_utils->forum_dtst_forced_fields('dtst_f_forced_fields', $event['forum_id']) )
 			{
 				/* All fields are mandatory, we check that on submit */
-				$error = $event['error'];
 
-				/* Only applies to authed users */
+				/* Only applies to authenticated users */
 				if ( (bool) $this->dtst_utils->is_authed() )
 				{
-					/* Add our errors language file only if needed */
-					$this->lang->add_lang('common_errors', 'phpbbstudio/dtst');
-
 					if (!$event['post_data']['dtst_location'] && !$event['post_data']['dtst_loc_custom'])
 					{
 						$error[] = $this->lang->lang('DTST_LOCATION_MISSING');
@@ -283,10 +332,15 @@ class main_listener implements EventSubscriberInterface
 					{
 						$error[] = $this->lang->lang('DTST_DATE_MISSING');
 					}
-				}
 
-				$event['error'] = $error;
+					if (!$event['post_data']['dtst_event_type'])
+					{
+						$error[] = $this->lang->lang('DTST_EVENT_TYPE_MISSING');
+					}
+				}
 			}
+
+			$event['error'] = $error;
 
 			/**
 			 * No errors? Let's party :-D
@@ -294,16 +348,16 @@ class main_listener implements EventSubscriberInterface
 			 * Emojis will be stripped away.
 			 */
 			$event['post_data']	= array_merge($event['post_data'], array(
-					'dtst_location'		=> trim(preg_replace('/[\x{10000}-\x{10FFFF}]/u', "", $this->request->variable('dtst_location', '', true))),
-					'dtst_loc_custom'	=> trim(preg_replace('/[\x{10000}-\x{10FFFF}]/u', "", $this->request->variable('dtst_loc_custom', '', true))),
-					'dtst_host'			=> trim(preg_replace('/[\x{10000}-\x{10FFFF}]/u', "", $this->request->variable('dtst_host', '', true))),
-					'dtst_date'			=> trim($this->request->variable('dtst_date', '', true)),
-					'dtst_event_type'	=> trim($this->request->variable('dtst_event_type', '', 0)),
-					'dtst_age_min'		=> trim($this->request->variable('dtst_age_min', '', 0)),
-					'dtst_age_max'		=> trim($this->request->variable('dtst_age_max', '', 0)),
-					'dtst_participants'	=> trim($this->request->variable('dtst_participants', '', 0)),
-					/* If participants is set to zero, participants are unlimited therefore flagged as TRUE in the related column */
-					'dtst_participants_unl'	=> (trim($this->request->variable('dtst_participants', '', 0)) === 0) ? false : true,
+					'dtst_location'			=> $this->dtst_utils->dtst_strip_emojis($this->request->variable('dtst_location', '', true)),
+					'dtst_loc_custom'		=> $this->dtst_utils->dtst_strip_emojis($this->request->variable('dtst_loc_custom', '', true)),
+					'dtst_host'				=> $this->dtst_utils->dtst_strip_emojis($this->request->variable('dtst_host', '', true)),
+					'dtst_date'				=> $dtst_date,
+					'dtst_date_unix'		=> (!empty($dtst_date)) ? $this->user->get_timestamp_from_format('d-m-Y', $dtst_date, new \DateTimeZone($this->config['board_timezone'])) : false,
+					'dtst_event_type'		=> $this->request->variable('dtst_event_type', 0),
+					'dtst_age_min'			=> $this->request->variable('dtst_age_min', 0),
+					'dtst_age_max'			=> $this->request->variable('dtst_age_max', 0),
+					'dtst_participants'		=> $dtst_participants,
+					'dtst_participants_unl'	=> $dtst_participants_unlimited,
 				)
 			);
 		}
@@ -327,6 +381,7 @@ class main_listener implements EventSubscriberInterface
 				'dtst_loc_custom'		=> $event['post_data']['dtst_loc_custom'],
 				'dtst_host'				=> $event['post_data']['dtst_host'],
 				'dtst_date'				=> $event['post_data']['dtst_date'],
+				'dtst_date_unix'		=> $this->user->get_timestamp_from_format('d-m-Y', $event['post_data']['dtst_date'], new \DateTimeZone($this->config['board_timezone'])),
 				'dtst_event_type'		=> $event['post_data']['dtst_event_type'],
 				'dtst_age_min'			=> $event['post_data']['dtst_age_min'],
 				'dtst_age_max'			=> $event['post_data']['dtst_age_max'],
@@ -355,12 +410,14 @@ class main_listener implements EventSubscriberInterface
 				'dtst_loc_custom'		=> $this->request->variable('dtst_loc_custom', ( (!empty($event['post_data']['dtst_loc_custom'])) ? $event['post_data']['dtst_loc_custom'] : '' ), true),
 				'dtst_host'				=> $this->request->variable('dtst_host', ( (!empty($event['post_data']['dtst_host'])) ? $event['post_data']['dtst_host'] : '' ), true),
 				'dtst_date'				=> $this->request->variable('dtst_date', ( (!empty($event['post_data']['dtst_date'])) ? $event['post_data']['dtst_date'] : '' ), true),
+				/* dtst_date_unix No user input needed here */
+				'dtst_date_unix'		=> (isset($event['post_data']['dtst_date_unix'])) ? $event['post_data']['dtst_date_unix'] : 0,
 				'dtst_event_type'		=> $this->request->variable('dtst_event_type', ( (!empty($event['post_data']['dtst_event_type'])) ? $event['post_data']['dtst_event_type'] : '' ), 0),
 				'dtst_age_min'			=> $this->request->variable('dtst_age_min', ( (!empty($event['post_data']['dtst_age_min'])) ? $event['post_data']['dtst_age_min'] : 0 ), 0),
 				'dtst_age_max'			=> $this->request->variable('dtst_age_max', ( (!empty($event['post_data']['dtst_age_max'])) ? $event['post_data']['dtst_age_max'] : 0 ), 0),
 				'dtst_participants'		=> $this->request->variable('dtst_participants', ( (!empty($event['post_data']['dtst_participants'])) ? $event['post_data']['dtst_participants'] : 0 ), 0),
-				/* If participants unlimited is set to TRUE hen is TRUE, else is FALSE o_O - No user input needed here */
-				'dtst_participants_unl'	=> ($event['post_data']['dtst_participants_unl']) ? $event['post_data']['dtst_participants_unl'] : 0,
+				/* If participants unlimited is set to TRUE then is TRUE, else it is FALSE o_O - No user input needed here */
+				'dtst_participants_unl'	=> (isset($event['post_data']['dtst_participants_unl'])) ? $event['post_data']['dtst_participants_unl'] : 0,
 			));
 		}
 	}
@@ -377,10 +434,16 @@ class main_listener implements EventSubscriberInterface
 	{
 		$mode = $event['post_mode'];
 
+		if (!in_array($mode, array('edit_topic', 'edit_first_post', 'post')))
+		{
+			return;
+		}
+
 		$dtst_location			= $event['data']['dtst_location'];
 		$dtst_loc_custom		= $event['data']['dtst_loc_custom'];
 		$dtst_host 				= $event['data']['dtst_host'];
 		$dtst_date 				= $event['data']['dtst_date'];
+		$dtst_date_unix 		= $event['data']['dtst_date_unix'];
 		$dtst_event_type		= $event['data']['dtst_event_type'];
 		$dtst_age_min			= $event['data']['dtst_age_min'];
 		$dtst_age_max			= $event['data']['dtst_age_max'];
@@ -392,21 +455,57 @@ class main_listener implements EventSubscriberInterface
 		/* Only applies to authed users */
 		if ((bool) $this->dtst_utils->is_authed() && $this->dtst_utils->forum_dtst_enabled('forum_id', $data_sql[TOPICS_TABLE]['sql']['forum_id']))
 		{
-			if ( in_array($mode, array('post', 'edit_topic', 'edit_first_post')) )
-			{
-				$data_sql[TOPICS_TABLE]['sql']['dtst_location']			= $dtst_location;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_loc_custom']		= $dtst_loc_custom;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_host']				= $dtst_host;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_date']				= $dtst_date;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_event_type']		= $dtst_event_type;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_age_min']			= $dtst_age_min;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_age_max']			= $dtst_age_max;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_participants']		= $dtst_participants;
-				$data_sql[TOPICS_TABLE]['sql']['dtst_participants_unl']	= $dtst_participants_unl;
-			}
+			$data_sql[TOPICS_TABLE]['sql']['dtst_location']			= $dtst_location;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_loc_custom']		= $dtst_loc_custom;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_host']				= $dtst_host;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_date']				= $dtst_date;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_date_unix']		= $dtst_date_unix;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_event_type']		= $dtst_event_type;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_age_min']			= $dtst_age_min;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_age_max']			= $dtst_age_max;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_participants']		= $dtst_participants;
+			$data_sql[TOPICS_TABLE]['sql']['dtst_participants_unl']	= $dtst_participants_unl;
 		}
 
 		$event['sql_data'] = $data_sql;
+	}
+
+	/**
+	 * Modify the sql data before on submit, only when it is our own automated reply.
+	 *
+	 * @event	core.submit_post_modify_sql_data
+	 * @param	\phpbb\event\data					$event		The event object
+	 * @return void
+	 * @access public
+	 */
+	public function dtst_modify_reply_data($event)
+	{
+		$data = $event['data'];
+		$sql_data = $event['sql_data'];
+
+		if (isset($data['s_dtst_reply']) && $data['s_dtst_reply'])
+		{
+			/* Are we using the PMs Bot? */
+			$dtst_user_id = ((bool) $this->config['dtst_use_bot']) ? (int) $this->config['dtst_bot'] : (int) $data['dtst_poster_id'];
+			$dtst_username = ((bool) $this->config['dtst_use_bot']) ? '' : $data['dtst_post_username'];
+
+			$sql_data[POSTS_TABLE]['sql'] = array_merge($sql_data[POSTS_TABLE]['sql'], array(
+					'poster_id'			=> $dtst_user_id,
+					'poster_ip'			=> '0',
+					'post_username'		=> $dtst_username,
+			));
+
+			/* Do not increment post count of the host */
+			unset($sql_data[USERS_TABLE]);
+
+			/* Increment post count for the accepted user */
+			$sql = 'UPDATE ' . USERS_TABLE . ' 
+					SET user_lastpost_time = ' . time() . ', user_posts = user_posts + 1 
+					WHERE user_id = ' . $dtst_user_id;
+			$this->db->sql_query($sql);
+
+			$event['sql_data'] = $sql_data;
+		}
 	}
 
 	/**
@@ -427,10 +526,65 @@ class main_listener implements EventSubscriberInterface
 			/* Add our language file only when needed */
 			$this->lang->add_lang('common', 'phpbbstudio/dtst');
 
-			/* Set up variables */
-			$user_attending = $user_active = false;
-			$user_active_count = 0;
-			$user_inactive_count = 0;
+			/* Lets set up some data */
+			$data = array(
+				ext::DTST_STATUS_ACCEPTED	=> array(
+					'user_count'		=> 0,
+					'user_status'		=> $this->lang->lang('DTST_USER_STATUS_ACCEPTED'),
+					'user_none'			=> $this->lang->lang('DTST_NO_ACCEPTED'),
+					'button_class'		=> 'dtst-button-red',
+					'button_icon'		=> 'fa-user-times',
+					'button_text'		=> $this->lang->lang('DTST_BUTTON_TEXT_WITHDRAW'),
+					'template_block'	=> 'dtst_attendees',
+					'template_icon'		=> 'fa-check light-green',
+				),
+				ext::DTST_STATUS_PENDING 	=> array(
+					'user_count'		=> 0,
+					'user_status'		=> $this->lang->lang('DTST_USER_STATUS_PENDING'),
+					'user_none'			=> $this->lang->lang('DTST_NO_APPLICATIONS'),
+					'button_class'		=> 'dtst-button-red',
+					'button_icon'		=> 'fa-user-times',
+					'button_text'		=> $this->lang->lang('CANCEL'),
+					'template_block'	=> 'dtst_pending',
+					'template_icon'		=> 'fa-question orange'
+				),
+				ext::DTST_STATUS_DENIED		=> array(
+					'user_count'		=> 0,
+					'user_status'		=> $this->lang->lang('DTST_USER_STATUS_DENIED'),
+					'user_none'			=> $this->lang->lang('DTST_NO_DENIALS'),
+					'button_class'		=> 'dtst-button-green',
+					'button_icon'		=> 'fa-user-plus',
+					'button_text'		=> $this->lang->lang('DTST_BUTTON_TEXT_REAPPLY'),
+					'template_block'	=> 'dtst_denials',
+					'template_icon'		=> 'fa-times red',
+				),
+				ext::DTST_STATUS_WITHDRAWN	=> array(
+					'user_count'		=> 0,
+					'user_status'		=> $this->lang->lang('DTST_USER_STATUS_WITHDRAWN'),
+					'user_none'			=> $this->lang->lang('DTST_NO_WITHDRAWALS'),
+					'button_class'		=> 'dtst-button-green',
+					'button_icon'		=> 'fa-user-plus',
+					'button_text'		=> $this->lang->lang('DTST_BUTTON_TEXT_REAPPLY'),
+					'template_block'	=> 'dtst_withdrawals',
+					'template_icon'		=> 'fa-hand-o-left red',
+				),
+				ext::DTST_STATUS_CANCELED	=> array(
+					'user_count'		=> 0,
+					'user_status'		=> $this->lang->lang('DTST_USER_STATUS_CANCELED'),
+					'user_none'			=> $this->lang->lang('DTST_NO_CANCELLATIONS'),
+					'button_class'		=> 'dtst-button-green',
+					'button_icon'		=> 'fa-user-plus',
+					'button_text'		=> $this->lang->lang('DTST_BUTTON_TEXT_REAPPLY'),
+					'template_block'	=> 'dtst_canceled',
+					'template_icon'		=> 'fa-hand-o-left red',
+				),
+			);
+
+			/* Set up default button variables and user status */
+			$button_class = 'dtst-button-green';
+			$button_icon = 'fa-user-plus';
+			$button_text = $this->lang->lang('DTST_BUTTON_TEXT_ATTEND');
+			$user_status = $this->lang->lang('DTST_USER_STATUS_NOT');
 
 			/* Query the slots table */
 			$sql = $this->dtst_utils->dtst_slots_query($topic_data['topic_id']);
@@ -438,30 +592,26 @@ class main_listener implements EventSubscriberInterface
 
 			while ($row = $this->db->sql_fetchrow($result))
 			{
-				/* Check if current user is attending*/
+				/* Check if current user is attending */
 				if ($this->user->data['user_id'] == $row['user_id'])
 				{
-					$user_attending = true;
-					$user_active = $row['active'];
+					/* Then we overwrite the default variables */
+					$button_class = $data[$row['dtst_status']]['button_class'];
+					$button_icon = $data[$row['dtst_status']]['button_icon'];
+					$button_text = $data[$row['dtst_status']]['button_text'];
+
+					$user_status = $data[$row['dtst_status']]['user_status'];
 				}
 
 				/* Increment the user count */
-				if ($row['active'])
-				{
-					$user_active_count++;
-					$block = 'dtst_attendees';
-				}
-				else
-				{
-					$user_inactive_count++;
-					$block = 'dtst_withdrawals';
-				}
+				$data[$row['dtst_status']]['user_count']++;
 
-				$this->template->assign_block_vars($block, array(
+				/* Assign the variables to the correct block */
+				$this->template->assign_block_vars($data[$row['dtst_status']]['template_block'], array(
 					/* Auth check is already done within get_username_string() but we check also for more */
 					'USERNAME'		=> $this->auth->acl_get('u_viewprofile') ? get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']) : get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour']),
-					/* Time format as per the Board's defaul time setting */
-					'USER_TIME'		=> $this->user->format_date((int) $row['post_time'], $this->config['default_dateformat']),
+					/* Time format as per the Board's default time setting */
+					'USER_TIME'		=> $this->user->format_date((int) $row['dtst_time'], $this->config['default_dateformat']),
 				));
 			}
 			$this->db->sql_freeresult($result);
@@ -470,30 +620,35 @@ class main_listener implements EventSubscriberInterface
 			 * If the topic is locked (true) and the admin disallowed opting while the topic is locked (false)
 			*/
 			$s_participate_closed = (($topic_data['topic_status'] == ITEM_LOCKED) && !$this->config['dtst_locked_withdrawal']);
-// debug
-//var_dump($s_participate_closed);
 
 			/**
 			* Or if the participant list is full and the active user count is equal or bigger than dtst_participants
 			* and if is a topic with unlimited participants
 			*/
-			$s_participate_full =	($topic_data['dtst_participants_unl'] && !empty($topic_data['dtst_participants']) && $user_active_count >= $topic_data['dtst_participants']);
+			$s_participate_full =	($topic_data['dtst_participants_unl'] && !empty($topic_data['dtst_participants']) && $data[ext::DTST_STATUS_ACCEPTED]['user_count'] >= $topic_data['dtst_participants']);
+
+			$dtst_p = (int) $this->request->variable('dtst_p', 0);
+			$dtst_p_local = isset($event['rowset'][$dtst_p]);
+			$dtst_p_url = $dtst_p_local ? '#p' . $dtst_p : append_sid("viewtopic.{$this->php_ext}", 'f=' . (int) $event['forum_id'] . '&t=' . (int) $event['topic_id'] . '&p=' . $dtst_p . '#p' . $dtst_p);
 
 			$this->template->assign_vars(array(
-				'DTST_BUTTON_CLASS'			=> ($user_attending && $user_active) ? 'dtst-button-red' : 'dtst-button-green',
-				'DTST_BUTTON_ICON'			=> ($user_attending && $user_active) ? 'fa-user-times' : 'fa-user-plus',
-				'DTST_BUTTON_TEXT'			=> $user_attending ? ($user_active ? $this->lang->lang('DTST_OPT_WITHDRAW') : $this->lang->lang('DTST_OPT_REATTEND')) : $this->lang->lang('DTST_OPT_ATTEND'),
-				'DTST_USER_STATUS'			=> $user_attending ? ($user_active ? $this->lang->lang('DTST_STATUS_ATTENDING') : $this->lang->lang('DTST_STATUS_WITHDRAWN')) : $this->lang->lang('DTST_STATUS_ATTENDING_NOT'),
-
-				'DTST_USER_ACTIVE_COUNT'	=> $user_active_count,
-				'DTST_USER_INACTIVE_COUNT'	=> $user_inactive_count,
+				'DTST_BUTTON_CLASS'			=> $button_class,
+				'DTST_BUTTON_ICON'			=> $button_icon,
+				'DTST_BUTTON_TEXT'			=> $button_text,
+				'DTST_USER_STATUS'			=> $user_status,
+				'DTST_DATA'					=> $data,
+				'DTST_USER_COUNT_ACCEPTED'	=> $data[ext::DTST_STATUS_ACCEPTED]['user_count'],
 
 				'S_DTST_PARTICIPATE_CLOSED'	=> (bool) $s_participate_closed,
 				'S_DTST_PARTICIPATE_FULL'	=> (bool) $s_participate_full,
 				'S_DTST_PARTICIPATE'		=> (bool) $this->auth->acl_get('f_reply', $topic_data['forum_id']),
 				'S_DTST_ATTENDEES'			=> (bool) $this->auth->acl_get('u_dtst_attendees'),
+				'S_DTST_IS_HOST'			=> (bool) ((int) $this->user->data['user_id'] === (int) $topic_data['topic_poster']),
+				'S_DTST_EVENT_CANCELED'		=> (bool) $topic_data['dtst_event_canceled'] == ITEM_LOCKED,
 
-				'U_DTST_OPT'				=> $this->helper->route('dtst_controller', array('topic_id' => $topic_data['topic_id'])),
+				'U_DTST_REASON_REPLIES'		=> $dtst_p ? $dtst_p_url : false,
+				'U_DTST_MANAGE'				=> $this->helper->route('dtst_manager', array('f' => $topic_data['forum_id'], 't' => $topic_data['topic_id'])),
+				'U_DTST_OPT'				=> $this->helper->route('dtst_controller', array('t' => $topic_data['topic_id'])),
 			));
 		}
 	}
@@ -522,6 +677,8 @@ class main_listener implements EventSubscriberInterface
 			'DTST_AGE_MIN'		=> $topic_data['dtst_age_min'],
 			'DTST_AGE_MAX'		=> $topic_data['dtst_age_max'],
 			'DTST_PARTICIPANTS'	=> $topic_data['dtst_participants'],
+
+			'U_DTST_CANCEL'		=> $this->helper->route('dtst_cancel', array('f' => $topic_data['forum_id'], 't' => $topic_data['topic_id'])),
 		));
 	}
 
@@ -545,14 +702,10 @@ class main_listener implements EventSubscriberInterface
 
 			$tpl_array = $event['tpl_ary'];
 
-			$tpl_array['DTST_LOCATION']		= $this->lang->lang('DTST_LOCATION') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_location'])) ? $row['dtst_location'] : '' );
-
-			$tpl_array['DTST_LOC_CUSTOM']	= $this->lang->lang('DTST_LOC_CUSTOM') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_loc_custom'])) ? censor_text($row['dtst_loc_custom']) : '' );
-
-			$tpl_array['DTST_HOST']			= $this->lang->lang('DTST_HOST') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_host'])) ? censor_text($row['dtst_host']) : '' );
-
-			$tpl_array['DTST_DATE']			= $this->lang->lang('DTST_DATE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_date'])) ? $row['dtst_date'] : $this->lang->lang('DTST_DATE_NONE') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_EVENT_TYPE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_event_type'])) ? $this->dtst_utils->dtst_forum_id_to_name($row['dtst_event_type']) : '' );
-
+			$tpl_array['DTST_LOCATION']		= $this->lang->lang('DTST_LOCATION') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_location'])) ? $row['dtst_location'] :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$tpl_array['DTST_LOC_CUSTOM']	= $this->lang->lang('DTST_LOC_CUSTOM') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_loc_custom'])) ? censor_text($row['dtst_loc_custom']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$tpl_array['DTST_HOST']			= $this->lang->lang('DTST_HOST') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_host'])) ? censor_text($row['dtst_host']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$tpl_array['DTST_DATE']			= $this->lang->lang('DTST_DATE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_date'])) ? $row['dtst_date'] : $this->lang->lang('DTST_DATE_NONE') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_EVENT_TYPE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_event_type'])) ? $this->dtst_utils->dtst_forum_id_to_name($row['dtst_event_type']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
 			$tpl_array['DTST_AGE_MIN']		= $this->lang->lang('DTST_AGE_MIN') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_age_min'])) ? $row['dtst_age_min'] : $this->lang->lang('DTST_AGE_RANGE_NO') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_AGE_MAX') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_age_max'])) ? $row['dtst_age_max'] : $this->lang->lang('DTST_AGE_RANGE_NO') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_PARTICIPANTS') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_participants'])) ? $row['dtst_participants'] : $this->lang->lang('DTST_UNLIMITED') );
 
 			$event['tpl_ary'] = $tpl_array;
@@ -580,14 +733,10 @@ class main_listener implements EventSubscriberInterface
 
 			$topic_row = $event['topic_row'];
 
-			$topic_row['DTST_LOCATION']		= $this->lang->lang('DTST_LOCATION') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_location'])) ? $row['dtst_location'] : '' );
-
-			$topic_row['DTST_LOC_CUSTOM']	= $this->lang->lang('DTST_LOC_CUSTOM') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_loc_custom'])) ? censor_text($row['dtst_loc_custom']) : '' );
-
-			$topic_row['DTST_HOST']			= $this->lang->lang('DTST_HOST') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_host'])) ? censor_text($row['dtst_host']) : '' );
-
-			$topic_row['DTST_DATE']			= $this->lang->lang('DTST_DATE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_date'])) ? $row['dtst_date'] : $this->lang->lang('DTST_DATE_NONE') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_EVENT_TYPE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_event_type'])) ? $this->dtst_utils->dtst_forum_id_to_name($row['dtst_event_type']) : '' );
-
+			$topic_row['DTST_LOCATION']		= $this->lang->lang('DTST_LOCATION') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_location'])) ? $row['dtst_location'] :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$topic_row['DTST_LOC_CUSTOM']	= $this->lang->lang('DTST_LOC_CUSTOM') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_loc_custom'])) ? censor_text($row['dtst_loc_custom']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$topic_row['DTST_HOST']			= $this->lang->lang('DTST_HOST') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_host'])) ? censor_text($row['dtst_host']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
+			$topic_row['DTST_DATE']			= $this->lang->lang('DTST_DATE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_date'])) ? $row['dtst_date'] : $this->lang->lang('DTST_DATE_NONE') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_EVENT_TYPE') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_event_type'])) ? $this->dtst_utils->dtst_forum_id_to_name($row['dtst_event_type']) :  $this->lang->lang('DTST_AGE_RANGE_NO') );
 			$topic_row['DTST_AGE_MIN']		= $this->lang->lang('DTST_AGE_MIN') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_age_min'])) ? $row['dtst_age_min'] : $this->lang->lang('DTST_AGE_RANGE_NO') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_AGE_MAX') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_age_max'])) ? $row['dtst_age_max'] : $this->lang->lang('DTST_AGE_RANGE_NO') ) . '&nbsp;&bull;&nbsp;' . $this->lang->lang('DTST_PARTICIPANTS') . $this->lang->lang('COLON') . '&nbsp;' . ( (!empty($row['dtst_participants'])) ? $row['dtst_participants'] : $this->lang->lang('DTST_UNLIMITED') );
 
 			$event['topic_row'] = $topic_row;
@@ -687,6 +836,7 @@ class main_listener implements EventSubscriberInterface
 			'DTST_DATE_BEFORE'			=> $date_before,
 
 			'S_DTST_DISPLAY'			=> true,
+			'S_DTST_SIDEBAR'			=> (bool) $this->config['dtst_sidebar'],
 
 			'U_DTST_FILTER_ACTION'		=> append_sid("{$this->root_path}viewforum.{$this->php_ext}", 'f=' . $event['forum_id']),
 		));
@@ -757,30 +907,23 @@ class main_listener implements EventSubscriberInterface
 			}
 		}
 
-		// Convert the date to the correct format (DD-MM-YYYY to YYYY-MM-DD)
-		$date_after = !empty($date_after) ? explode('-', $date_after) : false;
-		$date_after = !empty($date_after) ? $date_after[2] . '-' . $date_after[1] . '-' . $date_after[0] : false;
-
-		$date_before = !empty($date_before) ? explode('-', $date_before) : false;
-		$date_before = !empty($date_before) ? $date_before[2] . '-' . $date_before[1] . '-' . $date_before[0] : false;
+		$date_after = !empty($date_after) ? $this->user->get_timestamp_from_format('d-m-Y', $date_after, new \DateTimeZone($this->config['board_timezone'])) : false;
+		$date_before = !empty($date_before) ? $this->user->get_timestamp_from_format('d-m-Y', $date_before, new \DateTimeZone($this->config['board_timezone'])) : false;
 
 		$sql_ary = $event['sql_ary'];
 
-		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . (int) $age_min . ' AND t.dtst_age_max <= ' . (int) $age_max : '';
-		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && (int) $age_max !== 99 ? ' AND t.dtst_age_max <= ' . (int) $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_min) ? ' AND t.dtst_age_min >= ' . $age_min . ' AND t.dtst_age_max <= ' . $age_max : '';
+		$sql_ary['WHERE'] .= !empty($age_max) && empty($age_min) && $age_max !== 99 ? ' AND t.dtst_age_max <= ' . $age_max : '';
 
-		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . (int) $participants_min  . ' AND t.dtst_participants <= ' . (int) $participants_max: '';
-		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && (int) $participants_max !== 999 ? ' AND t.dtst_participants <= ' . (int) $participants_max : '';
+		$sql_ary['WHERE'] .= !empty($participants_min) ? ' AND t.dtst_participants >= ' . $participants_min  . ' AND t.dtst_participants <= ' . $participants_max : '';
+		$sql_ary['WHERE'] .= !empty($participants_max) && empty($participants_min) && $participants_max !== 999 ? ' AND t.dtst_participants <= ' . $participants_max : '';
 		$sql_ary['WHERE'] .= $participants_unl ? ' AND t.dtst_participants = 0' : '';
 
-		$sql_ary['WHERE'] .= !empty($date_after) ? ' AND str_to_date(t.dtst_date, "%d-%m-%Y") > "' . $this->db->sql_escape($date_after) . '"' : '';
-		$sql_ary['WHERE'] .= !empty($date_before) ? ' AND str_to_date(t.dtst_date, "%d-%m-%Y") < "' . $this->db->sql_escape($date_before) . '"' : '';
+		$sql_ary['WHERE'] .= !empty($date_after) ? ' AND t.dtst_date_unix > ' . (int) $date_after : '';
+		$sql_ary['WHERE'] .= !empty($date_before) ? ' AND t.dtst_date_unix < ' . (int) $date_before : '';
 
 		$sql_ary['WHERE'] .= !empty($selected_types) ? ' AND ' . $this->db->sql_in_set('t.dtst_event_type', $selected_types) : '';
 		$sql_ary['WHERE'] .= !empty($locations_array) ? ' AND ' . $this->db->sql_in_set('t.dtst_location', $locations_array) : '';
-
-// debug
-//var_dump($sql_ary);
 
 		/* Merge the SQL WHERE back in to the event parameters */
 		$event['sql_ary'] = $sql_ary;

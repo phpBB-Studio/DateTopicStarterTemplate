@@ -7,16 +7,28 @@
 			{% DEFINE INCLUDED_DTSTCSS = true %}
 		{% endif %}
 
+		{% if S_DTST_IS_HOST and U_DTST_REASON_REPLIES and not S_DTST_EVENT_CANCELED %}
+			<div id="dtst_new_replies" class="panel dtst-new-replies">
+				<i class="icon fa-check-circle fa-fw" aria-hidden="true"></i>
+				<strong>{{ lang('NEW_POSTS') }}!</strong>
+				{{ lang('DTST_REASONS_POSTED') ~ lang('COLON') }}
+				<a href="{{ U_DTST_REASON_REPLIES }}">{{ lang('VIEW_NEWEST_POST')|lower }}</a>.
+				<i class="icon fa-times fa-fw"></i>
+			</div>
+		{% endif %}
+
 		<div class="content">
 			<div class="dtst-div-2">
 				<div class="panel bg1">
 					<h3 class="bg3 dtst-centered"><i class="icon fa-user-circle-o fa-fw" aria-hidden="true"></i>{{ lang('DTST_HOST') }}</h3>
-					<div title="{{ DTST_HOST }}">{{ DTST_HOST }}</div>
+					<div class="dtst-div-overview" title="{% if DTST_HOST %}{{ DTST_HOST }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}">
+						{% if DTST_HOST %}{{ DTST_HOST }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}
+					</div>
 				</div>
 
 				<div class="panel bg1">
 					<h3 class="bg3 dtst-centered"><i class="icon fa-calendar fa-fw" aria-hidden="true"></i>{{ lang('DTST_DATE') }}</h3>
-					<div>
+					<div class="dtst-div-overview" title="{% if DTST_DATE %}{{ DTST_DATE }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}">
 						{% if DTST_DATE is not empty %}
 							{{ DTST_DATE|date('d-m-Y') }}
 						{% else %}
@@ -27,33 +39,26 @@
 
 				<div class="panel bg1">
 					<h3 class="bg3 dtst-centered"><i class="icon fa-map-marker fa-fw" aria-hidden="true"></i>{{ lang('DTST_LOCATION') }}</h3>
-					<dl class="details" title="{{ DTST_LOCATION }}">
-						<dt>{{ lang('DTST_LOCATION_PRESET') ~ lang('COLON') }}</dt>
-						<dd title="{% if DTST_LOCATION %}{{ DTST_LOCATION }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}">{% if DTST_LOCATION %}{{ DTST_LOCATION }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}</dd>
-					</dl>
+
+					<div class="dtst-div-overview" title="{% if DTST_LOCATION %}{{ DTST_LOCATION }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}">
+						{% if DTST_LOCATION %}{{ DTST_LOCATION }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}
+					</div>
+
 					{% if DTST_LOC_CUSTOM %}
-						<br>
-						<dl class="details" title="{{ DTST_LOC_CUSTOM }}">
-							<dt>{{ lang('DTST_LOCATION_CUSTOM') ~ lang('COLON') }}</dt>
-							<dd title="{% if DTST_LOC_CUSTOM %}{{ DTST_LOC_CUSTOM }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}">{% if DTST_LOC_CUSTOM %}{{ DTST_LOC_CUSTOM }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}</dd>
-						</dl>
+						<div class="dtst-div-overview" title="{% if DTST_LOC_CUSTOM %}{{ DTST_LOC_CUSTOM }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}" >
+							{{ DTST_LOC_CUSTOM }}
+						</div>
 					{% endif %}
 				</div>
 
 				<div class="panel bg1">
 					<h3 class="bg3 dtst-centered"><i class="icon fa-tag fa-fw" aria-hidden="true"></i>{{ lang('DTST_EVENT_TYPE') }}</h3>
-					<div title="{{ DTST_EVENT_TYPE }}">{{ DTST_EVENT_TYPE }}</div>
+					<div class="dtst-div-overview" title="{% if DTST_EVENT_TYPE %}{{ DTST_EVENT_TYPE }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}">{% if DTST_EVENT_TYPE %}{{ DTST_EVENT_TYPE }}{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}</div>
 				</div>
 
 				<div class="panel bg1">
 					<h3 class="bg3 dtst-centered"><i class="icon fa-odnoklassniki fa-fw" aria-hidden="true"></i>{{ lang('DTST_AGE_RANGE') }}</h3>
-					<dl class="details">
-						<dt>{{ lang('DTST_AGE_MIN') ~ lang('COLON') }}</dt>
-						<dd title="{% if DTST_AGE_MIN %}{{ DTST_AGE_MIN }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}">{% if DTST_AGE_MIN %}{{ DTST_AGE_MIN }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}</dd>
-						<br>
-						<dt>{{ lang('DTST_AGE_MAX') ~ lang('COLON') }}</dt>
-						<dd title="{% if DTST_AGE_MAX %}{{ DTST_AGE_MAX }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}">{% if DTST_AGE_MAX %}{{ DTST_AGE_MAX }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}</dd>
-					</dl>
+						<div class="dtst-div-overview">{% if DTST_AGE_MIN %}{{ DTST_AGE_MIN }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %} &frasl; {% if DTST_AGE_MAX %}{{ DTST_AGE_MAX }}{% else %}{{ lang('DTST_AGE_RANGE_UNL') }}{% endif %}</div>
 				</div>
 
 				<div class="panel bg1">
@@ -67,21 +72,39 @@
 							{% DEFINE INCLUDED_DTSTPARTICIPATEJS = true %}
 						{% endif %}
 					{% endif %}
-					<dl class="details">
-						<dt>{{ lang('DTST_SLOTS') ~ lang('COLON') }}</dt>
-						<dd title="{% if DTST_PARTICIPANTS %}{{ DTST_PARTICIPANTS }}{% else %}{{ lang('DTST_UNLIMITED') }}{% endif %}"><span name="dtst_participants_count">{{ DTST_USER_ACTIVE_COUNT }}</span>&nbsp;&frasl;&nbsp;{% if DTST_PARTICIPANTS %}{{ DTST_PARTICIPANTS }}{% else %}{{ lang('DTST_UNLIMITED') }}{% endif %}</dd>
-					</dl>
+
+					<div class="dtst-centered">
+						{% if S_DTST_IS_HOST %}
+							<span class="dtst-centered">
+								<a id="dtst_manage_users" class="button dtst-div-manage-button" title="{{ lang('DTST_ATTENDEES_MANAGE') }}" data-ajax="dtst_participate" data-refresh="true" href="{{ U_DTST_MANAGE }}">{{ lang('DTST_ATTENDEES_MANAGE') }}</a>
+							</span>
+							{% if not definition.INCLUDED_DTSTMANAGECSS %}
+								{% INCLUDECSS '@phpbbstudio_dtst/dtst_manage.css' %}
+								{% DEFINE INCLUDED_DTSTMANAGECSS = true %}
+							{% endif %}
+						{% endif %}
+
+						{# Thats' for guests #}
+						{% if not S_DTST_PARTICIPATE %}
+							<br>
+						{% endif %}
+
+						{% if not S_DTST_IS_HOST %}<span class="dtst-span-3">{{ lang('DTST_SLOTS') ~ lang('COLON') }}</span>{% endif %}
+						<span name="dtst_attendees_count" class="dtst-span-3 light-green">{{ DTST_USER_COUNT_ACCEPTED }}</span>
+						&frasl;
+						<span class="dtst-span-3 orange" title="{% if DTST_PARTICIPANTS %}{{ DTST_PARTICIPANTS }}{% else %}{{ lang('DTST_UNLIMITED') }}{% endif %}">{% if DTST_PARTICIPANTS %}{{ DTST_PARTICIPANTS }}{% else %}{{ lang('DTST_UNLIMITED_OVERVIEW') }}{% endif %}</span>
+					</div>
 				</div>
 
-				{% if S_DTST_PARTICIPATE %}
+				{% if S_DTST_PARTICIPATE and not S_DTST_EVENT_CANCELED %}
 					<div class="panel bg1">
-						<h3 class="bg3 dtst-centered"><i class="icon fa-user fa-fw" aria-hidden="true"></i> {{ lang('DTST_USER_STATUS') }}</h3>
+						<h3 class="bg3 dtst-centered"><i class="icon fa-user fa-fw" aria-hidden="true"></i> {{ lang('DTST_YOUR_STATUS') }}</h3>
 						<div class="dtst-centered">
 							<strong id="dtst_user_status">{{ DTST_USER_STATUS }}</strong><br>
 							{% if not S_DTST_PARTICIPATE_FULL and not S_DTST_PARTICIPATE_CLOSED %}
-							 <a id="dtst_participate_button" class="button dtst-button {{ DTST_BUTTON_CLASS }}" title="{{ DTST_BUTTON_TEXT }}" href="{{ U_DTST_OPT }}" data-ajax="dtst_participate">
-								<span>{{ DTST_BUTTON_TEXT }}</span> <i class="icon {{ DTST_BUTTON_ICON }} fa-fw" aria-hidden="true"></i>
-							 </a>
+								 <a id="dtst_participate_button" class="button dtst-button {{ DTST_BUTTON_CLASS }}" title="{{ DTST_BUTTON_TEXT }}" href="{{ U_DTST_OPT }}" data-ajax="dtst_participate" data-refresh="true">
+									<span>{{ DTST_BUTTON_TEXT }}</span> <i class="icon {{ DTST_BUTTON_ICON }} fa-fw" aria-hidden="true"></i>
+								 </a>
 							{% elseif S_DTST_PARTICIPATE_FULL or S_DTST_PARTICIPATE_CLOSED %}
 								<strong class="button dtst-button">{{ lang('DTST_EVENT_CLOSED') }} <i class="icon fa-ban fa-fw" aria-hidden="true"></i> </strong>
 							{% endif %}
@@ -89,36 +112,29 @@
 					</div>
 				{% endif %}
 			</div>
+
 			{% if S_DTST_ATTENDEES %}
 				<div id="dtst_attendees_list" class="panel bg3 content dtst-attendees-list">
 					<div>
 						<i class="icon fa-user-secret fa-fw blue" aria-hidden="true"></i>&nbsp;<strong>{{ lang('DTST_ATTENDEES') }}</strong>
 					</div>
 					<hr>
-					<h4>
-						<i title="{{ lang('DTST_STATUS_ATTENDING') }}" class="icon fa-hand-o-right fa-fw light-green" aria-hidden="true"></i>
-						<span class="dtst-attendees-count" name="dtst_participants_count">{{ DTST_USER_ACTIVE_COUNT }}</span>
-					</h4>
-					<span id="dtst_participants_list">
-						{% for user in dtst_attendees %}
-							<span title="{{ lang('DTST_STATUS_ATTENDING') ~ lang('COLON') }}&nbsp;{{ user.USER_TIME }}">{{ user.USERNAME }}</span>{% if not loop.last %}{{ lang('COMMA_SEPARATOR') }}{% endif %}
-						{% else %}
-							{{ lang('DTST_NO_ATTENDEES') }}
-						{% endfor %}
-					</span>
-					<hr>
-					<h4>
-						<i title="{{ lang('DTST_STATUS_WITHDRAWN') }}" class="icon fa-hand-o-left fa-fw red" aria-hidden="true"></i>
-						<span class="dtst-attendees-count" name="dtst_withdrawals_count">{{ DTST_USER_INACTIVE_COUNT }}</span>
-					</h4>
-					<span id="dtst_withdrawals_list">
-						{% for user in dtst_withdrawals %}
-							<span title="{{ lang('DTST_STATUS_WITHDRAWN') ~ lang('COLON') }}&nbsp;{{ user.USER_TIME }}">{{ user.USERNAME }}</span>{% if not loop.last %}{{ lang('COMMA_SEPARATOR') }}{% endif %}
-						{% else %}
-							{{ lang('DTST_NO_WITHDRAWALS') }}
-						{% endfor %}
-					</span>
-					<hr>
+
+					{% for status in DTST_DATA %}
+						<h4>
+							<i title="{{ status.user_status }}" class="icon {{ status.template_icon }} fa-fw" aria-hidden="true"></i>
+							<span class="dtst-attendees-count" name="{{ status.template_block ~ '_count' }}">{{ status.user_count }}</span>
+						</h4>
+						<span name="{{ status.template_block ~ '_list' }}">
+							{% for user in attribute(loops, status.template_block) %}
+								<span title="{{ status.user_status ~ lang('COLON') ~ ' ' ~ user.USER_TIME }}">{{ user.USERNAME }}</span>{% if not loop.last %}{{ lang('COMMA_SEPARATOR') }}{% endif %}
+							{% else %}
+								{{ status.user_none }}
+							{% endfor %}
+						</span>
+						<hr>
+					{% endfor %}
+
 				</div>
 			{% endif %}
 		</div>

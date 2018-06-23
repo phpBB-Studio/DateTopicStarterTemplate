@@ -1,7 +1,7 @@
 {# Include our ACP - CSS #}
-{% if not definition.INCLUDED_DTST_ACPCSS %}
+{% if not definition.INCLUDED_DTSTACPCSS %}
 	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
-	{% DEFINE INCLUDED_DTST_ACPCSS = true %}
+	{% DEFINE INCLUDED_DTSTACPCSS = true %}
 {% endif %}
 
 {% INCLUDE 'overall_header.html' %}
@@ -35,6 +35,18 @@
 					<input class="button1" name="forum_dtst_preset_location_addition" value="{{ lang('SUBMIT') }}" type="submit">
 				</p>
 				{{ S_FORM_TOKEN }}
+			</form>
+		</fieldset>
+
+		<fieldset class="dtst-acp-inner">
+			<legend>{{ lang('ACP_REMOVE_PRESET_LOCATIONS') }}</legend>
+			<form id="phpbbstudio_dtst_remove_all" name="phpbbstudio_dtst_remove_all" method="post" action="{{ U_ACTION_REMOVE_ALL }}" data-ajax="true" data-refresh="true">
+				<dl>
+					<dt><label for="forum_dtst_preset_location_rem_all">{{ lang('ACP_REMOVE_PRESET_LOCATION_ALL') ~ lang('COLON') }}</label><br>{{ lang('ACP_REMOVE_PRESET_LOCATIONS_EXPLAIN') }}</dt>
+					<dd>
+						<input class="button1" id="forum_dtst_preset_location_rem_all" name="forum_dtst_preset_location_rem_all" value="{{ lang('RUN') }}" type="submit">
+					</dd>
+				</dl>
 			</form>
 		</fieldset>
 

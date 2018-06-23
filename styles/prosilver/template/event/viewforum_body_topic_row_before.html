@@ -15,7 +15,7 @@
 				<input type="hidden" name="f" value="{{ FORUM_ID }}">
 
 				<ul class="topiclist topics bg1">
-					<li class="row bg1">
+					<li class="row bg1 dtst-filters-h-overflow">
 						<h4>{{ lang('DTST_EVENT_TYPE') }}</h4>
 						<ul>
 							{% for event_type in dtst_event_types %}
@@ -27,7 +27,7 @@
 						</ul>
 					</li>
 
-					<li class="row bg1">
+					<li class="row bg1 dtst-filters-h-overflow">
 						<h4>{{ lang('DTST_LOCATION') }}</h4>
 						<ul>
 							{% for location in dtst_locations %}
@@ -93,6 +93,12 @@
 	{% if not definition.INCLUDED_JQUERYRANGEMINJS %}
 		{% INCLUDEJS '@phpbbstudio_dtst/js/jquery.range-min.js' %}
 		{% DEFINE INCLUDED_JQUERYRANGEMINJS = true %}
+	{% endif %}
+
+	{% if S_DTST_SIDEBAR %}
+		{% INCLUDECSS '@phpbbstudio_dtst/dtst_filters_left.css' %}
+	{% else %}
+		{% INCLUDECSS '@phpbbstudio_dtst/dtst_filters_right.css' %}
 	{% endif %}
 
 	{% INCLUDECSS '@phpbbstudio_dtst/dtst_filters.css' %}

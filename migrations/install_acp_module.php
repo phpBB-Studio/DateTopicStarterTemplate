@@ -30,7 +30,7 @@ class install_acp_module extends \phpbb\db\migration\migration
 				'ACP_DTST_TITLE',
 				array(
 					'module_basename'	=> '\phpbbstudio\dtst\acp\dtst_module',
-					'modes'				=> array('locations', 'settings'),
+					'modes'				=> array('locations', 'settings', 'privmsg'),
 				),
 			)),
 		);

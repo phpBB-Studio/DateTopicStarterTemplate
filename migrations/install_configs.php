@@ -20,13 +20,21 @@ class install_configs extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
+			/* (BOOL) Topic locked withdrawal 1 = allow opting if locked - 0 = disallow */
 			array('config.add', array('dtst_locked_withdrawal', 1)),
-			array('config.add', array('dtst_utc', 'd m Y - H:i')),
 
-			array('config.add', array('dtst_string_1', '')), // string_1
-			array('config.add', array('dtst_bool_1', 0)), // bool_1
-			array('config.add', array('dtst_string_2', '')), // string_2
-			array('config.add', array('dtst_bool_2', 0)), // bool_2
+			/* (INT) notifications sent counter */
+			array('config.add', array('dtst_notification_id', 0)),
+
+			/* (BOOL) Sidebar position 1 = left - 0 = right */
+			array('config.add', array('dtst_sidebar', 1)),
+
+			/* (INT) Bot user ID default - 2 founder */
+			array('config.add', array('dtst_bot', 2)),
+
+			/* (BOOL) Use of the Bot - 1 = yes - 0 = No */
+			array('config.add', array('dtst_use_bot', 0)),
+
 		);
 	}
 }

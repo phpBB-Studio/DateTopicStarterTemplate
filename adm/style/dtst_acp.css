@@ -56,3 +56,51 @@ fieldset {
 input.button1, input.button2 {
 	border-radius: 4px;
 }
+
+/* PM preview start */
+.dtst-acp-preview-title {
+	color: #115098;
+	font-size: 1.5em;
+}
+
+.dtst-acp-preview-author {
+	color: #333333;
+	font-size: 0.85em;
+}
+
+.dtst-acp-preview-content {
+	font-size: 1.1em;
+}
+
+.dtst-acp-preview-sig {
+	font-size: 11px;
+	line-height: 16px;
+	border-top: 1px solid transparent;
+	border-top-color: #dedede;
+	clear: left;
+	overflow: hidden;
+	width: 100%;
+	margin-top: 16px;
+	padding-top: 2px;
+}
+
+.dtst-acp-preview-sig li {
+	list-style-type: inherit;
+}
+
+.dtst-acp-preview-sig ul,
+.dtst-acp-preview-sig ol {
+	margin: 10px 0 10px 33px;
+}
+
+.dtst-acp-preview-sig a,
+.dtst-acp-preview-sig a:hover {
+	text-decoration: underline;
+	background-color: transparent;
+	border: none;
+}
+/* PM preview end */
+
+.dtst-acp-center {
+	text-align: center;
+}

@@ -1,10 +1,10 @@
 {
 	"name": "phpbbstudio/dtst",
 	"type": "phpbb-extension",
-	"description": "Have a topic starter calendar template on a per forum basis, like it would be for a Meeting's forum.",
+	"description": "Have a topic starter calendar template on a per forum basis and many more, like it would be for a Meeting's forum.",
 	"homepage": "https://www.phpbbstudio.com",
-	"version": "1.4.0-beta",
-	"time": "2018-05-28",
+	"version": "1.5.0-beta",
+	"time": "2018-06-23",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{

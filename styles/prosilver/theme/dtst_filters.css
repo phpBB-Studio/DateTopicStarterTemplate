@@ -1,6 +1,9 @@
+.dtst-filters-h-overflow {
+	max-height: 700px;
+	overflow: auto;
+}
+
 .dtst-filters {
-	float: left;
-	clear: left;
 	width: 175px;
 }
 
@@ -10,9 +13,7 @@
 .dtst-filters + .forumbg,
 /* Announcement topic list panel */
 .dtst-filters + .forumbg + .forumbg {
-	margin-left: 190px;
 	width: auto;
-	clear: right;
 }
 
 /* Fake class for JS filters */
@@ -45,8 +46,9 @@
 }
 
 .dtst-input {
-	width: auto;
+	width: 125px;
 	height: 16px;
+	margin-top: 2px;
 }
 
 .dtst-input-icon {
@@ -71,6 +73,7 @@
 .dtst-sorting-submit {
 	display: flex;
 	flex-flow: row nowrap;
+	width: auto;
 }
 
 .dtst-sorting-submit input {
@@ -107,10 +110,6 @@
 	.dtst-filters + .forumbg + .forumbg .row:after {
 		display: none;
 	}
-
-	.dtst-filters ~ .action-bar.bar-bottom {
-		clear: left;
-	}
 }
 
 /* Responsiveness */
@@ -128,7 +127,6 @@
 		/* Announcement topic list panel */
 	.dtst-filters + .forumbg + .forumbg {
 		clear: both;
-		margin-left: inherit;
 		width: initial;
 	}
 
@@ -141,17 +139,19 @@
 	.dtst-filters ul.topiclist.topics > li {
 		flex: 1 200px;
 	}
+
+	.dtst-input {
+		width: auto;
+	}
 }
 
 /* Mix phpBB's breakpoint */
 @media all and (max-width: 700px) {
-	/* No posts found panel */
-	.dtst-filters + div.panel,
-		/* Regular topic list panel */
-	.dtst-filters + .forumbg,
-		/* Announcement topic list panel */
-	.dtst-filters + .forumbg + .forumbg {
-		margin-left: -5px;
+	.dtst-input {
+		width: auto;
+	}
+	.dtst-filters-h-overflow {
+		max-height: 250px;
 	}
 }
 
@@ -168,18 +168,22 @@
 	.dtst-filters ul.topiclist.topics > li:nth-of-type(5) { flex: 1 40%; }
 
 	.dtst-li:first-of-type {
-		float: left;
-		clear: left;
 		width: 48%;
 	}
 
 	.dtst-li:last-of-type {
-		float: right;
-		clear: right;
 		width: 48%;
 	}
 
 	.dtst-input {
-		width: 130px;
+		width: 105px;
+	}
+
+	.dtst-label {
+		width: 125px;
+	}
+
+	.dtst-filters-h-overflow {
+		max-height: 200px;
 	}
 }

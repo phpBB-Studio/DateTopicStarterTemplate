@@ -23,19 +23,41 @@ $lang = array_merge($lang, array(
 	'ACL_CAT_PHPBB_STUDIO'					=> 'phpBB Studio',
 	// ACP
 	'ACP_DTST_TITLE'						=> 'Date Topic Event Calendar',
+
 	'ACP_DTST_LOCATIONS'					=> 'Locations',
 	'ACP_DTST_LOCATIONS_SAVED'				=> 'Date Topic Event Calendar Locations saved.',
 	'ACP_DTST_LOCATION_ADDED'				=> 'Date Topic Event Calendar location successfully added.',
 	'ACP_DTST_LOCATION_REMOVED'				=> 'Date Topic Event Calendar location successfully removed.',
+	'ACP_DTST_ALL_LOCATIONS_REMOVED'		=> 'Date Topic Event Calendar all locations successfully removed.',
+
 	'ACP_DTST_SETTINGS'						=> 'Settings',
 	'ACP_DTST_SETTING_SAVED'				=> 'Date Topic Event Calendar Settings saved.',
+
+	'ACP_DTST_PRIVMSG'						=> 'PMs settings',
+	'ACP_DTST_PRIVMSG_SAVED'				=> 'Date Topic Event Calendar PMS Settings saved.',
 
 	// ACP - Log
 	'DTST_LOG_CONFIG_SAVED'					=> '<strong>Date Topic Event Calendar</strong> Locations configuration saved.',
 	'DTST_LOG_LOCATION_ADDED'				=> '<strong>Date Topic Event Calendar location added.</strong><br>» %s',
 	'DTST_LOG_LOCATION_REMOVED'				=> '<strong>Date Topic Event Calendar location removed.</strong><br>» %s',
+	'DTST_LOG_ALL_LOCATIONS_REMOVED'		=> '<strong>Date Topic Event Calendar locations removed.</strong><br>» All',
 
 	'DTST_LOG_SETTINGS_SAVED'				=> '<strong>Date Topic Event Calendar</strong> Settings configuration saved.',
+
+	'DTST_LOG_PRIVMSG_SAVED'				=> '<strong>Date Topic Event Calendar</strong> PMs Settings configuration saved.',
+
+	'ACP_DTST_LOG_APPLIED'					=> '<strong>Applied for event:</strong><br />» %s',
+	'ACP_DTST_LOG_CANCELED'					=> '<strong>Canceled application for event:</strong><br />» %s',
+	'ACP_DTST_LOG_WITHDRAWN'				=> '<strong>Withdrew from event:</strong><br />» %s',
+
+	'ACP_DTST_LOG_PM_APPLIED'				=> '<strong>Private message sent to host after applying for:</strong><br />» %s',
+	'ACP_DTST_LOG_PM_CANCELED'				=> '<strong>Private message sent to host after canceling application for:</strong><br />» %s',
+	'ACP_DTST_LOG_PM_WITHDRAWN'				=> '<strong>Private message sent to host after withdrawing from:</strong><br />» %s',
+
+	'LOG_DTST_EVENT_CANCELED'				=> '<strong>Canceled event:</strong><br />» %s',
+
+	'LOG_DTST_OPT_ACCEPTED'					=> '<strong>Application accepted:</strong><br />» %s',
+	'LOG_DTST_OPT_DENIED'					=> '<strong>Application denied:</strong><br />» %s',
 
 	// ACP Forums
 	'ACP_DTST_FORUMS_LEGEND'				=> 'Extended settings',

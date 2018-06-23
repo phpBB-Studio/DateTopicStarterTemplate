@@ -27,6 +27,16 @@
 	padding: 15px;
 }
 
+.dtst-span-1 {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.dtst-span-3 {
+	font-size: 1.4em;
+	font-weight: bold;
+}
+
 #dtst_date {
 	margin-right: 0;
 }
@@ -50,6 +60,7 @@
 /* Opt-in/out participants*/
 .green {color: #3B5221;}
 .light-green {color: #27AA19;}
+.orange {color:	#e59400;}
 .blue {color: #105289;}
 .red {color: #D31141;}
 .gray {color: #888888 !important;}
@@ -78,8 +89,44 @@
 	vertical-align: -1px;
 }
 
+.dtst-div-overview {
+/* 	width: 160px; */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dtst-div-manage-button {
+	font-size: 1em;
+	padding: 1px 3px 2px;
+}
+
+/* New replies notification */
+.dtst-new-replies {
+	border:1px solid #a6ca8a;
+	background: #e9ffd9;
+}
+
+.dtst-new-replies > i.fa-check-circle {
+	color: #95b57c;
+}
+
+.dtst-new-replies > i.fa-times {
+	color: #D31141;
+	float: right;
+	cursor: pointer;
+}
+
+.dtst-new-replies > strong {
+	text-transform: uppercase;
+}
+
+.dtst-new-replies > a {
+	font-weight: bold;
+}
+
 /**
- * Overview flexy
+ * Overview flex
  */
 .dtst-div-2 {
 	display: flex;
@@ -130,6 +177,7 @@
 	margin: 18px 0;
 	font-size: 14px;
 	font-weight: bold;
+	line-height: 15px;
 }
 
 .dtst-attendees-list {
@@ -216,6 +264,6 @@
 
 @media all and (max-width: 350px) {
 	.dtst-button {
-		font-size: 10px;
+		font-size: 9px;
 	}
 }

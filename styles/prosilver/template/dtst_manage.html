@@ -1,0 +1,105 @@
+{% if not S_DTST_AJAX %}
+	{% include 'overall_header.html' %}
+
+	{% if not definition.INCLUDED_DTSTCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
+		{% DEFINE INCLUDED_DTSTCSS = true %}
+	{% endif %}
+
+	{% if not definition.INCLUDED_DTSTMANAGECSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/dtst_manage.css' %}
+		{% DEFINE INCLUDED_DTSTMANAGECSS = true %}
+	{% endif %}
+
+	{% if not definition.INCLUDED_DTSTPARTICIPATEJS %}
+		{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_participate.js' %}
+		{% DEFINE INCLUDED_DTSTPARTICIPATEJS = true %}
+	{% endif %}
+
+	<div class="pagination"><strong>{{ U_DTST_RETURN_FULL_PAGE }}</strong></div>
+{% endif %}
+
+<form name="dtst_manage" action="{{ S_CONFIRM_ACTION }}" method="post">
+	<h3>{{ lang('DTST_ATTENDEES_MANAGE_FULL') }}{% if S_DTST_AJAX %}<a class="button pagination" href="{{ U_DTST_MANAGE }}">{{ lang('DTST_FULL_SCREEN') }}</a>{% endif %}</h3>
+	{% if S_DTST_FORM_INVALID %}<div class="rules">{{ lang('FORM_INVALID') }}</div>{% endif %}
+	{% if S_DTST_LIMIT_REACHED %}<div class="rules">{{ lang('DTST_ATTENDEES_TOO_MANY') }}</div>{% endif %}
+	<div>
+		{% for key, status in DTST_DATA %}
+			<h4>
+				<i class="icon {{ status.template_icon }} fa-fw" aria-hidden="true"></i>
+				<span class="dtst-attendees-count" name="{{ status.template_block ~ '_count' }}">{{ status.user_count }}</span>
+				<span class="dark">{{ status.user_status }}</span>
+			</h4>
+			<div id="dtst_manage">
+				{% for user in attribute(loops, status.template_block) %}
+					{% if loop.first %}<ul class="dtst-user-list">{% endif %}
+					<li class="dtst-user {% if loop.index is even %}bg1{% else %}bg3{% endif %}">
+						<div class="dtst-user-info">
+							<ul class="fa-ul">
+								<li><i class="fa fa-li fa-fw fa-user dark" aria-hidden="true"></i> <strong>{{ user.USERNAME }}</strong></li>
+								<li><i class="fa fa-li fa-fw {% if key == DTST_STATUS_CANCELED or key == DTST_STATUS_WITHDRAWN %}{{ status.template_icon }}{% else %}fa-question orange{% endif %}" aria-hidden="true"></i> <span>{{ user.DTST_TIME }}</span></li>
+								{% if key == DTST_STATUS_ACCEPTED or key == DTST_STATUS_DENIED %}<li><i class="fa fa-li fa-fw {{ status.template_icon }}" aria-hidden="true"></i> <span>{{ user.DTST_HOST_TIME }}</span></li>{% endif %}
+							</ul>
+						</div>
+						<div class="dtst-user-info">
+							{{ user.DTST_REASON }}
+							<input type="hidden" name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_reason]' }}" value="{{ user.DTST_REASON }}">
+						</div>
+						<div class="dtst-user-info dtst-user-actions{% if DTST_ERRORS[user.USER_ID] %} dtst-user-error{% endif %}">
+							{% if user.S_DTST_HOST %}
+								<strong>{{ lang('DTST_HOST') }}</strong>
+							{% elseif key == DTST_STATUS_ACCEPTED %}
+								<label for="dtst_manage_remove_{{ user.USER_ID }}">
+									<input type="checkbox" id="dtst_manage_remove_{{ user.USER_ID }}" name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_remove]' }}" title="{{ lang('DTST_ACTION_REMOVE') }}" value="1"{% if DTST_USERS[user.USER_ID]['dtst_remove'] %} checked="checked"{% endif %}>
+									<i class="icon fa-times fa-fw red" title="{{ lang('DTST_ACTION_REMOVE') }}" aria-hidden="true"></i>
+									<span class="sr-only">{{ lang('DTST_ACTION_REMOVE') }}</span>
+								</label>
+								<textarea name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_action_reason]' }}" title="{{ lang('DTST_REASON') }}" placeholder="{{ lang('DTST_REASON') }}" maxlength="255">{{ DTST_USERS[user.USER_ID]['dtst_action_reason'] }}</textarea>
+								<span class="pagination"><span class="dtst-user-reason-length">{{ DTST_USERS[user.USER_ID]['dtst_action_reason']|length }}</span>/255</span>
+								{% if not S_DTST_AJAX %}
+									<hr>
+									{{ user.DTST_HOST_REASON }}
+								{% endif %}
+							{% elseif key == DTST_STATUS_PENDING %}
+								<label for="dtst_manage_accept_{{ user.USER_ID }}">
+									<input type="radio" id="dtst_manage_accept_{{ user.USER_ID }}" name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_action]' }}" title="{{ lang('DTST_ACTION_ACCEPT') }}" value="{{ DTST_STATUS_ACCEPTED }}"{% if DTST_USERS[user.USER_ID]['dtst_action'] == DTST_STATUS_ACCEPTED %} checked="checked"{% endif %}>
+									<i class="icon fa-check fa-fw light-green" title="{{ lang('DTST_ACTION_ACCEPT') }}" aria-hidden="true"></i>
+									<span class="sr-only">{{ lang('DTST_ACTION_ACCEPT') }}</span>
+								</label>
+								<label for="dtst_manage_pending_{{ user.USER_ID }}">
+									<input type="radio" id="dtst_manage_pending_{{ user.USER_ID }}" name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_action]' }}" title="{{ lang('DTST_USER_STATUS_PENDING') }}" value="{{ DTST_STATUS_PENDING }}"{% if (DTST_USERS[user.USER_ID]['dtst_action'] == DTST_STATUS_PENDING) or (DTST_USERS[user.USER_ID]['dtst_action'] is not defined) %} checked="checked"{% endif %}>
+									<i class="icon fa-question fa-fw orange" title="{{ lang('DTST_USER_STATUS_PENDING') }}" aria-hidden="true"></i>
+									<span class="sr-only">{{ lang('DTST_USER_STATUS_PENDING') }}</span>
+								</label>
+								<label for="dtst_manage_deny_{{ user.USER_ID }}">
+									<input type="radio" id="dtst_manage_deny_{{ user.USER_ID }}" name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_action]' }}" title="{{ lang('DTST_ACTION_DENY') }}" value="{{ DTST_STATUS_DENIED }}"{% if DTST_USERS[user.USER_ID]['dtst_action'] == DTST_STATUS_DENIED %} checked="checked"{% endif %}>
+									<i class="icon fa-times fa-fw red" title="{{ lang('DTST_ACTION_DENY') }}" aria-hidden="true"></i>
+									<span class="sr-only">{{ lang('DTST_ACTION_DENY') }}</span>
+								</label>
+								<textarea name="{{ 'dtst_user_data[' ~ user.USER_ID ~ '][dtst_action_reason]' }}" title="{{ lang('DTST_REASON') }}" placeholder="{{ lang('DTST_REASON') }}" maxlength="255">{{ DTST_USERS[user.USER_ID]['dtst_action_reason'] }}</textarea>
+								<span class="pagination"><span class="dtst-user-reason-length">{{ DTST_USERS[user.USER_ID]['dtst_action_reason']|length }}</span>/255</span>
+							{% elseif key == DTST_STATUS_DENIED %}
+								{{ user.DTST_HOST_REASON }}
+							{% endif %}
+						</div>
+					</li>
+					{% if loop.last %}</ul>{% endif %}
+				{% else %}
+					<p>{{ status.user_none }}</p>
+				{% endfor %}
+			</div>
+			{% if not loop.last %}<hr>{% endif %}
+		{% endfor %}
+	</div>
+
+	<fieldset class="submit-buttons">
+		<input type="hidden" name="f" value="{{ DTST_FORUM_ID }}">
+		<input type="hidden" name="t" value="{{ DTST_TOPIC_ID }}">
+		<input type="reset" name="reset" value="{{ lang('RESET') }}" class="button" />&nbsp;
+		<input{% if S_DTST_AJAX %} type="button"{% else %} type="submit"{% endif %} name="confirm" value="{{ lang('SUBMIT') }}" class="button dtst-button dtst-button-green" />&nbsp;
+		<input{% if S_DTST_AJAX %} type="button"{% else %} type="submit"{% endif %} name="cancel" value="{{ lang('CANCEL') }}" class="button dtst-button dtst-button-red" />
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+
+{% if not S_DTST_AJAX %}{% include 'overall_footer.html' %}{% endif %}

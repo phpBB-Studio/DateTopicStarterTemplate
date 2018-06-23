@@ -1,0 +1,24 @@
+{% if S_DTST_PM_PREVIEW %}
+	<h6><span class="arrow-r"></span>{{ lang('ACP_DTST_PM_PREVIEW') }}</h6>
+	<div>
+		<fieldset class="dtst-acp-outer">
+			<fieldset class="dtst-acp-middle">
+				<legend>{{ lang('PREVIEW') }}</legend>
+				<fieldset class="dtst-acp-inner">
+					<legend>{{ lang('PRIVATE_MESSAGE') }}</legend>
+					<div class="dtst-acp-rules">{{ lang('ACP_DTST_PM_TOKENS_PREVIEW') }}</div>
+					<h3 class="dtst-acp-preview-title">{{ DTST_PM_PREVIEW_TITLE }}</h3>
+					<p class="dtst-acp-preview-author">
+						<strong>{{ lang('SENT_AT') }}{{ lang('COLON') }}</strong> {{ DTST_PM_PREVIEW_TIME }}<br>
+						<strong>{{ lang('PM_FROM') }}{{ lang('COLON') }}</strong> {{ DTST_PM_PREVIEW_USER }}<br>
+						<strong>{{ lang('TO') }}{{ lang('COLON') }}</strong> {{ '{' }}RECIP_NAME_FULL{{ '}' }}
+					</p>
+					<div class="dtst-acp-preview-content">
+						{{ DTST_PM_PREVIEW_TEXT }}
+					</div>
+					<div class="dtst-acp-preview-sig">{{ DTST_PM_PREVIEW_SIG }}</div>
+				</fieldset>
+			</fieldset>
+		</fieldset>
+	</div>
+{% endif %}

@@ -1,7 +1,7 @@
 {# Include our ACP - CSS #}
-{% if not definition.INCLUDED_DTST_ACPCSS %}
+{% if not definition.INCLUDED_DTSTACPCSS %}
 	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
-	{% DEFINE INCLUDED_DTST_ACPCSS = true %}
+	{% DEFINE INCLUDED_DTSTACPCSS = true %}
 {% endif %}
 
 {% INCLUDE 'overall_header.html' %}
@@ -25,13 +25,50 @@
 				<legend>{{ lang('ACP_SETTINGS_MANAGEMENT') }}</legend>
 				<dl>
 					<dt>
-						<label for="dtst_locked_withdrawal">{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL_EXP') }}
+						<label for="dtst_locked_withdrawal">{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL') }}{{ lang('COLON') }}</label>
+						<br>{{ lang('ACP_SETTINGS_LOCKED_WITHDRAWAL_EXP') }}
 					</dt>
 					<dd>
-						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="1"{% if ACP_SETTINGS_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %}/> {{ lang('YES') }}
+						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="1"{% if DTST_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %}/> {{ lang('YES') }}
 						&nbsp;
-						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="0"{% if not ACP_SETTINGS_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %} /> {{ lang('NO') }}
+						<input type="radio" class="radio" name="dtst_locked_withdrawal" value="0"{% if not DTST_WITHDRAWAL_IF_LOCKED %} id="dtst_locked_withdrawal" checked="checked"{% endif %} /> {{ lang('NO') }}
 					</dd>
+				</dl>
+				<hr>
+				<dl>
+					<dt>
+						<label for="dtst_sidebar">{{ lang('ACP_DTST_SIDEBAR') }}{{ lang('COLON') }}</label>
+						<br>{{ lang('ACP_DTST_SIDEBAR_EXPLAIN') }}
+					</dt>
+					<dd>
+						<input type="radio" class="radio" name="dtst_sidebar" value="1"{% if DTST_SIDEBAR %} id="dtst_sidebar" checked="checked"{% endif %}/> {{ lang('ACP_DTST_SIDEBAR_LEFT') }}
+						&nbsp;
+						<input type="radio" class="radio" name="dtst_sidebar" value="0"{% if not DTST_SIDEBAR %} id="dtst_sidebar" checked="checked"{% endif %} /> {{ lang('ACP_DTST_SIDEBAR_RIGHT') }}
+					</dd>
+				</dl>
+				<hr>
+				<div class="dtst-acp-rules">{{ lang('ACP_DTST_USE_BOT_EXPLAIN') }}</div>
+				{# (BOOL) PM's Bot - Use #}
+				<dl>
+					<dt>
+						<label for="dtst_use_bot">{{ lang('ACP_DTST_USE_BOT') }}{{ lang('COLON') }}</label>
+					</dt>
+					<dd>
+						<input type="radio" class="radio" name="dtst_use_bot" value="1"{% if DTST_USE_BOT %} checked="checked"{% endif %}/> {{ lang('YES') }} &nbsp;
+						<input type="radio" class="radio" name="dtst_use_bot" value="0"{% if not DTST_USE_BOT %} checked="checked"{% endif %} /> {{ lang('NO') }}
+					</dd>
+				</dl>
+
+				{# (INT) PM's Bot - User ID #}
+				<dl>
+					<dt>
+						<label for="dtst_bot">{{ lang('ACP_DTST_BOT') }}{{ lang('COLON') }}</label>
+					</dt>
+					<div class="dtst-acp-select" title="{{ lang('ACP_DTST_BOT_TITLE') }}" >
+						<dd>
+							{{ DTST_BOT }}
+						</dd>
+					</div>
 				</dl>
 			</fieldset>
 		</fieldset>
@@ -40,6 +77,7 @@
 	<fieldset class="dtst-acp-submit">
 		<fieldset class="submit-buttons">
 			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
 		</fieldset>
 		{{ S_FORM_TOKEN }}
 	</fieldset>

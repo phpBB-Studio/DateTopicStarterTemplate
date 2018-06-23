@@ -31,6 +31,11 @@ class dtst_info
 					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
 					'cat'	=> array('ACP_DTST_TITLE')
 				),
+				'privmsg'	=> array(
+					'title'	=> 'ACP_DTST_PRIVMSG',
+					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
 			],
 		];
 	}

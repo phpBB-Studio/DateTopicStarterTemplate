@@ -1,0 +1,17 @@
+<form action="{S_CONFIRM_ACTION}" method="post">
+	<h3>{{ lang('CONFIRM') }}</h3>
+	<p>{{ MESSAGE_TEXT }}</p>
+
+	{% if not S_DTST_NO_REASON %}
+		<label for="dtst_reason">
+			<strong>{{ lang('DTST_REASON') ~ lang('COLON') }}</strong>
+			<br><textarea id="dtst_reason" name="dtst_reason" class="inputbox" maxlength="255" rows="3"></textarea>
+			<span class="pagination"></span>
+		</label>
+	{% endif %}
+
+	<fieldset class="submit-buttons">
+		<input type="button" name="confirm" value="{{ lang('SUBMIT') }}" class="button1" />&nbsp;
+		<input type="button" name="cancel" value="{{ lang('CANCEL') }}" class="button2" />
+	</fieldset>
+</form>

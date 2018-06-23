@@ -50,23 +50,23 @@
 		<dl>
 			<dt><label for="dtst_event_type">{{ lang('DTST_EVENT_TYPE') ~ lang('COLON') }}</label></dt>
 			<dd>
-				<select name="dtst_event_type" id="dtst_event_type" tabindex="5" >{{ DTST_EVENT_TYPE }}</select>
+				<select name="dtst_event_type" id="dtst_event_type" tabindex="5" title="{{ lang('DTST_EVENT_TYPE_EXPLAIN') }}" >{{ DTST_EVENT_TYPE }}</select>
 			</dd>
 		</dl>
 
 		<dl>
 			<dt><label for="dtst_age_min">{{ lang('DTST_AGE_MIN') ~ lang('COLON') }}</label></dt>
-			<dd><input type="number" min="0" max="99" maxlength="2" pattern="[0-9]{{ '{' }}2{{ '}' }}" name="dtst_age_min" id="dtst_age_min" tabindex="6" size="2" value="{{ DTST_AGE_MIN }}" title="{{ lang('DTST_AGE_RANGE_ZERO') }}" /></dd>
+			<dd><input type="number" class="inputbox autowidth" min="0" max="99" maxlength="2" pattern="[0-9]{{ '{' }}2{{ '}' }}" name="dtst_age_min" id="dtst_age_min" tabindex="6" size="2" value="{{ DTST_AGE_MIN }}" title="{{ lang('DTST_AGE_RANGE_ZERO') }}" /></dd>
 		</dl>
 
 		<dl>
 			<dt><label for="dtst_age_max">{{ lang('DTST_AGE_MAX') ~ lang('COLON') }}</label></dt>
-			<dd><input type="number" min="0" max="99" maxlength="2" pattern="[0-9]{{ '{' }}2{{ '}' }}" name="dtst_age_max" id="dtst_age_max" tabindex="7" size="2" value="{{ DTST_AGE_MAX }}" title="{{ lang('DTST_AGE_RANGE_ZERO') }}" /></dd>
+			<dd><input type="number" class="inputbox autowidth" min="0" max="99" maxlength="2" pattern="[0-9]{{ '{' }}2{{ '}' }}" name="dtst_age_max" id="dtst_age_max" tabindex="7" size="2" value="{{ DTST_AGE_MAX }}" title="{{ lang('DTST_AGE_RANGE_ZERO') }}" /></dd>
 		</dl>
 
 		<dl>
 			<dt><label for="dtst_participants">{{ lang('DTST_PARTICIPANTS') ~ lang('COLON') }}</label></dt>
-			<dd><input type="number" min="0" max="999" maxlength="3" pattern="[0-9]{{ '{' }}3{{ '}' }}" name="dtst_participants" id="dtst_participants" tabindex="8" size="8" value="{{ DTST_PARTICIPANTS }}" title="{{ lang('DTST_PARTICIPANTS_ZEROZERO') }}" /></dd>
+			<dd><input type="number" class="inputbox autowidth" min="0" max="999" maxlength="3" pattern="[0-9]{{ '{' }}3{{ '}' }}" name="dtst_participants" id="dtst_participants" tabindex="8" size="8" value="{{ DTST_PARTICIPANTS }}" title="{{ lang('DTST_PARTICIPANTS_ZERO') }}" /></dd>
 		</dl>
 	</fieldset>
 {% endif %}
