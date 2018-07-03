@@ -665,9 +665,6 @@ class controller
 							$topic_last_post_colour = $row_user['user_colour'];
 							$topic_last_post_id = $row_user['user_id'];
 
-							/* Get a list of parent forum IDs for our forum */
-							$forum_parents_id = $this->dtst_utils->dtst_forum_id_to_parents($forum_id);
-
 							/* For the sake of the last post function */
 							$this->db->sql_transaction('begin');
 
@@ -681,18 +678,11 @@ class controller
 
 							$sql = 'UPDATE ' . FORUMS_TABLE . '
 									SET ' . $this->db->sql_build_array('UPDATE', array(
+										'forum_last_poster_id'			=> $topic_last_post_id,
 										'forum_last_poster_name'		=> $topic_last_poster_name,
 										'forum_last_poster_colour'		=> $topic_last_post_colour,
 									)) . ' 
 									WHERE forum_id = ' . (int) $forum_id;
-							$this->db->sql_query($sql);
-
-							/* We only need to update the poster ID in the parent forums */
-							$sql = 'UPDATE ' . FORUMS_TABLE . '
-									SET ' . $this->db->sql_build_array('UPDATE', array(
-										'forum_last_poster_id'		=> $topic_last_post_id,
-									)) . ' 
-									WHERE forum_id = ' . $this->db->sql_in_set('forum_id', $forum_parents_id, true, true);
 							$this->db->sql_query($sql);
 
 							$this->db->sql_transaction('commit');
