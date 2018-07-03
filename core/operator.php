@@ -641,4 +641,41 @@ class operator
 
 		return submit_post('reply', $topic_title, $username, POST_NORMAL, $poll, $data);
 	}
+
+	/**
+	 * Returns an array of forum IDS to be used with "sql_in_set"
+	 *
+	 * @param int		$forum_id		the forum ID to use
+	 * @return array					array of forum IDS, empty array otherwise
+	 * @access public
+	 */
+	public function dtst_forum_id_to_parents($forum_id)
+	{
+		$forum_parents = array();
+
+		$sql = 'SELECT *
+			FROM ' . FORUMS_TABLE . '
+			WHERE forum_id = ' . (int) $forum_id;
+		$result = $this->db->sql_query($sql);
+		$forum_data = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if ($forum_data)
+		{
+			$sql = 'SELECT forum_id
+				FROM ' . FORUMS_TABLE . '
+				WHERE left_id < ' . $forum_data['left_id'] . '
+					AND right_id > ' . $forum_data['right_id'] . '
+				ORDER BY left_id ASC';
+			$result = $this->db->sql_query($sql);
+
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$forum_parents = (int) $row['forum_id'];
+			}
+			$this->db->sql_freeresult($result);
+		}
+
+		return (array) $forum_parents;
+	}
 }
