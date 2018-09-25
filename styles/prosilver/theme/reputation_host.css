@@ -1,0 +1,46 @@
+/*****************************************
+* This section is for host's reput. page *
+******************************************/
+.host-container {
+	clear: right;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-flow: row wrap;
+	flex-flow: row wrap;
+	overflow: auto;
+	max-height: auto;
+	justify-content: space-around;
+	background: #ECF3F7;
+}
+
+/* Hackish but must stay here */
+}
+
+.host-item {
+	flex: 1 21%;
+	padding: 2px;
+	border: 1px solid transparent;
+	text-align: center;
+	font-size: 1.2em;
+}
+
+.host-item-2 {
+	flex: 1 42%;
+	padding: 3px;
+	border: 1px solid transparent;
+	text-align: center;
+	font-size: 1.1em;
+}
+
+.m-green {
+	color: #5D830F;
+	text-shadow: 3px 3px 1px #cccccc;
+	font-size: 1.3em;
+}
+
+.red {
+	color: #D31141;
+	text-shadow: 3px 3px 1px #cccccc;
+	font-size: 1.3em;	
+}

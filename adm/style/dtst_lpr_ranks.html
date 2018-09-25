@@ -1,0 +1,128 @@
+{# Include our ACP - CSS #}
+{% if not definition.INCLUDED_DTSTACPCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
+	{% DEFINE INCLUDED_DTSTACPCSS = true %}
+{% endif %}
+
+{% if not definition.INCLUDED_DTSTRANKUPDATEJS %}
+	{% INCLUDEJS '@phpbbstudio_dtst/dtst_rank_update.js' %}
+	{% DEFINE INCLUDED_DTSTRANKUPDATEJS = true %}
+{% endif %}
+
+{% INCLUDE 'overall_header.html' %}
+
+<h1>{{ lang('ACP_DTST_TITLE') }}</h1>
+
+{% if S_ERRORS %}
+{# Non invasive error reporting #}
+<fieldset>
+	<legend>{{ lang('ACP_DTST_ERRORS') }}</legend>
+	<p class="error">
+		{{ ERRORS_MSG }}
+	</p>
+</fieldset>
+{% endif %}
+
+<form id="phpbbstudio_dtst_lpr_ranks" method="post" action="{U_ACTION}">
+	<fieldset class="dtst-acp-outer">
+		<fieldset class="dtst-acp-middle">
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_DTST_RANKS_MANAGEMENT') }}</legend>
+				<div class="dtst-acp-rules">{{ lang('ACP_DTST_RANKS_MANAGEMENT_EXPLAIN') }}</div>
+				{# This input provides the URL for the AJAX call #}
+				<input type="hidden" id="dtst_ranks_update" data-url="{{ U_DTST_RANK_UPDATE }}" >
+				<dl>
+					<dt>
+						<label for="dtst_rank_isocode">{{ lang('ACP_DTST_RANK_LANG') ~ lang('COLON') }}</label>
+					</dt>
+					<div class="dtst-acp-select">
+						<dd>
+							<select name="dtst_rank_isocode" id="dtst_rank_isocode" title="{{ lang('ACP_DTST_RANK_LANG') }}">{{ S_DTST_RANKS_ISO }}</select>
+						</dd>
+					</div>
+				</dl>
+				<dl>
+					<dt>
+						<label for="dtst_rank_value">{{ lang('ACP_DTST_RANK_VALUE') ~ lang('COLON') }}</label>
+					</dt>
+					<div class="dtst-acp-select">
+						<dd>
+							<select name="dtst_rank_value" id="dtst_rank_value" title="{{ lang('ACP_DTST_RANK_VALUE') }}">{{ S_DTST_RANK_VALUES }}</select>
+						</dd>
+					</div>
+				</dl>
+			</fieldset>
+
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_DTST_RANK_SETTINGS') }}</legend>
+				<div class="dtst-acp-rules">{{ lang('ACP_DTST_RANK_SETTINGS_EXPLAIN') }}</div>
+
+				<dl>
+					<dt>
+						<label for="dtst_rank_title">{{ lang('ACP_DTST_RANK_TITLE') ~ lang('COLON') }}</label>
+						<br>{{ lang('ACP_DTST_RANK_TITLE_EXPLAIN') }}
+					</dt>
+					<dd>
+						<input name="dtst_rank_title" id="dtst_rank_title" type="text" class="inputbox autowidth" maxlength="15" size="25" value="{{ DTST_RANK_TITLE }}" placeholder="{{ lang('ACP_DTST_RANK_TITLE_HOLDER') }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rank_desc">{{ lang('ACP_DTST_RANK_DESC') ~ lang('COLON') }}</label>
+						<br>{{ lang('ACP_DTST_RANK_DESC_EXPLAIN') }}
+					</dt>
+					<dd>
+						<input name="dtst_rank_desc" id="dtst_rank_desc" type="text" class="inputbox autowidth" maxlength="25" size="25" value="{{ DTST_RANK_DESC }}" placeholder="{{ lang('ACP_DTST_RANK_DESC_HOLDER') }}" />
+					</dd>
+				</dl>
+
+				{#
+					The HTML5 type color input field opens the operating system's color widget.
+					Returns the HexDec value of the chosen color in format #000000
+					If not supported, returns a type text color-picker.
+				#}
+				<dl>
+					<dt>
+						<label for="dtst_rank_bckg">{{ lang('ACP_DTST_RANK_BCKG') ~ lang('COLON') }}</label><br>{{ lang('ACP_DTST_RANK_BCKG_EXPLAIN') }}
+					</dt>
+					<dd>
+						<input type="text" name="dtst_rank_bckg" id="dtst_rank_bckg" class="input" value="{{ DTST_RANK_BCKG }}"  pattern="#[a-fA-F0-9]{6,6}" size="7" title="{{ lang('ACP_DTST_RANK_COLORPICKER_EXPLAIN') }}" placeholder="{{ lang('ACP_DTST_RANK_BCKG_HOLDER') }}" onchange="document.getElementById('dtst_rank_bckg_hex').value = this.value;" />
+
+						<input type="color" name="dtst_rank_bckg_hex" id="dtst_rank_bckg_hex" class="input" value="{{ DTST_RANK_BCKG }}" placeholder="{{ DTST_RANK_BCKG }}" title="{{ lang('ACP_DTST_RANK_COLORPICKER_EXPLAIN') }}" onchange="document.getElementById('dtst_rank_bckg').value = this.value;"/>&nbsp;
+
+						{{ lang('ACP_DTST_RANK_HEX_STORED') ~ lang('COLON') }}&nbsp;
+						<input type="text" name="dtst_rank_bckg2" id="dtst_rank_bckg2" class="input" value="{{ DTST_RANK_BCKG }}" size="7" title="{{ lang('ACP_DTST_RANK_COLOR_STORED') }}" disabled />
+
+						<input type="color" name="dtst_rank_bckg2_hex" id="dtst_rank_bckg2_hex" class="input" value="{{ DTST_RANK_BCKG }}" placeholder="{{ DTST_RANK_BCKG }}" title="{{ lang('ACP_DTST_RANK_COLOR_STORED') }}" disabled />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rank_text">{{ lang('ACP_DTST_RANK_TEXT') ~ lang('COLON') }}</label><br>{{ lang('ACP_DTST_RANK_TEXT_EXPLAIN') }}
+					</dt>
+					<dd>
+						<input type="text" name="dtst_rank_text" id="dtst_rank_text" class="input" value="{{ DTST_RANK_TEXT }}"  pattern="#[a-fA-F0-9]{6,6}" size="7" title="{{ lang('ACP_DTST_RANK_COLORPICKER_EXPLAIN') }}" placeholder="{{ lang('ACP_DTST_RANK_TEXT_HOLDER') }}" onchange="document.getElementById('dtst_rank_text_hex').value = this.value;" />
+
+						<input type="color" name="dtst_rank_text_hex" id="dtst_rank_text_hex" class="input" value="{{ DTST_RANK_TEXT }}" placeholder="{{ DTST_RANK_TEXT }}" title="{{ lang('ACP_DTST_RANK_COLORPICKER_EXPLAIN') }}" onchange="document.getElementById('dtst_rank_text').value = this.value;"/>&nbsp;
+
+						{{ lang('ACP_DTST_RANK_HEX_STORED') ~ lang('COLON') }}&nbsp;
+						<input type="text" name="dtst_rank_text2" id="dtst_rank_text2" class="input" value="{{ DTST_RANK_TEXT }}" size="7" title="{{ lang('ACP_DTST_RANK_COLOR_STORED') }}" disabled />
+
+						<input type="color" name="dtst_rank_text2_hex" id="dtst_rank_text2_hex" class="input" value="{{ DTST_RANK_TEXT }}" placeholder="{{ DTST_RANK_TEXT }}" title="{{ lang('ACP_DTST_RANK_COLOR_STORED') }}" disabled />
+					</dd>
+				</dl>
+			</fieldset>
+		</fieldset>
+	</fieldset>
+
+	<fieldset class="dtst-acp-submit">
+		<fieldset class="submit-buttons">
+			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+{% INCLUDE 'overall_footer.html' %}

@@ -1,0 +1,36 @@
+/* CSS Document */
+
+.dtst-acp-inner {
+}
+
+.dtst-acp-middle {
+	background-color: #F3F3F3; /* light grey */ 
+}
+
+.dtst-acp-outer {
+	background-image: url("../images/dtst_acp_gfx.png");
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+}
+
+/* That's the native phpBB prosilver class "rules" slightly modified */
+.dtst-acp-rules {
+	margin-bottom: 10px;
+	font-size: 0.9em;
+	padding: 5px 10px;
+	border-radius: 7px;
+	background-color: #d6e9cf; /* light green */
+	color: #125814; /* dark green */
+}
+
+/****************** profile in ACP ******/
+.dtst-acp-action label { cursor: pointer; }
+.dtst-acp-action input { display: none; }
+.dtst-acp-action input:checked + i.fa-plus-square { color: limegreen; }
+.dtst-acp-action input:checked + i.fa-minus-square { color: red; }
+
+.dtst-acp-small {
+	width: 50px;
+}

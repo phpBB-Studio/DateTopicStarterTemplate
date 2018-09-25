@@ -1,0 +1,65 @@
+{# Include REPUTATE USERS - CSS #}
+{% if not definition.INCLUDED_REPUTATEUSERSCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/reputate_users.css' %}
+	{% DEFINE INCLUDED_REPUTATEUSERSCSS = true %}
+{% endif %}
+
+{# Include jQuery rateYo - CSS: https://github.com/prrashi/rateYo #}
+{% if not definition.INCLUDED_JQUERYRATEYOCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/jquery.rateyo.css' %}
+	{% DEFINE INCLUDED_JQUERYRATEYOCSS = true %}
+{% endif %}
+
+{# Include jQuery rateYo - Javascript: https://github.com/prrashi/rateYo #}
+{% if not definition.INCLUDED_JQUERYRATEYOJS %}
+	{% INCLUDEJS '@phpbbstudio_dtst/js/jquery.rateyo.js' %}
+	{% DEFINE INCLUDED_JQUERYRATEYOJS = true %}
+{% endif %}
+
+<div class="dtst-rep-user inner">
+	<div class="dtst-rep-user-avatar">
+		{% if S_DTST_IS_HOST and not user.S_NO_SHOW %}
+			<div class="dtst-rep-noshow">
+				<a title="{{ lang('DTST_REP_NO_SHOW') }}" {% if not user.S_THIS_USER %}href="{{ user.U_NO_SHOW }}" data-ajax="dtst_reputation" {% endif %}class="button {% if user.S_THIS_USER %}dtst-rep-disabled{% endif %}">
+					<i class="fa fa-user-times fa-fw" aria-hidden="true"></i>
+					<span class="sr-only">{{ lang('DTST_REP_NO_SHOW') }}</span>
+				</a>
+			</div>
+		{% endif %}
+
+		{% if user.AVATAR %}
+			{{ user.AVATAR }}
+		{% else %}
+			<img src="{{ T_THEME_PATH ~ '/images/no_avatar.gif' }}" width="90" height="90" />
+		{% endif %}
+	</div>
+
+	<div class="dtst-rep-user-details">
+		<h5>{{ user.USERNAME }}</h5>
+
+		<a class="dtst-rank-button-reputate" style="color: {{ user.RANK_TEXT }};background-color: {{ user.RANK_BCKG }};" title="{{ user.RANK_DESC }}" >
+			<span>{{ user.RANK_TITLE }}</span>
+		</a>
+		<br>
+		<div title="{{ user.PERCENT_RATEYO }}" data-rateyo-rating="{{ user.PERCENT_RATEYO }}" data-rateyo-rtl="{% if S_CONTENT_DIRECTION eq 'rtl' %}true{% else %}false{% endif %}"></div>
+		<br>
+		<div class="dtst-rep-buttons">
+			<div class="dtst-rep-button1">
+				<a title="{{ S_DTST_IS_HOST ? lang('DTST_REP_CONDUCT_GOOD') : lang('DTST_REP_THUMBS_UP') }}" {% if not user.S_THIS_USER and not user.S_NO_SHOW and not S_DTST_IS_NO_SHOW %}href="{{ user.U_REP_GOOD }}" data-ajax="dtst_reputation" {% endif %}class="button {% if not user.S_THIS_USER and not user.S_NO_SHOW and not S_DTST_IS_NO_SHOW %}dtst-rep-up{% else %}dtst-rep-disabled{% endif %}{% if user.S_REPPED_UP %} dtst-repped-up{% endif %}">
+					<i class="fa fa-thumbs-up fa-fw" aria-hidden="true"></i>
+					<span class="sr-only">{{ lang('DTST_REP_THUMBS_UP') }}</span>
+				</a>
+			</div>
+			<div class="dtst-rep-button2">
+				<a title="{{ S_DTST_IS_HOST ? lang('DTST_REP_CONDUCT_BAD') : lang('DTST_REP_THUMBS_DOWN') }}" {% if not user.S_THIS_USER and not user.S_NO_SHOW and not S_DTST_IS_NO_SHOW %}href="{{ user.U_REP_BAD }}" data-ajax="dtst_reputation" {% endif %}class="button {% if not user.S_THIS_USER and not user.S_NO_SHOW and not S_DTST_IS_NO_SHOW %}dtst-rep-down{% else %}dtst-rep-disabled{% endif %}{% if user.S_REPPED_DOWN %} dtst-repped-down{% endif %}">
+					<i class="fa fa-thumbs-down fa-fw" aria-hidden="true"></i>
+					<span class="sr-only">{{ lang('DTST_REP_THUMBS_DOWN') }}</span>
+				</a>
+			</div>
+			<div class="dtst-rep-noshow-icon" title="{{ lang('DTST_REP_NO_SHOW') }}"{% if not user.S_NO_SHOW %} hidden{% endif %}>
+				<i class="fa fa-user-times fa-fw" aria-hidden="true"></i>
+				<span class="sr-only">{{ lang('DTST_REP_NO_SHOW') }}</span>
+			</div>
+		</div>
+	</div>
+</div>

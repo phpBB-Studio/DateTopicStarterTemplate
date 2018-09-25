@@ -1,0 +1,17 @@
+/***************************************
+* This section is for miniprofile view *
+***************************************/
+.dtst-rank-button-reputate {
+	font-size: 12px;
+	font-weight: 600;
+	font-family: "Open Sans", "Droid Sans", Verdana, Arial, Helvetica;
+	text-align: center;
+	white-space: nowrap;
+	margin: 2px 0;
+	box-shadow: 1px 2px 3px;
+	border-radius: 3px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}

@@ -1,0 +1,140 @@
+{# Include our ACP - CSS #}
+{% if not definition.INCLUDED_DTSTACPCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp.css' %}
+	{% DEFINE INCLUDED_DTSTACPCSS = true %}
+{% endif %}
+
+{% INCLUDE 'overall_header.html' %}
+
+<h1>{{ lang('ACP_DTST_TITLE') }}</h1>
+
+{% if S_ERRORS %}
+{# Non invasive error reporting #}
+<fieldset>
+	<legend>{{ lang('ACP_DTST_ERRORS') }}</legend>
+	<p class="error">
+		{{ ERRORS_MSG }}
+	</p>
+</fieldset>
+{% endif %}
+
+<form id="phpbbstudio_dtst_lpr_reputation" method="post" action="{U_ACTION}">
+	<fieldset class="dtst-acp-outer">
+		<fieldset class="dtst-acp-middle">
+
+			<div class="dtst-acp-rules">{{ lang('ACP_LPR_REPUTATION_MANAGEMENT') }}</div>
+
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_DTST_REP_HOST') }}</legend>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_host">{{ lang('ACP_DTST_REP_POINTS_HOST') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_HOST_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-green icon fa-thumbs-up fa-fw" aria-hidden="true"></i> <input type="number" min="0" name="dtst_rep_points_host" id="dtst_rep_points_host" size="6" value="{{ DTST_REP_POINTS_HOST }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_noreply">{{ lang('ACP_DTST_REP_POINTS_NOREPLY') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_NOREPLY_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_noreply" id="dtst_rep_points_noreply" size="6" value="{{ DTST_REP_POINTS_NOREPLY }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_cancel_event">{{ lang('ACP_DTST_REP_POINTS_CANCEL_EVENT') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_CANCEL_EVENT_EXP') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_cancel_event" id="dtst_rep_points_cancel_event" size="6" value="{{ DTST_REP_POINTS_CANCEL_EVENT }}" />
+					</dd>
+				</dl>
+			</fieldset>
+
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_DTST_REP_USER') }}</legend>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_good">{{ lang('ACP_DTST_REP_POINTS_GOOD') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_GOOD_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-green icon fa-thumbs-up fa-fw" aria-hidden="true"></i> <input type="number" min="0" name="dtst_rep_points_good" id="dtst_rep_points_good" size="6" value="{{ DTST_REP_POINTS_GOOD }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_bad">{{ lang('ACP_DTST_REP_POINTS_BAD') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_BAD_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_bad" id="dtst_rep_points_bad" size="6" value="{{ DTST_REP_POINTS_BAD }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_attend">{{ lang('ACP_DTST_REP_POINTS_ATTEND') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_ATTEND_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-green icon fa-thumbs-up fa-fw" aria-hidden="true"></i> <input type="number" min="0" name="dtst_rep_points_attend" id="dtst_rep_points_attend" size="6" value="{{ DTST_REP_POINTS_ATTEND }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_noshow">{{ lang('ACP_DTST_REP_POINTS_NOSHOW') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_NOSHOW_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_noshow" id="dtst_rep_points_noshow" size="6" value="{{ DTST_REP_POINTS_NOSHOW }}" />
+					</dd>
+				</dl>
+
+			</fieldset>
+
+			<fieldset class="dtst-acp-inner">
+				<legend>{{ lang('ACP_DTST_REP_ALL') }}</legend>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_up">{{ lang('ACP_DTST_REP_POINTS_UP') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_UP_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-green icon fa-thumbs-up fa-fw" aria-hidden="true"></i> <input type="number" min="0" name="dtst_rep_points_up" id="dtst_rep_points_up" size="6" value="{{ DTST_REP_POINTS_UP }}" />
+					</dd>
+				</dl>
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_down">{{ lang('ACP_DTST_REP_POINTS_DOWN') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_DOWN_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_down" id="dtst_rep_points_down" size="6" value="{{ DTST_REP_POINTS_DOWN }}" />
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_rep_points_withdraw">{{ lang('ACP_DTST_REP_POINTS_WITHDRAW') }}{{ lang('COLON') }}</label><br>{{ lang('ACP_DTST_REP_POINTS_WITHDRAW_EXPLAIN') }}
+					</dt>
+					<dd>
+						<i class="dtst-acp-fa-red icon fa-thumbs-down fa-fw" aria-hidden="true"></i> <input type="number" max="0" name="dtst_rep_points_withdraw" id="dtst_rep_points_withdraw" size="6" value="{{ DTST_REP_POINTS_WITHDRAW }}" />
+					</dd>
+				</dl>
+
+			</fieldset>
+		</fieldset>
+	</fieldset>
+
+	<fieldset class="dtst-acp-submit">
+		<fieldset class="submit-buttons">
+			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form
+{% INCLUDE 'overall_footer.html' %}
