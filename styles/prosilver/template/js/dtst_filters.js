@@ -103,6 +103,69 @@
 				$form.submit();
 			}
 		}
+
+		$(window).scroll(stickyFilters);
+		stickyFilters();
+
+		function stickyFilters() {
+			// Selectors (elements)
+			var $window		= $(window),
+				$wrapper	= $('.dtst-filters'),
+				$filters	= $('.dtst-filters-inner');
+
+			// Offsets and lengths (pixels)
+			var window_top	= $window.scrollTop(),
+				topics_top	= $wrapper.next('.forumbg').offset().top,
+				footer_top	= $('.action-bar.bar-bottom').offset().top,
+				filter_top	= $wrapper.offset().top,
+				filter_left	= $filters.offset().left,
+				filter_len	= $filters.height();
+
+			// Misc.
+			var breakpoint	= 800,
+				padding		= 20,
+				height		= footer_top - padding - topics_top;
+
+			// Breakpoints (booleans)
+			var onlyOnLargeScreen			= $window.width() > breakpoint,
+				topicListLongerThanFilter	= height > filter_len,
+				scrolledByTopOfTopicsList	= window_top > topics_top,
+				filtersReachedTheBottom	 	= window_top + filter_len > footer_top - padding;
+
+
+			// Only sticky the sidebar if we are on a "large" screen
+			if (onlyOnLargeScreen) {
+				/*
+				 * Then we have three stages when scrolling:
+				 * - top: do nothing
+				 * - middle: sticky the sidebar to the screen (position: fixed)
+				 * - bottom: sticky the sidebar to the footer (position: absolute)
+				 */
+
+				 // Stage 3: Bottom
+				if (filtersReachedTheBottom) {
+					$filters.removeClass('dtst-filters-sticky');
+
+					// If the filter <div> is smaller than the topics list
+					if (topicListLongerThanFilter) {
+						$wrapper.height(height);
+						$filters.addClass('dtst-filters-bottom');
+					}
+
+					// Reset "left" css, as it is now the margin from the parent and not the screen
+					if ($wrapper.data('filter')) {
+						$filters.css('left', 0);
+					}
+				// Stage 2: Middle
+				} else if (scrolledByTopOfTopicsList) {
+					$filters.css('left', filter_left);
+					$filters.addClass('dtst-filters-sticky').removeClass('dtst-filters-bottom');
+				// Stage 1: Top
+				} else {
+					$filters.removeClass('dtst-filters-sticky');
+				}
+			}
+		}
 	});
 
 })(jQuery); // Avoid conflicts with other libraries

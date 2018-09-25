@@ -1,0 +1,60 @@
+{% if S_DTST_ACP %}
+
+	{# Include our ACP - CSS #}
+	{% if not definition.INCLUDED_DTSTACPCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/dtst_acp_user.css' %}
+		{% DEFINE INCLUDED_DTSTACPCSS = true %}
+	{% endif %}
+
+
+	</fieldset>
+
+	<fieldset class="dtst-acp-outer">
+	<legend>{{ lang('ACP_DTST_USER_PROFILE_SETTINGS') }}</legend>
+		<fieldset class="dtst-acp-middle">
+		<legend>{{ lang('ACP_DTST_ADJUST') }}</legend>
+			<dl>
+				<dt>
+					<span><strong>{{ lang('ACP_DTST_USER_REP') }}{{ lang('COLON') }}</strong></span>
+				</dt>
+				<dd>
+					<span title="{{ lang('ACP_DTST_REP') }}" ><strong>{{ DTST_U_REP }}</strong></span>
+				</dd>
+			</dl>
+
+			<fieldset class="dtst-acp-inner">
+				<div class="dtst-acp-rules">{{ lang('ACP_DTST_ADJUST_EXPLAIN') }}</div>
+				<dl>
+					<dt>
+						<label for="dtst_action_give">{{ lang('ACP_DTST_ADJUST_ACTION') ~ lang('COLON') }}</label>
+					</dt>
+
+					<dd class="dtst-acp-action">
+						<label for="dtst_action_give"><input id="dtst_action_give" name="dtst_action" value="+" type="radio"{% if DTST_ACTION == '+' %} checked="checked"{% endif %}><i class="icon fa-plus-square fa-fw"></i>
+						<span>{{ lang('ACP_DTST_ADJUST_GIVE') }}</span>
+						</label>
+
+						<label for="dtst_action_take"><input id="dtst_action_take" name="dtst_action" value="-" type="radio"{% if DTST_ACTION == '-' %} checked="checked"{% endif %}><i class="icon fa-minus-square fa-fw"></i>
+						<span>{{ lang('ACP_DTST_ADJUST_TAKE') }}</span>
+						</label>
+					</dd>
+				</dl>
+
+				<dl>
+					<dt>
+						<label for="dtst_reputation">{{ lang('ACP_DTST_ADJUST_AMOUNT') ~ lang('COLON') }}</label>
+					</dt>
+
+					<dd>
+						<input id="dtst_reputation" name="dtst_reputation" type="number" class="dtst-acp-small" value="{{ DTST_REP_ADJUST }}">
+					</dd>
+				</dl>
+
+				<dl>
+					<dt><label for="dtst_reason">{{ lang('REASON') ~ lang('COLON') }}</label></dt>
+					<dd><textarea id="dtst_reason" name="dtst_reason" class="inputbox">{{ DTST_REASON }}</textarea></dd>
+				</dl>
+			</fieldset>
+		</fieldset>
+
+{% endif %}

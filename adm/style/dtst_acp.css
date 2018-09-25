@@ -9,14 +9,14 @@
 	border: 0;
 	border-radius: 0;
 	height: 26px;
-	webkit-appearance: none;
+	-webkit-appearance: none;
 }
 
 .dtst-acp-inner {
 }
 
 .dtst-acp-middle {
-	background-color: #F3F3F3; /* light grey */ 
+	background-color: #F3F3F3; /* light grey */
 }
 
 .dtst-acp-outer {
@@ -57,6 +57,14 @@ input.button1, input.button2 {
 	border-radius: 4px;
 }
 
+dt#color_palette_placeholder {
+	width: 90px;
+}
+
+dt#color_palette_placeholder + dd {
+	margin-left: 90px;
+}
+
 /* PM preview start */
 .dtst-acp-preview-title {
 	color: #115098;
@@ -75,8 +83,7 @@ input.button1, input.button2 {
 .dtst-acp-preview-sig {
 	font-size: 11px;
 	line-height: 16px;
-	border-top: 1px solid transparent;
-	border-top-color: #dedede;
+	border-top: 1px solid #dedede;
 	clear: left;
 	overflow: hidden;
 	width: 100%;
@@ -103,4 +110,26 @@ input.button1, input.button2 {
 
 .dtst-acp-center {
 	text-align: center;
+}
+
+.dtst-acp-fa-green {
+	color: green;
+	text-shadow: 3px 3px 1px #cccccc;
+	font-size: 1.3em;
+}
+
+.dtst-acp-fa-red {
+	color: red;
+	text-shadow: 3px 3px 1px #cccccc;
+	font-size: 1.3em;
+}
+
+/****************** profile in ACP ******/
+.dtst-acp-action label { cursor: pointer; }
+.dtst-acp-action input { display: none; }
+.dtst-acp-action input:checked + i.fa-plus-square { color: limegreen; }
+.dtst-acp-action input:checked + i.fa-minus-square { color: red; }
+
+.dtst-acp-small {
+	width: 50px;
 }

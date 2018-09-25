@@ -14,7 +14,7 @@
 }
 
 /* Clearfix */
-@media all and (min-width: 800px) {
+@media all and (min-width: 801px) {
 	.dtst-filters ~ .action-bar.bar-bottom {
 		clear: left;
 	}

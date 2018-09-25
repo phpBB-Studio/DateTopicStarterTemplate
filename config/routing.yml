@@ -1,11 +1,36 @@
 dtst_controller:
     path: /dtst
-    defaults: { _controller: phpbbstudio.dtst.controller:handle }
+    defaults: { _controller: phpbbstudio.dtst.event.controller:handle }
 
 dtst_manager:
     path: /dtst/manage
-    defaults: { _controller: phpbbstudio.dtst.controller:manage }
+    defaults: { _controller: phpbbstudio.dtst.event.controller:manage }
 
 dtst_cancel:
     path: /dtst/cancel
-    defaults: { _controller: phpbbstudio.dtst.controller:cancel }
+    defaults: { _controller: phpbbstudio.dtst.event.controller:cancel }
+
+dtst_reputation:
+    path: /dtst/rep
+    defaults: { _controller: phpbbstudio.dtst.reputation.controller:handle }
+
+dtst_reputation_give:
+    path: /dtst/rep/give
+    defaults: { _controller: phpbbstudio.dtst.reputation.controller:give }
+
+dtst_reputation_delete:
+    path: /dtst/rep/delete
+    defaults: { _controller: phpbbstudio.dtst.reputation.controller:delete }
+
+dtst_reputation_view:
+    path: /dtst/reputation/u{user_id}
+    defaults: { _controller: phpbbstudio.dtst.reputation.controller:view, page:1 }
+    requirements:
+        user_id: \d+
+
+dtst_reputation_view_page:
+    path: /dtst/reputation/u{user_id}/page-{page}
+    defaults: { _controller: phpbbstudio.dtst.reputation.controller:view }
+    requirements:
+        user_id: \d+
+        page: \d+

@@ -1,0 +1,137 @@
+{% include 'overall_header.html' %}
+
+{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
+{% INCLUDECSS '@phpbbstudio_dtst/dtst_reputation.css' %}
+
+{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_participate.js' %}
+{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_reputation.js' %}
+
+<h2 class="topictitle">
+	<a href="{{ U_DTST_EVENT }}">
+		{{ DTST_EVENT_TITLE }}
+	</a>
+</h2>
+
+<div class="dtst-div-rep-host-div-1">
+	{% for user in DTST_HOST_DATA %}
+		<div class="dtst-rep-host">
+			<i class="icon fa-user-circle-o fa-fw" aria-hidden="true"></i>
+			{{ lang('DTST_HOST') ~ lang('COLON') }}
+			{% include '@phpbbstudio_dtst/dtst_reputation_user.html' %}
+		</div>
+	{% endfor %}
+</div>
+
+<div class="dtst-rep-remain">
+	<div class="dtst-rep-remain-days dtst-rep-hoster panel">
+		<i class="icon fa-calendar fa-fw" aria-hidden="true"></i> {{ lang('DTST_DATE') ~ lang('COLON') }}
+			{% if DTST_EVENT_DATE is not empty %}
+				{{ DTST_EVENT_DATE|date('d-m-Y') }}
+			{% else %}
+				{{ lang('DTST_DATE_NONE') }}
+			{% endif %}
+	</div>
+	<div class="dtst-rep-remain-days dtst-rep-hoster panel">
+		<i class="icon fa-map-marker fa-fw" aria-hidden="true"></i> {{ lang('DTST_LOCATION') ~ lang('COLON') }}
+			{% if DTST_EVENT_LOCATION %}
+				{{ DTST_EVENT_LOCATION }}
+			{% else %}
+				{{ lang('DTST_DATE_NONE') }}
+			{% endif %}
+
+			{% if DTST_EVENT_LOC_CUSTOM %}
+				<br>
+				<i class="icon fa-map-marker fa-fw" aria-hidden="true"></i> {{ lang('DTST_LOCATION_CUSTOM') ~ lang('COLON') }}
+				{{ DTST_EVENT_LOC_CUSTOM }}
+			{% endif %}
+	</div>
+	<div class="dtst-rep-remain-days dtst-rep-hoster panel">
+		<i class="icon fa-tag fa-fw" aria-hidden="true"></i> {{ lang('DTST_EVENT_TYPE') ~ lang('COLON') }}
+			{% if DTST_EVENT_TYPE %}
+				{{ DTST_EVENT_TYPE }}
+			{% else %}
+				{{ lang('DTST_DATE_NONE') }}
+			{% endif %}
+	</div>
+</div>
+
+<div class="dtst-rep-remain">
+	<div class="dtst-rep-remain-days dtst-rep-neutral panel">
+		{{ lang('DTST_REP_END_DATE', '<strong>' ~ DTST_REP_END_DATE ~ '</strong>', DTST_REP_NAME|capitalize) }}<br>
+		{{ lang('DTST_REP_END_DAYS', '<strong>' ~ DTST_REP_END_DAYS ~ '</strong>') }}
+	</div>
+	<div class="dtst-rep-remain-up dtst-rep-positive panel">
+		{{ lang('DTST_REP_GIVE', '<strong>' ~ DTST_REP_GOOD_COUNT ~ ' <i class="icon fa-thumbs-up fa-fw"></i></strong>') }}<br>
+		{{ lang('DTST_REP_REMAIN', '<strong id="dtst_rep_count_up">' ~ DTST_REP_GOOD_REMAIN ~ '</strong>') }}
+	</div>
+	<div class="dtst-rep-remain-down dtst-rep-negative panel">
+		{{ lang('DTST_REP_GIVE', '<strong>' ~ DTST_REP_BAD_COUNT ~ ' <i class="icon fa-thumbs-down fa-fw"></i></strong>') }}<br>
+		{{ lang('DTST_REP_REMAIN', '<strong id="dtst_rep_count_down">' ~ DTST_REP_BAD_REMAIN ~ '</strong>') }}
+	</div>
+</div>
+
+{% if S_DTST_IS_NO_SHOW %}
+	<div class="rules dtst-rep-noshow-notice">
+		<span>{{ lang('DTST_REP_NO_SHOW') }}</span> <i class="icon fa-user-times fa-fw" aria-hidden="true"></i> {{ lang('DTST_REP_NO_SHOW_NOTICE', DTST_REP_NAME|lower) }}
+	</div>
+{% endif %}
+
+<div class="dtst-rep-user-search panel bg1 search-box">
+	<form id="dtst_rep_user_search" name="dtst_rep_user_search" method="get" action="{{ U_DTST_REP_SEARCH }}">
+		<input type="hidden" name="t" value="{{ DTST_TOPIC_ID }}">
+		<input name="u" placeholder="{{ lang('FIND_USERNAME') }}" class="inputbox search tiny" type="search" size="20">
+		<button class="button button-search-end" type="submit" title="{{ lang('FIND_USERNAME') }}">
+			<i class="icon fa-search fa-fw" aria-hidden="true"></i>
+			<span class="sr-only">{{ lang('FIND_USERNAME') }}</span>
+		</button>
+	</form>
+</div>
+
+<div class="panel dtst-rep-filter bg2">
+	<a href="{{ U_DTST_FILTER_UP }}" title="{{ lang('DTST_REP_THUMBS_UP') }}" class="dtst-rep-filter-up{% if S_DTST_FILTER_UP %} dtst-rep-filter-active{% endif %}">
+		<i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i>
+		<span class="sr-only">{{ lang('DTST_REP_THUMBS_UP') }}</span>
+	</a>
+	<a href="{{ U_DTST_FILTER_DOWN }}" title="{{ lang('DTST_REP_THUMBS_DOWN') }}" class="dtst-rep-filter-down{% if S_DTST_FILTER_DOWN %} dtst-rep-filter-active{% endif %}">
+		<i class="icon fa-thumbs-down fa-fw" aria-hidden="true"></i>
+		<span class="sr-only">{{ lang('DTST_REP_THUMBS_DOWN') }}</span>
+	</a>
+	<a href="{{ U_DTST_FILTER_NO_SHOW }}" title="{{ lang('DTST_REP_NO_SHOW') }}" class="dtst-rep-filter-noshow{% if S_DTST_FILTER_NO_SHOW %} dtst-rep-filter-active{% endif %}">
+		<i class="icon fa-user-times fa-fw" aria-hidden="true"></i>
+		<span class="sr-only">{{ lang('DTST_REP_NO_SHOW') }}</span>
+	</a>
+</div>
+<div class="dtst-rep-users panel bg1">
+	{% for user in dtst_attendees if user.USER_ID != DTST_EVENT_HOST_ID %}
+		{% include '@phpbbstudio_dtst/dtst_reputation_user.html' %}
+	{% else %}
+		<div class="dtst-rep-no-users inner">
+			<h3>{{ lang('INFORMATION') }}</h3>
+			<p>
+				{{ lang('NO_MEMBERS') }}<br>
+				{% if S_DTST_FILTER_UP %}
+					{{ S_DTST_IS_HOST ? lang('DTST_REP_CONDUCT_GOOD_NONE') : lang('DTST_REP_THUMBS_UP_NONE') }}
+				{% elseif S_DTST_FILTER_DOWN %}
+					{{ S_DTST_IS_HOST ? lang('DTST_REP_CONDUCT_BAD_NONE') : lang('DTST_REP_THUMBS_DOWN_NONE') }}
+				{% elseif S_DTST_FILTER_NONE %}
+					{{ lang('DTST_REP_NO_SHOW_NONE') }}
+				{% endif %}
+			</p>
+		</div>
+	{% endfor %}
+</div>
+
+<div class="action-bar bar-top">
+	<div class="pagination">
+		{{ TOTAL_USERS }}
+		{% if loops.pagination|length %}
+			{% INCLUDE 'pagination.html' %}
+		{% else %}
+			&bull; {{ PAGE_NUMBER }}
+		{% endif %}
+	</div>
+</div>
+
+{% include 'jumpbox.html' %}
+
+{% include 'overall_footer.html' %}

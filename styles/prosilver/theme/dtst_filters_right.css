@@ -14,9 +14,17 @@
 }
 
 /* Clearfix */
-@media all and (min-width: 800px) {
+@media all and (min-width: 801px) {
 	.dtst-filters ~ .action-bar.bar-bottom {
 		clear: right;
+	}
+
+	.dtst-filters-sticky {
+
+	}
+
+	.dtst-filters-bottom {
+		left: -185px !important;
 	}
 }
 

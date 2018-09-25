@@ -10,7 +10,7 @@
 
 namespace phpbbstudio\dtst\migrations;
 
-class install_dtst_schema extends \phpbb\db\migration\migration
+class install_slots_schema extends \phpbb\db\migration\migration
 {
 	static public function depends_on()
 	{

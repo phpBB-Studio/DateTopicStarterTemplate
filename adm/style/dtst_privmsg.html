@@ -94,7 +94,7 @@
 
 						<dl class="responsive-columns">
 							<dt>
-								<label for="title">{{ lang('SUBJECT') }}{{ lang('COLON') }}</label>
+								<label for="dtst_pm_title">{{ lang('SUBJECT') }}{{ lang('COLON') }}</label>
 							</dt>
 							<dd>
 								<input name="dtst_pm_title" id="dtst_pm_title" type="text" size="50" maxlength="255" value="{{ DTST_PM_TITLE }}" placeholder="{{ lang('ACP_DTST_PM_TITLE_HOLDER') }}" />
@@ -103,11 +103,11 @@
 
 						{% INCLUDE 'acp_posting_buttons.html' %}
 						<dl class="responsive-columns">
-							<dt style="width: 90px;" id="color_palette_placeholder" data-orientation="v" data-height="12" data-width="15" data-bbcode="true">
+							<dt id="color_palette_placeholder" data-orientation="v" data-height="12" data-width="15" data-bbcode="true">
 							</dt>
 
-							<dd style="margin-{{ S_CONTENT_FLOW_BEGIN }}: 90px;">
-								<textarea id="dtst_pm_message" name="dtst_pm_message" rows="23" cols="80" style="width: 95%;" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" data-bbcode="true" placeholder="{{ lang('ACP_DTST_PM_MESSAGE_HOLDER') }}" class="inputbox">{{ DTST_PM_MESSAGE }}</textarea>
+							<dd>
+								<textarea id="dtst_pm_message" name="dtst_pm_message" rows="23" cols="80" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);" onfocus="initInsertions();" data-bbcode="true" placeholder="{{ lang('ACP_DTST_PM_MESSAGE_HOLDER') }}" class="full">{{ DTST_PM_MESSAGE }}</textarea>
 							</dd>
 						</dl>
 
@@ -128,7 +128,7 @@
 						</div>
 					</fieldset>
 				</fieldset>
-			<fieldset>
+			</fieldset>
 
 			<fieldset class="dtst-acp-submit">
 				<fieldset class="submit-buttons">

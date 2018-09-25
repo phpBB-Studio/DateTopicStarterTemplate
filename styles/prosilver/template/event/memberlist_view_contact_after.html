@@ -1,0 +1,91 @@
+{% if S_DTST and (S_DTST_SHOW_POINTS || S_DTST_SHOW_RANKS) %}
+
+	{# Include PROFILEVIEW - CSS #}
+	{% if not definition.INCLUDED_PROFILEVIEWCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/profile_view.css' %}
+		{% DEFINE INCLUDED_PROFILEVIEWCSS = true %}
+	{% endif %}
+
+	{# Include jQuery rateYo - CSS: https://github.com/prrashi/rateYo #}
+	{% if not definition.INCLUDED_JQUERYRATEYOCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/jquery.rateyo.css' %}
+		{% DEFINE INCLUDED_JQUERYRATEYOCSS = true %}
+	{% endif %}
+
+	{# Include jQuery rateYo - Javascript: https://github.com/prrashi/rateYo #}
+	{% if not definition.INCLUDED_JQUERYRATEYOJS %}
+		{% INCLUDEJS '@phpbbstudio_dtst/js/jquery.rateyo.js' %}
+		{% DEFINE INCLUDED_JQUERYRATEYOJS = true %}
+	{% endif %}
+
+	<div class="panel bg2">
+		<div class="inner">
+			{% if S_DTST_SHOW_POINTS %}
+				<div class="column1">
+					<h3 class="bg3 dtst-centered"><i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i>&nbsp;{{ DTST_REP_NAME }}</h3>
+					<div class="dtst-centered">
+						{% if S_DTST_SHOW_POINTS %}
+							<a class="dtst-button" title="{{ lang('DTST_REP_RANK_LIST', DTST_REP_NAME|lower) }}" href="{{ U_DTST_REP_VIEW }}"><span><i class="icon fa-address-card-o fa-fw"></i></span></a>
+						{% endif %}
+					</div>
+					<br>
+					<div class="dtst-div-1" style="background-image: linear-gradient({{ DEGREE }}deg, transparent 50%, {% if PERCENT > 50 %}#80BF00{% else %}#CCCCCC{% endif %} 50%),	 linear-gradient(90deg, #CCCCCC 50%, transparent 50%)">
+
+						<div class="dtst-div-2">
+							<span class="dtst-span-1" title="{% if not S_REP_AVAILABLE %}{{ DTST_REP_NAME ~ lang('COLON') }}&nbsp;{{ lang('DTST_REPUTATION_NA') }}{% else %}{{ DTST_REP_NAME ~ lang('COLON') }}&nbsp;{{ PERCENT }}&#37;{% endif %}">
+								{% if not S_REP_AVAILABLE %}
+									0&#37;
+								{% else %}
+									{{ PERCENT }}&#37;
+								{% endif %}
+							</span>
+						</div>
+					</div>
+				</div>
+			{% endif %}
+
+			{% if (S_DTST_SHOW_POINTS || S_DTST_SHOW_RANKS) %}
+				<div class="column2">
+					<h3 class="bg3 dtst-centered"><i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i>&nbsp;{{ DTST_REP_NAME }}&nbsp;{{ lang('DTST_PROFILE_VIEW_RANGE') }}{{ DTST_MAX_REP_POINTS }}{{ lang('COLON') }}&nbsp;{{ DTST_REPUTATION }}</h3>
+
+					{% if S_DTST_SHOW_POINTS %}
+						<dl class="details">
+							<dt>{{ lang('DTST_USER_RAT_STARS') ~ lang('COLON') }}</dt>
+							<dd>
+								<div title="{{ PERCENT_RATEYO }}" data-rateyo-rating="{{ PERCENT_RATEYO }}" data-rateyo-rtl="{% if S_CONTENT_DIRECTION eq 'rtl' %}true{% else %}false{% endif %}"></div>
+							</dd>
+						</dl>
+					{% endif %}
+
+					{% if S_DTST_SHOW_RANKS %}
+						<dl class="details">
+							<dt>{{ lang('DTST_USER_RANK_BADGE') ~ lang('COLON') }}</dt>
+							<dd>
+								<a class="dtst-rank-button-profile" style="color: {{ DTST_RANK_TEXT }};background-color: {{ DTST_RANK_BCKG }};" title="{{ DTST_RANK_DESC }}" >
+									<span>{{ DTST_RANK_TITLE }}</span>
+								</a>
+							</dd>
+						</dl>
+
+						<dl class="details">
+							<dt>{{ lang('DTST_USER_RANK_DESC') ~ lang('COLON') }}</dt>
+							<dd>
+								<strong>{{ DTST_RANK_DESC }}</strong>
+							</dd>
+						</dl>
+					{% endif %}
+
+					{% if S_DTST_SHOW_POINTS %}
+						<dl class="details">
+							<dt>{{ lang('DTST_USER_PROGRESS') ~ lang('COLON') }}</dt>
+							<dd>
+								<progress class="dtst-button" title="{{ DTST_REPUTATION }}" value="{{ DTST_REPUTATION }}" max="{{ DTST_MAX_REP_POINTS }}"></progress>
+							</dd>
+						</dl>
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+{% endif %}

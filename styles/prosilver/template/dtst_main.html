@@ -44,7 +44,7 @@
 			<dt><label for="dtst_date">{{ lang('DTST_DATE') ~ lang('COLON') }}</label></dt>
 
 			{# Extra inputs are disallowed here for the sake of Date validation #}
-			<dd><input name="dtst_date" id="dtst_date" type="text" class="inputbox autowidth" tabindex="4" value="{{ DTST_DATE }}" readonly="readonly" title="{{ lang('DTST_DATE_EXPLAIN') }}" /><button id="dtst_date_reset" {% if DTST_DATE is empty %}class="button dtst-main-date-reset" title="{{ lang('DTST_DATE_EXPLAIN') }}"{% else %}class="button" title="{{ lang('RESET') }}"{% endif %}><i class="fa {% if DTST_DATE %}fa-refresh{% else %}fa-calendar-plus-o{% endif %} fa-fw"></i></button></dd>
+			<dd><input name="dtst_date" id="dtst_date" type="text" class="inputbox autowidth" tabindex="4" value="{{ DTST_DATE }}" readonly="readonly" title="{{ lang('DTST_DATE_EXPLAIN') }}"{% if S_DTST_EVENT_ENDED %} data-dtst-date-disabled="true"{% endif %}/>{% if not S_DTST_EVENT_ENDED %}<button id="dtst_date_reset" {% if DTST_DATE is empty %}class="button dtst-main-date-reset" title="{{ lang('DTST_DATE_EXPLAIN') }}"{% else %}class="button" title="{{ lang('RESET') }}"{% endif %}><i class="fa {% if DTST_DATE %}fa-refresh{% else %}fa-calendar-plus-o{% endif %} fa-fw"></i></button>{% endif %}</dd>
 		</dl>
 
 		<dl>

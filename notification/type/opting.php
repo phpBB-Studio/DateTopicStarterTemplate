@@ -11,7 +11,7 @@
 namespace phpbbstudio\dtst\notification\type;
 
 /**
- * Highlight Posts Notification class.
+ * Date Topic Event Calendar's Opting notification class.
  */
 class opting extends \phpbb\notification\type\base
 {

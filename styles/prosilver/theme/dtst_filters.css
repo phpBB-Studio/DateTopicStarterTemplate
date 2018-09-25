@@ -4,6 +4,11 @@
 }
 
 .dtst-filters {
+	/* Height set by jQuery */
+	position: relative;
+}
+
+.dtst-filters-inner {
 	width: 175px;
 }
 
@@ -97,7 +102,7 @@
 }
 
 /* Clearfix */
-@media all and (min-width: 800px) {
+@media all and (min-width: 801px) {
 	/* No posts found */
 	.dtst-filters + div.panel > div.inner:after,
 	/* Regular topic list */
@@ -110,6 +115,18 @@
 	.dtst-filters + .forumbg + .forumbg .row:after {
 		display: none;
 	}
+
+	.dtst-filters-sticky {
+		position: fixed;
+		top: 0;
+	}
+
+	.dtst-filters-bottom {
+		position: absolute;
+		bottom: -16px;
+		left: 0;
+		margin-bottom: 0;
+	}
 }
 
 /* Responsiveness */
@@ -117,6 +134,10 @@
 	.dtst-filters {
 		float: none;
 		clear: both;
+		width: initial;
+	}
+
+	.dtst-filters-inner {
 		width: initial;
 	}
 

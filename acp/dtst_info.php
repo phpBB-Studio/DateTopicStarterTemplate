@@ -36,6 +36,21 @@ class dtst_info
 					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
 					'cat'	=> array('ACP_DTST_TITLE')
 				),
+				'lpr_settings'	=> array(
+					'title'	=> 'ACP_DTST_LPR_SETTINGS',
+					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
+				'lpr_reputation'	=> array(
+					'title'	=> 'ACP_DTST_LPR_REPUTATION',
+					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
+				'lpr_ranks'	=> array(
+					'title'	=> 'ACP_DTST_LPR_RANKS',
+					'auth'	=> 'ext_phpbbstudio/dtst && acl_a_dtst_admin',
+					'cat'	=> array('ACP_DTST_TITLE')
+				),
 			],
 		];
 	}

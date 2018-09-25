@@ -1,3 +1,5 @@
 parameters:
     phpbbstudio.dtst.tables.dtst_slots: '%core.table_prefix%dtst_slots'
+    phpbbstudio.dtst.tables.dtst_reputation: '%core.table_prefix%dtst_reputation'
     phpbbstudio.dtst.tables.dtst_privmsg: '%core.table_prefix%dtst_privmsg'
+    phpbbstudio.dtst.tables.dtst_ranks: '%core.table_prefix%dtst_ranks'

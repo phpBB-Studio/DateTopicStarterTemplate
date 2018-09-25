@@ -1,0 +1,54 @@
+{% if not postrow.S_POST_HIDDEN and postrow.S_DTST_VT and S_DTST %}
+
+	{# Include PROFILEVIEW - CSS #}
+	{% if not definition.INCLUDED_MINIPROFILEVIEWCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/miniprofile_view.css' %}
+		{% DEFINE INCLUDED_MINIPROFILEVIEWCSS = true %}
+	{% endif %}
+
+	{# Include jQuery rateYo - CSS: https://github.com/prrashi/rateYo #}
+	{% if not definition.INCLUDED_JQUERYRATEYOCSS %}
+		{% INCLUDECSS '@phpbbstudio_dtst/jquery.rateyo.css' %}
+		{% DEFINE INCLUDED_JQUERYRATEYOCSS = true %}
+	{% endif %}
+
+	{# Include jQuery rateYo - Javascript: https://github.com/prrashi/rateYo #}
+	{% if not definition.INCLUDED_JQUERYRATEYOJS %}
+		{% INCLUDEJS '@phpbbstudio_dtst/js/jquery.rateyo.js' %}
+		{% DEFINE INCLUDED_JQUERYRATEYOJS = true %}
+	{% endif %}
+
+	{% if (S_DTST_SHOW_POINTS || S_DTST_SHOW_RANKS) %}
+		<dd>
+			<div class="panel">
+				<h3 class="bg3 dtst-centered">
+					<i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i> {{ DTST_REP_NAME }}
+					{% if S_DTST_SHOW_POINTS %}
+						<a class="dtst-button" title="{{ lang('DTST_REP_RANK_LIST', DTST_REP_NAME) }}" href="{{ postrow.U_DTST_REP_VIEW }}"><span><i class="icon fa-address-card-o	 fa-fw"></i></span></a>
+					{% endif %}
+				</h3>
+
+				{% if S_DTST_SHOW_POINTS %}
+					<div title="{{ postrow.PERCENT_RATEYO }}" data-rateyo-rating="{{ postrow.PERCENT_RATEYO }}" data-rateyo-rtl="{% if S_CONTENT_DIRECTION eq 'rtl' %}true{% else %}false{% endif %}"></div>
+				{% endif %}
+
+				{% if S_DTST_SHOW_RANKS %}
+					<div>
+						<a class="dtst-rank-button-miniprofile" style="color: {{ postrow.DTST_RANK_TEXT }};background-color: {{ postrow.DTST_RANK_BCKG }};" title="{{ postrow.DTST_RANK_DESC }}" ><span>{{ postrow.DTST_RANK_TITLE }}</span></a>
+					</div>
+
+					<div>
+						{{ postrow.DTST_RANK_DESC }}
+					</div>
+				{% endif %}
+
+				{% if S_DTST_SHOW_POINTS %}
+					<div>
+						<progress class="dtst-button dtst-fa-stack-span-vt" title="{{ postrow.DTST_REPUTATION }}" value="{{ postrow.DTST_REPUTATION }}" max="{{ postrow.DTST_MAX_REP_POINTS }}"></progress>
+					</div>
+				{% endif %}
+			</div>
+		</dd>
+	{% endif %}
+
+{% endif %}

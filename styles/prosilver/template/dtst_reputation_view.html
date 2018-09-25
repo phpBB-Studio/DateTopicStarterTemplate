@@ -1,0 +1,156 @@
+{% include 'overall_header.html' %}
+
+{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
+{% INCLUDECSS '@phpbbstudio_dtst/dtst_reputation.css' %}
+{% INCLUDECSS '@phpbbstudio_dtst/reputation_host.css' %}
+
+{# Include jQuery rateYo - CSS: https://github.com/prrashi/rateYo #}
+{% if not definition.INCLUDED_JQUERYRATEYOCSS %}
+	{% INCLUDECSS '@phpbbstudio_dtst/jquery.rateyo.css' %}
+	{% DEFINE INCLUDED_JQUERYRATEYOCSS = true %}
+{% endif %}
+
+{# Include jQuery rateYo - Javascript: https://github.com/prrashi/rateYo #}
+{% if not definition.INCLUDED_JQUERYRATEYOJS %}
+	{% INCLUDEJS '@phpbbstudio_dtst/js/jquery.rateyo.js' %}
+	{% DEFINE INCLUDED_JQUERYRATEYOJS = true %}
+{% endif %}
+
+<div class="host-container">
+	<div class="host-item dtst-rep-profile-avatar">
+		{% if AVATAR %}
+			{{ AVATAR }}
+		{% else %}
+			<img src="{{ T_THEME_PATH ~ '/images/no_avatar.gif' }}" width="90" height="90" />
+		{% endif %}
+	</div>
+
+	<div class="host-item dtst-rep-profile-user">
+		{{ USERNAME }}
+		{% if RANK_TITLE %}<br>{{ RANK_TITLE }}{% endif %}
+		{% if RANK_IMG %}<br>{{ RANK_IMG }}{% endif %}
+	</div>
+
+	<div class="host-item dtst-rep-profile-user">
+		{% if S_DTST_SHOW_POINTS %}
+			<div title="{{ PERCENT_RATEYO }}" data-rateyo-rating="{{ PERCENT_RATEYO }}" data-rateyo-rtl="{% if S_CONTENT_DIRECTION eq 'rtl' %}true{% else %}false{% endif %}"></div>
+		{% endif %}
+		{% if S_DTST_SHOW_RANKS %}
+			<a class="dtst-rank-button-rep" style="color: {{ DTST_RANK_TEXT }};background-color: {{ DTST_RANK_BCKG }};" title="{{ DTST_RANK_DESC }}" >
+				<span>{{ DTST_RANK_TITLE }}</span>
+			</a>
+			<br>
+			{{ DTST_RANK_DESC }}
+			<br>
+		{% endif %}
+		{% if S_DTST_SHOW_POINTS %}
+			<progress class="dtst-button" title="{{ REPUTATION }}" value="{{ REPUTATION }}" max="{{ MAX_REPUTATION }}"></progress>
+			<br>
+		{% endif %}
+	</div>
+	{% if S_DTST_SHOW_POINTS %}
+		<div class="host-item">
+			<div class="dtst-div-1-rep" style="background-image: linear-gradient({{ DEGREE }}deg, transparent 50%, {% if PERCENT > 50 %}#80BF00{% else %}#CCCCCC{% endif %} 50%), linear-gradient(90deg, #CCCCCC 50%, transparent 50%)">
+				<div class="dtst-div-2-rep">
+					<span class="dtst-span-1-rep" title="{% if not S_REP_AVAILABLE %}{{ DTST_REP_NAME ~ lang('COLON') }}&nbsp;{{ lang('DTST_REPUTATION_NA') }}{% else %}{{ DTST_REP_NAME ~ lang('COLON') }}&nbsp;{{ PERCENT }}&#37;{% endif %}">
+						{% if not S_REP_AVAILABLE %}
+							0&#37;
+						{% else %}
+							{{ PERCENT }}&#37;
+						{% endif %}
+					</span>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+</div>
+<br>
+<div class="host-container">
+	<div class="host-item-2">
+		{{ lang('DTST_REP_STATS_HOSTED') ~ lang('COLON') }} <strong>{{ STATS_COUNT_HOSTED }}</strong><br>
+		{{ lang('DTST_REP_STATS_ATTENDED')  ~ lang('COLON') }} <strong>{{ STATS_COUNT_ATTENDED }}</strong><br>
+		{{ lang('DTST_REP_STATS_NO_SHOWS') ~ lang('COLON') }} <strong>{{ STATS_COUNT_NO_SHOW }}</strong>
+	</div>
+	<div class="host-item-2">
+		{{ lang('DTST_REP_EVENT_BEST') ~ lang('COLON') }} {% if STATS_EVENT_BEST['TITLE'] %}<a href="{{ STATS_EVENT_BEST['URL'] }}">{{ STATS_EVENT_BEST['TITLE'] }}</a> (<strong>{{ STATS_EVENT_BEST['TOTAL'] }}</strong>){% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}<br>
+		{{ lang('DTST_REP_EVENT_WORST') ~ lang('COLON') }} {% if STATS_EVENT_WORST['TITLE'] %}<a href="{{ STATS_EVENT_WORST['URL'] }}">{{ STATS_EVENT_WORST['TITLE'] }}</a> (<strong>{{ STATS_EVENT_WORST['TOTAL'] }}</strong>){% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}<br>
+		{{ lang('DTST_REP_EVENT_RECENT') ~ lang('COLON') }} {% if STATS_EVENT_RECENT['TITLE'] %}<a href="{{ STATS_EVENT_RECENT['URL'] }}">{{ STATS_EVENT_RECENT['TITLE'] }}</a>{% else %}{{ lang('DTST_DATE_NONE') }}{% endif %}
+	</div>
+	<hr>
+	<div class="host-item-2">
+		{{ lang('DTST_REP_STATS_GIVEN', '<i class="icon fa-thumbs-o-up fa-fw m-green" aria-hidden="true"></i>') ~ lang('COLON') }} <strong>{{ STATS_COUNT_GIVEN_UP }}</strong><br>
+		{{ lang('DTST_REP_STATS_RECEIVED', '<i class="icon fa-thumbs-o-up fa-fw m-green" aria-hidden="true"></i>') ~ lang('COLON') }} <strong>{{ STATS_COUNT_REC_UP }}</strong>
+	</div>
+	<div class="host-item-2">
+		{{ lang('DTST_REP_STATS_GIVEN', '<i class="icon fa-thumbs-o-down fa-fw red" aria-hidden="true"></i>') ~ lang('COLON') }} <strong>{{ STATS_COUNT_GIVEN_DOWN }}</strong><br>
+		{{ lang('DTST_REP_STATS_RECEIVED', '<i class="icon fa-thumbs-o-down fa-fw red" aria-hidden="true"></i>') ~ lang('COLON') }} <strong>{{ STATS_COUNT_REC_DOWN }}</strong>
+	</div>
+</div>
+
+<div class="dtst-tabs">
+	<ul>
+		<li class="dtst-tab{% if S_DTST_SORT_REP_EVENTS %} dtst-tab-active{% endif %}"><a href="{{ U_DTST_SORT_REP_EVENTS }}">{{ lang('DTST_EVENTS') }}</a></li>
+		<li class="dtst-tab{% if S_DTST_SORT_REP_GIVEN %} dtst-tab-active{% endif %}"><a href="{{ U_DTST_SORT_REP_GIVEN }}" class="">{{ lang('DTST_REP_STATS_GIVEN', DTST_REP_NAME|lower) }}</a></li>
+		<li class="dtst-tab{% if S_DTST_SORT_REP_RECEIVED %} dtst-tab-active{% endif %}"><a href="{{ U_DTST_SORT_REP_RECEIVED }}">{{ lang('DTST_REP_STATS_RECEIVED', DTST_REP_NAME|lower) }}</a></li>
+	</ul>
+</div>
+
+<div class="forumbg">
+	<div class="inner">
+		<table class="table1 responsive">
+			<thead>
+				<tr>
+
+					<th class="dtst-rep-list-column"><a href="{{ U_DTST_SORT_EVENT }}"><i class="fa fa-sort fa-fw"></i><span>{{ lang('DTST_EVENT') }}</span></a></th>
+					<th class="dtst-rep-list-column"><a href="{{ U_DTST_SORT_TIME }}"><i class="fa fa-sort fa-fw"></i><span>{{ lang('TIME') }}</span></a></th>
+					{% if not S_DTST_SORT_REP_EVENTS %}
+						<th class="dtst-rep-list-column"><a href="{{ U_DTST_SORT_ACTION }}"><i class="fa fa-sort fa-fw"></i><span>{{ lang('ACTION') }}</span></a></th>
+						<th class="dtst-rep-list-column"><a href="{{ U_DTST_SORT_FROM }}"><i class="fa fa-sort fa-fw"></i><span>{% if S_DTST_SORT_REP_RECEIVED %}{{ lang('FROM')|capitalize }}{% else %}{{ lang('DTST_REP_TO') }}{% endif %}</span></a></th>
+					{% endif %}
+					<th class="dtst-rep-list-points"><a href="{{ U_DTST_SORT_POINTS }}"><i class="fa fa-sort fa-fw"></i><span>{{ DTST_REP_NAME|capitalize }}</span></a></th>
+					{% if S_DTST_DELETE_REP and not S_DTST_SORT_REP_EVENTS %}<th class="dtst-rep-list-action"><i class="icon fa-trash fa-fw responsive-hide"></i><span class="sr-only">&nbsp;{{ lang('DELETE') }}</span></th>{% endif %}
+				</tr>
+			</thead>
+			<tbody>
+				{% if S_DTST_SORT_REP_EVENTS %}
+					{% for event in events %}
+						<tr class="{% if loop.index is even %}bg1{% else %}bg2{% endif %}">
+							<td class="center"><a href="{{ event.U_EVENT }}">{{ event.TITLE }}</a></td>
+							<td class="center">{{ event.TIME }}</td>
+							<td class="center {{ event.CLASS }}">{{ event.POINTS }}</td>
+						</tr>
+					{% else %}
+						<tr class="bg1"><td colspan="3" class="center">{{ lang('DTST_EVENT_NONE') }}</td></tr>
+					{% endfor %}
+				{% else %}
+					{% for rep in reputation %}
+						<tr class="{% if loop.index is even %}bg1{% else %}bg2{% endif %}">
+							<td class="center"><a href="{{ rep.U_EVENT }}">{{ rep.EVENT }}</a></td>
+							<td class="center">{{ rep.TIME }}</td>
+							<td class="center">{{ rep.ACTION }}</td>
+							<td class="center">{% if rep.S_MOD and S_DTST_ANONIMITY_MOD %}{{ lang('MODERATOR') }}{% else %}{{ rep.FROM }}{% endif %}</td>
+							<td class="center {{ rep.CLASS }}"><strong>{{ rep.POINTS }}</strong></td>
+							{% if S_DTST_DELETE_REP %}<td class="center"><a href="{{ rep.U_DEL }}" title="{{ lang('DTST_REP_DELETE', DTST_REP_NAME) }}" class="button dtst-button dtst-button-red"><i class="icon fa-times fa-fw"></i><span class="sr-only">{{ lang('DELETE') }}</span></a></td>{% endif %}
+						</tr>
+					{% else %}
+						<tr class="bg1"><td colspan="{% if S_DTST_DELETE_REP %}6{% else %}5{% endif %}" class="center"><strong>{{ lang('DTST_REP_NONE', DTST_REP_NAME|lower) }}</strong></td></tr>
+					{% endfor %}
+				{% endif %}
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="action-bar bar-top">
+	<div class="pagination">
+		{{ TOTAL_REPUTATION }}
+		{% if loops.pagination|length %}
+			{% INCLUDE 'pagination.html' %}
+		{% else %}
+			&bull; {{ PAGE_NUMBER }}
+		{% endif %}
+	</div>
+</div>
+
+{% include 'jumpbox.html' %}
+
+{% include 'overall_footer.html' %}

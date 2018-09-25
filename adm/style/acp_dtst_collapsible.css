@@ -49,5 +49,5 @@
 .collapse-container>:nth-child(odd):hover {
 	cursor:	pointer;
 	-moz-user-select: none;	/* mozilla browsers	*/
-	-khtml-user-select:	none; /* webkit	browsers */
+	-webkit-user-select: none; /* webkit browsers */
 }

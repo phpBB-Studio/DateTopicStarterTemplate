@@ -10,7 +10,7 @@
 
 namespace phpbbstudio\dtst\migrations;
 
-class install_dtst_pms_schema extends \phpbb\db\migration\migration
+class install_pms_schema extends \phpbb\db\migration\migration
 {
 	static public function depends_on()
 	{
@@ -104,6 +104,4 @@ The Management.',
 			)
 		);
 	}
-
-
 }

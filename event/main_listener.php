@@ -42,6 +42,9 @@ class main_listener implements EventSubscriberInterface
 	/** @var \phpbb\language\language */
 	protected $lang;
 
+	/** @var \phpbbstudio\dtst\core\event_cron */
+	protected $dtst_cron;
+
 	/** @var \phpbbstudio\dtst\core\operator */
 	protected $dtst_utils;
 
@@ -57,23 +60,25 @@ class main_listener implements EventSubscriberInterface
 	protected $helper;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @param \phpbb\auth\auth					$auth			Auth object
-	 * @param \phpbb\config\config				$config			Configuration object
-	 * @param \phpbb\db\driver\driver_interface	$db				Database object
-	 * @param \phpbb\request\request			$request		Request	object
-	 * @param \phpbb\template\template			$template		Template object
-	 * @param \phpbb\user						$user			User object
-	 * @param \phpbb\language\language			$lang			Language object
-	 * @param \phpbbstudio\dtst\core\operator	$dtst_utils		Functions to be	used by	Classes
-	 * @param string							$root_path		phpBB root path
-	 * @param string							$php_ext		php	File extension
-	 * @param string							$dtst_slots		The	DTST slots table
-	 * @param \phpbb\controller\helper			$helper			Helper object
+	 * @param  \phpbb\auth\auth						$auth		Authentication object
+	 * @param  \phpbb\config\config					$config		Configuration object
+	 * @param  \phpbb\db\driver\driver_interface	$db			Database object
+	 * @param  \phpbb\request\request				$request	Request	object
+	 * @param  \phpbb\template\template				$template	Template object
+	 * @param  \phpbb\user							$user		User object
+	 * @param  \phpbb\language\language				$lang		Language object
+	 * @param  \phpbbstudio\dtst\core\event_cron	$dtst_cron	DTST Event cron
+	 * @param  \phpbbstudio\dtst\core\operator		$dtst_utils	Functions to be	used by	Classes
+	 * @param  string								$root_path	phpBB root path
+	 * @param  string								$php_ext	php	File extension
+	 * @param  string								$dtst_slots	The	DTST slots table
+	 * @param  \phpbb\controller\helper				$helper		Helper object
+	 * @return void
 	 * @access public
 	 */
-	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\db\driver\driver_interface $db, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbb\language\language $lang, \phpbbstudio\dtst\core\operator $dtst_utils, $root_path, $php_ext, $dtst_slots, \phpbb\controller\helper $helper)
+	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\db\driver\driver_interface $db, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbb\language\language $lang, \phpbbstudio\dtst\core\event_cron $dtst_cron, \phpbbstudio\dtst\core\operator $dtst_utils, $root_path, $php_ext, $dtst_slots, \phpbb\controller\helper $helper)
 	{
 		$this->auth			= $auth;
 		$this->config		= $config;
@@ -82,6 +87,7 @@ class main_listener implements EventSubscriberInterface
 		$this->template		= $template;
 		$this->user			= $user;
 		$this->lang			= $lang;
+		$this->dtst_cron	= $dtst_cron;
 		$this->dtst_utils	= $dtst_utils;
 		$this->root_path	= $root_path;
 		$this->php_ext		= $php_ext;
@@ -90,7 +96,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Assign functions defined in this class to event listeners in the core
+	 * Assign functions defined in this class to event listeners in the core.
 	 *
 	 * @static
 	 * @return array
@@ -101,12 +107,14 @@ class main_listener implements EventSubscriberInterface
 		return array(
 			'core.user_setup'							=> 'dtst_notification_language',
 			'core.page_header_after'					=> 'dtst_template_switch',
+			'core.page_header'							=> 'dtst_cron',
 			'core.permissions'							=> 'dtst_add_permissions',
 			'core.posting_modify_template_vars'			=> 'dtst_topic_data_topic',
 			'core.posting_modify_submission_errors'		=> 'dtst_topic_add_to_post_data',
 			'core.posting_modify_submit_post_before'	=> 'dtst_topic_add',
 			'core.posting_modify_message_text'			=> 'dtst_modify_message_text',
 			'core.submit_post_modify_sql_data'			=> array(array('dtst_submit_post_modify_sql_data'), array('dtst_modify_reply_data')),
+			'core.submit_post_end'						=> 'dtst_modify_reply_poster',
 			'core.viewtopic_modify_post_data'			=> 'dtst_viewtopic_modify_post_data',
 			'core.viewtopic_modify_page_title'			=> 'dtst_topic_add_viewtopic',
 			'core.viewforum_modify_topicrow'			=> 'dtst_modify_topicrow',
@@ -118,12 +126,12 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Load common language files during user setup
+	 * Load common language files during user setup.
 	 *
-	 * @param	\phpbb\event\data		$event		Event object
-	 * @event	core.user_setup
-	 * @return	void
-	 * @access	public
+	 * @param  \phpbb\event\data		$event		Event object
+	 * @event  core.user_setup
+	 * @return void
+	 * @access public
 	 */
 	public function dtst_notification_language($event)
 	{
@@ -136,9 +144,11 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Template switches over all
+	 * Template switches over all.
 	 *
-	 * @event core.page_header_after
+	 * @event  core.page_header_after
+	 * @return void
+	 * @access public
 	 */
 	public function dtst_template_switch()
 	{
@@ -152,12 +162,24 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Add permissions for DTST - Permission's language file is automatically loaded
+	 * Run the DTST cron.
 	 *
-	 * @event	core.permissions
-	 * @param	\phpbb\event\data		$event		The event object
-	 * @return	void
-	 * @access	public
+	 * @event  core.page_header
+	 * @return void
+	 * @access public
+	 */
+	public function dtst_cron()
+	{
+		$this->dtst_cron->run();
+	}
+
+	/**
+	 * Add permissions for DTST - Permission's language file is automatically loaded.
+	 *
+	 * @event  core.permissions
+	 * @param  \phpbb\event\data		$event		The event object
+	 * @return void
+	 * @access public
 	 */
 	public function dtst_add_permissions($event)
 	{
@@ -184,6 +206,10 @@ class main_listener implements EventSubscriberInterface
 				'lang'	=> 'ACL_A_DTST_ADMIN',
 				'cat'	=> 'phpbb_studio',
 			],
+			'm_dtst_mod' => [
+				'lang'	=> 'ACL_M_DTST_MOD',
+				'cat'	=> 'phpbb_studio',
+			],
 		];
 
 		/* Merging our CAT to the native array of perms */
@@ -194,10 +220,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Modify the page's data before it is assigned to the template
+	 * Modify the page's data before it is assigned to the template.
 	 *
-	 * @event	core.posting_modify_template_vars
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.posting_modify_template_vars
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -218,6 +244,7 @@ class main_listener implements EventSubscriberInterface
 			$post_data['dtst_age_min']		= (!empty($post_data['dtst_age_min'])) ? $post_data['dtst_age_min'] : 0;
 			$post_data['dtst_age_max']		= (!empty($post_data['dtst_age_max'])) ? $post_data['dtst_age_max'] : 0;
 			$post_data['dtst_participants']	= (!empty($post_data['dtst_participants'])) ? $post_data['dtst_participants'] : 0;
+			$post_data['dtst_event_ended']	= (!empty($post_data['dtst_event_ended'])) ? $post_data['dtst_event_ended'] : false;
 
 			/* Check if we are posting or editing the very first post of the topic */
 			if ( $mode == 'post' || ($mode == 'edit' && $post_data['topic_first_post_id'] == $post_data['post_id']) )
@@ -250,6 +277,7 @@ class main_listener implements EventSubscriberInterface
 				/* Template switches */
 				$page_data['S_DTST_TOPIC'] = true;
 				$page_data['S_DTST_TOPIC_PERMS'] = (bool) $this->dtst_utils->is_authed();
+				$page_data['S_DTST_EVENT_ENDED'] = (bool) ($post_data['dtst_event_ended'] && ($mode !== 'post'));
 
 				if ($mode == 'edit')
 				{
@@ -262,10 +290,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * This event allows you to define errors before the post action is performed
+	 * This event allows you to define errors before the post action is performed.
 	 *
-	 * @event	core.posting_modify_submission_errors
-	 * @param	\phpbb\event\data						$event		The event object
+	 * @event  core.posting_modify_submission_errors
+	 * @param  \phpbb\event\data						$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -287,11 +315,11 @@ class main_listener implements EventSubscriberInterface
 			$dtst_date = $this->request->variable('dtst_date', '', true);
 
 			/* If we are editing a topic, we check the possible new participants limit */
-			if ($event['mode'] === 'edit')
+			if ((bool) $this->dtst_utils->is_authed() && ($event['mode'] === 'edit') && ($event['post_data']['topic_first_post_id'] == $event['post_id']))
 			{
 				/* Grab the current amount of people accepted for this event */
 				$sql = 'SELECT COUNT(user_id) as attendees
-						FROM ' . $this->dtst_slots . ' 
+						FROM ' . $this->dtst_slots . '
 						WHERE topic_id = ' . (int) $event['topic_id'] . '
 							AND dtst_status = ' . (int) ext::DTST_STATUS_ACCEPTED;
 				$result = $this->db->sql_query($sql);
@@ -303,6 +331,21 @@ class main_listener implements EventSubscriberInterface
 				{
 					$error[] = $this->lang->lang('DTST_PARTICIPANTS_TOO_LOW', $dtst_participants, $current_attendees);
 				}
+
+				/* Also check if we are not adjusted the event date, after the event has already ended. */
+				if ($event['post_data']['dtst_event_ended'])
+				{
+					/* Grab the old date for comparison */
+					$sql = 'SELECT dtst_date FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $event['topic_id'];
+					$result = $this->db->sql_query_limit($sql, 1);
+					$old_date = $this->db->sql_fetchfield('dtst_date');
+					$this->db->sql_freeresult($result);
+
+					if ($dtst_date !== $old_date)
+					{
+						$error[] = $this->lang->lang('DTST_EVENT_ENDED_DATE', $old_date);
+					}
+				}
 			}
 
 			/* Check if the fields are all mandatory for this forum */
@@ -311,7 +354,7 @@ class main_listener implements EventSubscriberInterface
 				/* All fields are mandatory, we check that on submit */
 
 				/* Only applies to authenticated users */
-				if ( (bool) $this->dtst_utils->is_authed() )
+				if ( (bool) $this->dtst_utils->is_authed() && ($event['post_data']['topic_first_post_id'] == $event['post_id']))
 				{
 					if (!$event['post_data']['dtst_location'] && !$event['post_data']['dtst_loc_custom'])
 					{
@@ -352,6 +395,7 @@ class main_listener implements EventSubscriberInterface
 					'dtst_loc_custom'		=> $this->dtst_utils->dtst_strip_emojis($this->request->variable('dtst_loc_custom', '', true)),
 					'dtst_host'				=> $this->dtst_utils->dtst_strip_emojis($this->request->variable('dtst_host', '', true)),
 					'dtst_date'				=> $dtst_date,
+					/* Here we are storing the timestamp exactly the as per the time of submission */
 					'dtst_date_unix'		=> (!empty($dtst_date)) ? $this->user->get_timestamp_from_format('d-m-Y', $dtst_date, new \DateTimeZone($this->config['board_timezone'])) : false,
 					'dtst_event_type'		=> $this->request->variable('dtst_event_type', 0),
 					'dtst_age_min'			=> $this->request->variable('dtst_age_min', 0),
@@ -364,10 +408,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Modifies our post's submission prior to happens
+	 * Modifies our post's submission prior to happens.
 	 *
-	 * @event	core.posting_modify_submit_post_before
-	 * @param	\phpbb\event\data						$event		The event object
+	 * @event  core.posting_modify_submit_post_before
+	 * @param  \phpbb\event\data						$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -381,6 +425,7 @@ class main_listener implements EventSubscriberInterface
 				'dtst_loc_custom'		=> $event['post_data']['dtst_loc_custom'],
 				'dtst_host'				=> $event['post_data']['dtst_host'],
 				'dtst_date'				=> $event['post_data']['dtst_date'],
+				/* Here we are storing the timestamp exactly the as per the time of submission */
 				'dtst_date_unix'		=> $this->user->get_timestamp_from_format('d-m-Y', $event['post_data']['dtst_date'], new \DateTimeZone($this->config['board_timezone'])),
 				'dtst_event_type'		=> $event['post_data']['dtst_event_type'],
 				'dtst_age_min'			=> $event['post_data']['dtst_age_min'],
@@ -392,11 +437,11 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Modify the post's data before the post action is performed
+	 * Modify the post's data before the post action is performed,
 	 * in this case the topic's description fields newly created by this extension.
 	 *
-	 * @event	core.posting_modify_message_text
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.posting_modify_message_text
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -425,8 +470,8 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Modify the sql data before on submit, only on the modes allowed.
 	 *
-	 * @event	core.submit_post_modify_sql_data
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.submit_post_modify_sql_data
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -473,8 +518,8 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Modify the sql data before on submit, only when it is our own automated reply.
 	 *
-	 * @event	core.submit_post_modify_sql_data
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.submit_post_modify_sql_data
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -486,8 +531,9 @@ class main_listener implements EventSubscriberInterface
 		if (isset($data['s_dtst_reply']) && $data['s_dtst_reply'])
 		{
 			/* Are we using the PMs Bot? */
-			$dtst_user_id = ((bool) $this->config['dtst_use_bot']) ? (int) $this->config['dtst_bot'] : (int) $data['dtst_poster_id'];
-			$dtst_username = ((bool) $this->config['dtst_use_bot']) ? '' : $data['dtst_post_username'];
+			$dtst_user_id		= (int) $data['dtst_user_id'];
+			$dtst_username		= $data['dtst_username'];
+			$dtst_user_colour	= $data['dtst_user_colour'];
 
 			$sql_data[POSTS_TABLE]['sql'] = array_merge($sql_data[POSTS_TABLE]['sql'], array(
 					'poster_id'			=> $dtst_user_id,
@@ -499,8 +545,8 @@ class main_listener implements EventSubscriberInterface
 			unset($sql_data[USERS_TABLE]);
 
 			/* Increment post count for the accepted user */
-			$sql = 'UPDATE ' . USERS_TABLE . ' 
-					SET user_lastpost_time = ' . time() . ', user_posts = user_posts + 1 
+			$sql = 'UPDATE ' . USERS_TABLE . '
+					SET user_lastpost_time = ' . time() . ', user_posts = user_posts + 1
 					WHERE user_id = ' . (int) $dtst_user_id;
 			$this->db->sql_query($sql);
 
@@ -509,10 +555,40 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Does the opt-in/outfor the Date Topic Event Calendar
+	 * Modify the poster id and username after a DTST reply.
 	 *
-	 * @event	core.viewtopic_modify_post_data
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.submit_post_end
+	 * @param  \phpbb\event\data					$event		The event object
+	 * @return void
+	 * @access public
+	 */
+	public function dtst_modify_reply_poster($event)
+	{
+		$data = $event['data'];
+
+		if (isset($data['s_dtst_reply']) && $data['s_dtst_reply'] && $this->config['dtst_use_bot'])
+		{
+			$sql = 'UPDATE ' . TOPICS_TABLE . ' SET ' . $this->db->sql_build_array('UPDATE', array(
+						'topic_last_poster_id'		=> (int) $data['dtst_user_id'],
+						'topic_last_poster_name'	=> (string) $data['dtst_username'],
+						'topic_last_poster_colour'	=> (string) $data['dtst_user_colour'],
+					)) . ' WHERE topic_id = ' . (int) $data['topic_id'];
+			$this->db->sql_query($sql);
+
+			$sql = 'UPDATE ' . FORUMS_TABLE . ' SET ' . $this->db->sql_build_array('UPDATE', array(
+						'forum_last_poster_id'		=> (int) $data['dtst_user_id'],
+						'forum_last_poster_name'	=> (string) $data['dtst_username'],
+						'forum_last_poster_colour'	=> (string) $data['dtst_user_colour'],
+					)) . ' WHERE forum_id = ' . (int) $data['forum_id'];
+			$this->db->sql_query($sql);
+		}
+	}
+
+	/**
+	 * Does the opt-in/out for the Date Topic Event Calendar.
+	 *
+	 * @event  core.viewtopic_modify_post_data
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -585,6 +661,7 @@ class main_listener implements EventSubscriberInterface
 			$button_icon = 'fa-user-plus';
 			$button_text = $this->lang->lang('DTST_BUTTON_TEXT_ATTEND');
 			$user_status = $this->lang->lang('DTST_USER_STATUS_NOT');
+			$user_attended = false;
 
 			/* Query the slots table */
 			$sql = $this->dtst_utils->dtst_slots_query($topic_data['topic_id']);
@@ -601,6 +678,11 @@ class main_listener implements EventSubscriberInterface
 					$button_text = $data[$row['dtst_status']]['button_text'];
 
 					$user_status = $data[$row['dtst_status']]['user_status'];
+
+					if ($row['dtst_status'] == ext::DTST_STATUS_ACCEPTED)
+					{
+						$user_attended = true;
+					}
 				}
 
 				/* Increment the user count */
@@ -632,6 +714,8 @@ class main_listener implements EventSubscriberInterface
 			$dtst_p_url = $dtst_p_local ? '#p' . $dtst_p : append_sid("viewtopic.{$this->php_ext}", 'f=' . (int) $event['forum_id'] . '&t=' . (int) $event['topic_id'] . '&p=' . $dtst_p . '#p' . $dtst_p);
 
 			$this->template->assign_vars(array(
+				'DTST_REP_NAME'				=> $this->config['dtst_rep_name'],
+
 				'DTST_BUTTON_CLASS'			=> $button_class,
 				'DTST_BUTTON_ICON'			=> $button_icon,
 				'DTST_BUTTON_TEXT'			=> $button_text,
@@ -645,19 +729,23 @@ class main_listener implements EventSubscriberInterface
 				'S_DTST_ATTENDEES'			=> (bool) $this->auth->acl_get('u_dtst_attendees'),
 				'S_DTST_IS_HOST'			=> (bool) ((int) $this->user->data['user_id'] === (int) $topic_data['topic_poster']),
 				'S_DTST_EVENT_CANCELED'		=> (bool) $topic_data['dtst_event_canceled'] == ITEM_LOCKED,
+				'S_DTST_EVENT_ENDED'		=> (bool) $topic_data['dtst_event_ended'],
+				'S_DTST_GIVE_REP'			=> (bool) ($topic_data['dtst_event_ended'] && !$topic_data['dtst_rep_ended'] && ($user_attended || ((int) $this->user->data['user_id'] === (int) $topic_data['topic_poster']))),
+				'S_DTST_REP_ENDED'			=> (bool) $topic_data['dtst_rep_ended'],
 
 				'U_DTST_REASON_REPLIES'		=> $dtst_p ? $dtst_p_url : false,
 				'U_DTST_MANAGE'				=> $this->helper->route('dtst_manager', array('f' => $topic_data['forum_id'], 't' => $topic_data['topic_id'])),
 				'U_DTST_OPT'				=> $this->helper->route('dtst_controller', array('t' => $topic_data['topic_id'])),
+				'U_DTST_REP'				=> $this->helper->route('dtst_reputation', array('t' => $topic_data['topic_id'])),
 			));
 		}
 	}
 
 	/**
-	 * This event allows you to modify the page title of the viewtopic page
+	 * This event allows you to modify the page title of the viewtopic page.
 	 *
-	 * @event	core.viewtopic_modify_page_title
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.viewtopic_modify_page_title
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -683,10 +771,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Modify the topic data before it is assigned to the template
+	 * Modify the topic data before it is assigned to the template.
 	 *
-	 * @event	core.search_modify_tpl_ary
-	 * @param	\phpbb\event\data				$event		The event object
+	 * @event  core.search_modify_tpl_ary
+	 * @param  \phpbb\event\data				$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -713,11 +801,11 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Modify the topic data before it is assigned to the template and in MCP
+	 * Modify the topic data before it is assigned to the template and in MCP.
 	 *
-	 * @event	core.viewforum_modify_topicrow
-	 * @event	core.mcp_view_forum_modify_topicrow
-	 * @param	\phpbb\event\data						$event		The event object
+	 * @event  core.viewforum_modify_topicrow
+	 * @event  core.mcp_view_forum_modify_topicrow
+	 * @param  \phpbb\event\data						$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -744,10 +832,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Display the Date Topic Starter Template filters in the viewforum page
+	 * Display the Date Topic Starter Template filters in the viewforum page.
 	 *
-	 * @event	core.viewforum_modify_page_title
-	 * @param	\phpbb\event\data		$event		The event object
+	 * @event  core.viewforum_modify_page_title
+	 * @param  \phpbb\event\data		$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -843,10 +931,10 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Apply the Date Topic Starter Template filters in the viewforum page
+	 * Apply the Date Topic Starter Template filters in the viewforum page.
 	 *
-	 * @event	core.viewforum_get_topic_ids_data
-	 * @param	\phpbb\event\data					$event		The event object
+	 * @event  core.viewforum_get_topic_ids_data
+	 * @param  \phpbb\event\data					$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -907,8 +995,33 @@ class main_listener implements EventSubscriberInterface
 			}
 		}
 
-		$date_after = !empty($date_after) ? $this->user->get_timestamp_from_format('d-m-Y', $date_after, new \DateTimeZone($this->config['board_timezone'])) : false;
-		$date_before = !empty($date_before) ? $this->user->get_timestamp_from_format('d-m-Y', $date_before, new \DateTimeZone($this->config['board_timezone'])) : false;
+		/* Do we have a request here? */
+		if ($date_after)
+		{
+			/* Explode request */
+			list($after_day, $after_month, $after_year) = explode('-', $date_after);
+
+			/**
+			 * Set the timestamp for the last second of the given date (ex.: 01 09 2010 23:59:59)
+			 * Which means exactly "after" of the given date, as per the request.
+			 */
+			$date_after_real = mktime(23, 59, 59, $after_month, $after_day, $after_year);
+		}
+		$date_after = !empty($date_after) ? (int) $date_after_real : false;
+
+		/* Do we have a request here? */
+		if ($date_before)
+		{
+			/* Explode request */
+			list($before_day, $before_month, $before_year) = explode('-', $date_before);
+
+			/**
+			 * Set the timestamp for the one second before of the given date (ex.: 31 08 2010 23:59:59)
+			 * Which means exactly "before" of the given date, as per the request.
+			 */
+			$date_before_real = mktime(0, 0, -1, $before_month, $before_day, $before_year);
+		}
+		$date_before = !empty($date_before) ? (int) $date_before_real : false;
 
 		$sql_ary = $event['sql_ary'];
 

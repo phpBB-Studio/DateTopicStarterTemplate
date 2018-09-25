@@ -1,0 +1,18 @@
+{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_rating.js' %}
+
+<script>
+
+var defaultRating = 0;
+
+var ratings = [
+	{{ PERCENT_RATEYO | default('defaultRating') }},
+	{{ postrow.PERCENT_RATEYO | default('defaultRating') }},
+	{{ user.PERCENT_RATEYO | default('defaultRating') }}
+	{% EVENT add_rating %} // Other extension can add their rating by adding this to the add_rating template event: , {{ some_other.PERCENT_RATE }}
+];
+
+var dtstRating = {
+	rating: ratings.find(rating => rating !== defaultRating) || defaultRating,
+};
+
+</script>

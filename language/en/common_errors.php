@@ -31,4 +31,5 @@ $lang = array_merge($lang, array(
 	'DTST_EVENT_TYPE_MISSING'		=> 'You must specify an “Event type” when posting a new topic.',
 	'DTST_LOC_CUSTOM_LONG'			=> 'The “Location custom” field can be max 100 chars!',
 	'DTST_PARTICIPANTS_TOO_LOW'		=> 'The specified “Nr. of participants” (%1$s) is lower than the current amount of participants (%2$s).',
+	'DTST_EVENT_ENDED_DATE'			=> 'You are not allowed to modify the “Date”. The event took place at %s.',
 ));

@@ -74,7 +74,7 @@
 					{% endif %}
 
 					<div class="dtst-centered">
-						{% if S_DTST_IS_HOST %}
+						{% if S_DTST_IS_HOST and not S_DTST_EVENT_ENDED %}
 							<span class="dtst-centered">
 								<a id="dtst_manage_users" class="button dtst-div-manage-button" title="{{ lang('DTST_ATTENDEES_MANAGE') }}" data-ajax="dtst_participate" data-refresh="true" href="{{ U_DTST_MANAGE }}">{{ lang('DTST_ATTENDEES_MANAGE') }}</a>
 							</span>
@@ -96,7 +96,7 @@
 					</div>
 				</div>
 
-				{% if S_DTST_PARTICIPATE and not S_DTST_EVENT_CANCELED %}
+				{% if S_DTST_PARTICIPATE and not S_DTST_EVENT_CANCELED and not S_DTST_EVENT_ENDED %}
 					<div class="panel bg1">
 						<h3 class="bg3 dtst-centered"><i class="icon fa-user fa-fw" aria-hidden="true"></i> {{ lang('DTST_YOUR_STATUS') }}</h3>
 						<div class="dtst-centered">
@@ -108,6 +108,17 @@
 							{% elseif S_DTST_PARTICIPATE_FULL or S_DTST_PARTICIPATE_CLOSED %}
 								<strong class="button dtst-button">{{ lang('DTST_EVENT_CLOSED') }} <i class="icon fa-ban fa-fw" aria-hidden="true"></i> </strong>
 							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+
+				{% if S_DTST_GIVE_REP %}
+					<div class="panel bg1">
+						<h3 class="bg3 dtst-centered"><i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i> <span>{{ DTST_REP_NAME|capitalize }}</span></h3>
+						<div>
+							<a class="button dtst-button dtst-button-green" title="{{ DTST_REP_NAME|capitalize }}" href="{{ U_DTST_REP }}">
+								<span>{{ DTST_REP_NAME|capitalize }}</span> <i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i>
+							</a>
 						</div>
 					</div>
 				{% endif %}

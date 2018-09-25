@@ -16,9 +16,9 @@ namespace phpbbstudio\dtst\controller;
 use phpbbstudio\dtst\ext;
 
 /**
- * Date Topic Event Calendar Controller.
+ * Date Topic Event Calendar Event Controller.
  */
-class controller
+class event_controller implements event_interface
 {
 	/** @var \phpbb\auth\auth */
 	protected $auth;
@@ -27,7 +27,6 @@ class controller
 	protected $config;
 
 	/** @var \phpbb\db\driver\driver_interface */
-
 	protected $db;
 
 	/** @var \phpbb\controller\helper */
@@ -57,6 +56,9 @@ class controller
 	/** @var \phpbbstudio\dtst\core\operator */
 	protected $dtst_utils;
 
+	/** @var string DTST Reputation table */
+	protected $dtst_reputation;
+
 	/** @var string DTST Slots table */
 	protected $dtst_slots;
 
@@ -73,25 +75,26 @@ class controller
 	/**
 	 * Constructor.
 	 *
-	 * @param \phpbb\auth\auth					$auth					Authentication object
-	 * @param \phpbb\config\config				$config					Configuration	object
-	 * @param \phpbb\db\driver\driver_interface	$db						Database driver object
-	 * @param \phpbb\controller\helper			$helper					Controller helper	object
-	 * @param \phpbb\language\language			$lang					Language object
-	 * @param \phpbb\log\log					$log					Log object
-	 * @param \phpbb\notification\manager		$notification_manager	Notification manager
-	 * @param \phpbb\path_helper				$path_helper			Path helper object
-	 * @param \phpbb\request\request			$request				Request object
-	 * @param \phpbb\template\template			$template				Template object
-	 * @param \phpbb\user						$user					User object
-	 * @param \phpbbstudio\dtst\core\operator	$dtst_utils				DTST Utilities
-	 * @param string							$dtst_slots				DTST Slots table
-	 * @param string							$dtst_privmsg			DTST PMs table
-	 * @param string							$root_path				phpBB	root path
-	 * @param string							$php_ext				php File extension
+	 * @param  \phpbb\auth\auth						$auth					Authentication object
+	 * @param  \phpbb\config\config					$config					Configuration object
+	 * @param  \phpbb\db\driver\driver_interface	$db						Database driver object
+	 * @param  \phpbb\controller\helper				$helper					Controller helper object
+	 * @param  \phpbb\language\language				$lang					Language object
+	 * @param  \phpbb\log\log						$log					Log object
+	 * @param  \phpbb\notification\manager			$notification_manager	Notification manager
+	 * @param  \phpbb\path_helper					$path_helper			Path helper object
+	 * @param  \phpbb\request\request				$request				Request object
+	 * @param  \phpbb\template\template				$template				Template object
+	 * @param  \phpbb\user							$user					User object
+	 * @param  \phpbbstudio\dtst\core\operator		$dtst_utils				DTST Utilities
+	 * @param  string								$dtst_reputation		DTST Reputation table
+	 * @param  string								$dtst_slots				DTST Slots table
+	 * @param  string								$dtst_privmsg			DTST PMs table
+	 * @param  string								$root_path				phpBB root path
+	 * @param  string								$php_ext				php File extension
 	 * @access public
 	 */
-	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\language\language $lang, \phpbb\log\log $log, \phpbb\notification\manager $notification_manager, \phpbb\path_helper $path_helper, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbbstudio\dtst\core\operator $dtst_utils, $dtst_slots, $dtst_privmsg, $root_path, $php_ext)
+	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\db\driver\driver_interface $db, \phpbb\controller\helper $helper, \phpbb\language\language $lang, \phpbb\log\log $log, \phpbb\notification\manager $notification_manager, \phpbb\path_helper $path_helper, \phpbb\request\request $request, \phpbb\template\template $template, \phpbb\user $user, \phpbbstudio\dtst\core\operator $dtst_utils, $dtst_reputation, $dtst_slots, $dtst_privmsg, $root_path, $php_ext)
 	{
 		$this->auth					= $auth;
 		$this->config				= $config;
@@ -105,6 +108,8 @@ class controller
 		$this->template				= $template;
 		$this->user					= $user;
 		$this->dtst_utils			= $dtst_utils;
+
+		$this->dtst_reputation		= $dtst_reputation;
 		$this->dtst_slots			= $dtst_slots;
 		$this->dtst_privmsg			= $dtst_privmsg;
 
@@ -230,10 +235,30 @@ class controller
 
 				/* Update the slots table with the new status, time and reason */
 				$sql = 'UPDATE ' . $this->dtst_slots . '
-						SET ' . $this->db->sql_build_array('UPDATE', $user_to_update) . ' 
+						SET ' . $this->db->sql_build_array('UPDATE', $user_to_update) . '
 						WHERE user_id = ' . (int) $this->user->data['user_id'] . '
 							AND topic_id = ' . (int) $topic_id;
 				$this->db->sql_query($sql);
+
+				/* If we are withdrawing from the event, update the reputation points */
+				if ($new_status == ext::DTST_STATUS_WITHDRAWN)
+				{
+					/* Deduct reputation points from the user */
+					$sql = 'UPDATE ' . USERS_TABLE . ' SET dtst_reputation = dtst_reputation + ' . (int) $this->config['dtst_rep_points_withdraw'] . ' WHERE user_id = ' . (int) $this->user->data['user_id'];
+					$this->db->sql_query($sql);
+
+					/* Insert the reputation into the reputation table */
+					$sql = 'INSERT INTO ' . $this->dtst_reputation . ' ' . $this->db->sql_build_array('INSERT', array(
+							'topic_id' 				=> (int) $topic_id,
+							'user_id' 				=> $this->config['dtst_use_bot'] ? (int) $this->config['dtst_bot'] : 0,
+							'recipient_id' 			=> (int) $this->user->data['user_id'],
+							'reputation_action' 	=> ext::DTST_REP_WITHDREW,
+							'reputation_points' 	=> $this->config['dtst_rep_points_withdraw'],
+							'reputation_reason' 	=> '',
+							'reputation_time' 		=> time(),
+						));
+					$this->db->sql_query($sql);
+				}
 			}
 			else
 			{
@@ -292,7 +317,7 @@ class controller
 	}
 
 	/**
-	 * Handles the cancellation of an event by the host
+	 * Handles the cancellation of an event by the host.
 	 *
 	 * @return mixed
 	 * @access public
@@ -377,22 +402,23 @@ class controller
 						'topic_title'			=> $event_canceled_title,
 						'topic_status'			=> ITEM_LOCKED,
 						'dtst_event_canceled'	=> ITEM_LOCKED,
-					)) . ' 
+					)) . '
 					WHERE topic_id = ' . (int) $topic_id;
 			$this->db->sql_query($sql);
 
 			$sql = 'UPDATE ' . FORUMS_TABLE . '
 					SET ' . $this->db->sql_build_array('UPDATE', array(
 						'forum_last_post_subject'		=> $event_canceled_title,
-					)) . ' 
+					)) . '
 					WHERE forum_id = ' . (int) $forum_id;
 			$this->db->sql_query($sql);
 
 			$sql = 'UPDATE ' . $this->dtst_slots . '
 					SET ' . $this->db->sql_build_array('UPDATE', array(
 						'dtst_status'			=> ext::DTST_STATUS_DENIED,
-					)) . ' 
-					WHERE dtst_status != ' . ext::DTST_STATUS_DENIED;
+					)) . '
+					WHERE dtst_status != ' . ext::DTST_STATUS_DENIED . '
+						AND topic_id = ' . (int) $topic_id;
 			$this->db->sql_query($sql);
 
 			$this->db->sql_transaction('commit');
@@ -400,6 +426,22 @@ class controller
 			/* Add it to the log - Without Emojis */
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, $this->lang->lang('LOG_DTST_EVENT_CANCELED'), time(), array('reportee_id' => $this->user->data['user_id'], $this->dtst_utils->dtst_strip_emojis($topic_title)));
 			$this->log->add('mod', $this->user->data['user_id'], $this->user->ip, $this->lang->lang('LOG_DTST_EVENT_CANCELED'), time(), array('topic_id' => $topic_id, $this->dtst_utils->dtst_strip_emojis($topic_title)));
+
+			/* Deduct reputation points from the host */
+			$sql = 'UPDATE ' . USERS_TABLE . ' SET dtst_reputation = dtst_reputation + ' . (int) $this->config['dtst_rep_points_cancel_event'] . ' WHERE user_id = ' . (int) $this->user->data['user_id'];
+			$this->db->sql_query($sql);
+
+			/* Insert the reputation into the reputation table */
+			$sql = 'INSERT INTO ' . $this->dtst_reputation . ' ' . $this->db->sql_build_array('INSERT', array(
+				'topic_id' 				=> (int) $topic_id,
+				'user_id' 				=> $this->config['dtst_use_bot'] ? (int) $this->config['dtst_bot'] : 0,
+				'recipient_id' 			=> (int) $this->user->data['user_id'],
+				'reputation_action' 	=> ext::DTST_REP_CANCELED,
+				'reputation_points' 	=> $this->config['dtst_rep_points_cancel_event'],
+				'reputation_reason' 	=> '',
+				'reputation_time' 		=> time(),
+				));
+			$this->db->sql_query($sql);
 
 			/* If the request is AJAX */
 			if ($this->request->is_ajax())
@@ -428,6 +470,8 @@ class controller
 				'topic_id'	=> $topic_id,
 				'forum_id'	=> $forum_id,
 			)), 'confirm_body.html', $this->helper->get_current_url());
+
+			return redirect($topic_url);
 		}
 	}
 
@@ -440,14 +484,14 @@ class controller
 	public function manage()
 	{
 		/* Request the topic and forum identifiers */
-		$forum_id	= (int) $this->request->variable('f', 0);
-		$topic_id	= (int) $this->request->variable('t', 0);
+		$forum_id = (int) $this->request->variable('f', 0);
+		$topic_id = (int) $this->request->variable('t', 0);
 		/* Request the form actions */
-		$submit		= $this->request->is_set_post('confirm');
-		$cancel		= $this->request->is_Set_post('cancel');
+		$submit = $this->request->is_set_post('confirm');
+		$cancel = $this->request->is_Set_post('cancel');
 
 		/* Get information about this event */
-		$sql = 'SELECT topic_poster as host, dtst_participants as participants_limit, dtst_participants_unl as participants_unlimited 
+		$sql = 'SELECT topic_poster as host, dtst_participants as participants_limit, dtst_participants_unl as participants_unlimited, dtst_event_ended
 				FROM ' . TOPICS_TABLE . '
 				WHERE topic_id = ' . (int) $topic_id;
 		$result = $this->db->sql_query_limit($sql, 1);
@@ -479,6 +523,20 @@ class controller
 		if (!$topic_id)
 		{
 			throw new \phpbb\exception\http_exception(404, 'DTST_TOPIC_NOT_FOUND');
+		}
+
+		if ($topic_data['dtst_event_ended'])
+		{
+			if ($this->request->is_ajax())
+			{
+				$json_response = new \phpbb\json_response;
+				$json_response->send(array(
+					'MESSAGE_TITLE'		=> $this->lang->lang('ERROR'),
+					'MESSAGE_TEXT'		=> $this->lang->lang( 'DTST_EVENT_ENDED'),
+				));
+			}
+
+			throw new \phpbb\exception\http_exception(401, 'DTST_REP_EVENT_NOT_ENDED');
 		}
 
 		/* Set up the topic url and return message for Ajax */
@@ -621,7 +679,7 @@ class controller
 				{
 					/* Update the slots table with the new status, time and reason */
 					$sql = 'UPDATE ' . $this->dtst_slots . '
-							SET ' . $this->db->sql_build_array('UPDATE', $user_to_update) . ' 
+							SET ' . $this->db->sql_build_array('UPDATE', $user_to_update) . '
 							WHERE user_id = ' . (int) $user_id . '
 								AND topic_id = ' . (int) $topic_id;
 					$this->db->sql_query($sql);
@@ -651,9 +709,9 @@ class controller
 						$this->log->add('mod', $this->user->data['user_id'], $this->user->ip, $this->lang->lang('LOG_DTST_OPT_ACCEPTED'), time(), array('topic_id' => $topic_id, $this->dtst_utils->dtst_strip_emojis($topic_title)));
 
 						/* Post a reply */
-						$last_post_url = $this->dtst_utils->dtst_post_reply($forum_id, $topic_id, $user_id, $user_to_update['dtst_reason']);
+						$last_post_url = $this->dtst_utils->dtst_post_reply('reason', (int) $forum_id, (int) $topic_id, (int) $user_id, $user_to_update['dtst_reason']);
 
-						/* Post a reply succeed - Let's help the submit_post() thinghy do the missing work */
+						/* Post a reply succeed - Let's help the submit_post() thingy do the missing work */
 						if ($last_post_url)
 						{
 							/* Are we using the PMs Bot? */
@@ -672,7 +730,7 @@ class controller
 									SET ' . $this->db->sql_build_array('UPDATE', array(
 										'topic_last_poster_name'		=> $topic_last_poster_name,
 										'topic_last_poster_colour'		=> $topic_last_post_colour,
-									)) . ' 
+									)) . '
 									WHERE topic_id = ' . (int) $topic_id;
 							$this->db->sql_query($sql);
 
@@ -681,7 +739,7 @@ class controller
 										'forum_last_poster_id'			=> $topic_last_post_id,
 										'forum_last_poster_name'		=> $topic_last_poster_name,
 										'forum_last_poster_colour'		=> $topic_last_post_colour,
-									)) . ' 
+									)) . '
 									WHERE forum_id = ' . (int) $forum_id;
 							$this->db->sql_query($sql);
 
@@ -817,6 +875,7 @@ class controller
 	 * 		- 5: Canceled
 	 *
 	 * @return array
+	 * @access private
 	 */
 	private function get_dtst_data()
 	{

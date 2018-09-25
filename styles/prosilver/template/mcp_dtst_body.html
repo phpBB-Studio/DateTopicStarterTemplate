@@ -1,0 +1,271 @@
+{% if not S_DTST_AJAX %}{% include 'mcp_header.html' %}{% endif %}
+
+{% INCLUDECSS '@phpbbstudio_dtst/dtst.css' %}
+{% INCLUDECSS '@phpbbstudio_dtst/dtst_mcp.css' %}
+{% INCLUDECSS '@phpbbstudio_dtst/dtst_reputation.css' %}
+
+{% if S_DTST_MODE == 'front' %}
+
+	{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_mcp.js' %}
+
+	<form method="post" id="mcp_dtst_recent" action="{{ U_DTST_ACTION }}">
+		<h2>{{ PAGE_TITLE }}</h2>
+		<div class="panel">
+			<div class="inner">
+				<h3>{{ lang('MCP_DTST_FRONT_LATEST_5') }}</h3>
+				{% for block in latest %}
+					<div class="dtst-mcp-filter-panel">
+						<h4>{{ block.TITLE }}</h4>
+						<table class="table1 responsive">
+							<thead>
+								<tr>
+									<th>{{ lang('USERNAME') }}</th>
+									<th>{% if block.S_MOD %}{{ DTST_REP_NAME }}{% else %}{{ lang('DTST_EVENT') }}{% endif %}</th>
+									<th>{{ lang('FROM')|capitalize }}</th>
+									<th>{{ lang('TIME') }}</th>
+									<th class="dtst-mcp-inline"><i class="icon fa-trash fa-fw responsive-hide"></i><span class="sr-only">&nbsp;{{ lang('DELETE') }}</span></th>
+								</tr>
+							</thead>
+							<tbody>
+							{% for row in block.rows %}
+								<tr class="{% if loop.index is even %}bg2{% else %}bg1{% endif %}">
+									<td class="center">{{ row.USERNAME }}</td>
+									{% if row.S_MOD %}
+										<td class="center dtst-mcp-points {{ row.CLASS }} dtst-mcp-inline">{{ row.POINTS }}</td>
+									{% else %}
+										<td><a href="{{ row.U_EVENT }}">{{ row.EVENT }}</a></td>
+									{% endif %}
+									<td class="center">{{ row.FROM }}</td>
+									<td class="center">{{ row.TIME }}</td>
+									<td class="center dtst-mcp-rep-del">
+										<a href="{{ row.U_DELETE }}" title="{{ lang('DTST_REP_DELETE', DTST_REP_NAME|lower) }}" class="button dtst-button dtst-button-red">
+											<i class="icon fa-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('DTST_REP_DELETE', DTST_REP_NAME|lower) }}</span>
+										</a>
+									</td>
+								</tr>
+							{% else %}
+								<tr><td colspan="5" class="center"><strong>{{ block.NONE }}</strong></td></tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="panel">
+			<div class="inner">
+				<table class="table1 responsive">
+					<thead>
+						<tr>
+							<th class="dtst-mcp-th">{{ lang('USERNAME') }}</th>
+							<th class="dtst-mcp-th">{{ DTST_REP_NAME }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_REP_CONDUCT_BAD') }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_REP_THUMBS_DOWN') }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_USER_STATUS_WITHDRAWN') }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_REP_NO_SHOW'	) }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_NO_REPLY') }}</th>
+							<th class="dtst-mcp-th">{{ lang('DTST_USER_STATUS_CANCELED') }}</th>
+							<th class="dtst-mcp-th">{{ lang('MCP_DTST_FRONT_MODERATED') }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for user in users %}
+							<tr class="{% if loop.index is even %}bg2{% else %}bg1{% endif %}">
+								<td>{{ user.NAME }}</td>
+								<td class="{{ user.CLASS }}">{{ user.POINTS }}</td>
+								<td class="center">{{ user.COUNT_CONDUCT_BAD }}</td>
+								<td class="center">{{ user.COUNT_THUMBS_DOWN }}</td>
+								<td class="center">{{ user.COUNT_WITHDREW }}</td>
+								<td class="center">{{ user.COUNT_NO_SHOW }}</td>
+								<td class="center">{{ user.COUNT_NO_REPLY }}</td>
+								<td class="center">{{ user.COUNT_CANCELED }}</td>
+								<td class="center">{{ user.COUNT_MOD }}</td>
+							</tr>
+						{% else %}
+							<tr class="bg1"><td class="center" colspan="9"><strong>{{ lang('NO_ONLINE_USERS') }}</strong></td></tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</form>
+
+{% elseif S_DTST_MODE == 'recent' %}
+
+{% if not S_DTST_AJAX %}
+	{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_mcp.js' %}
+
+	{# Declare some variables for the "find member" link #}
+	{% set form = 'mcp_dtst_recent' %}
+
+	<form method="post" id="{{ form }}" action="{{ U_DTST_ACTION }}" data-ajax="mcp_dtst_recent">
+		<h2>{{ PAGE_TITLE }}</h2>
+		<div class="panel">
+			<div class="inner">
+				<h3>{{ lang('MCP_DTST_RECENT_SUBTITLE', DTST_REP_NAME|lower) }}</h3>
+				<p>{{ lang('MCP_DTST_RECENT_EXPLAIN', DTST_REP_NAME|lower, '<u>' ~ lang('DTST_FILTERS') ~ '</u>', '<i class="fa fa-search fa-fw"></i>' ) }}</p>
+
+				<div class="inner">
+					<div class="column1 dtst-mcp-filter-panel">
+						<h4>{{ lang('DTST_EVENT_TYPE') }}</h4>
+						<div class="dtst-mcp-filter-panel-padding inner">
+							{% if event_types %}
+								{% for types in event_types|batch(event_types|length / 2) %}
+									<div class="column{{ loop.index }}">
+										{% for type in types %}
+											<label for="dtst_type_{{ type.ID }}" class="dtst-mcp-filter">
+												<input id="dtst_type_{{ type.ID }}" name="dtst_type[{{ type.ID }}]" type="checkbox" value="{{ type.ID }}"{% if type.S_SELECTED %} checked="checked"{% endif %}>
+												<i class="icon fa-square fa-fw"></i><i class="icon fa-check-square fa-fw"></i>
+												<span>{{ type.NAME }}</span>
+											</label>
+										{% endfor %}
+									</div>
+								{% endfor %}
+							{% else %}
+								<div class="dtst-mcp-center"><strong>{{ lang('DTST_EVENT_TYPE_NONE') }}</strong></div>
+							{% endif %}
+						</div>
+					</div>
+					<div class="column2 dtst-mcp-filter-panel">
+						<h4>{{ lang('ACTION') }}</h4>
+						<div class="dtst-mcp-filter-panel-padding inner">
+							{% for column in actions|batch(actions|length / 2) %}
+								<div class="column{{ loop.index }}">
+									{% for action in column %}
+										<label for="dtst_action_{{ action.ID }}" class="dtst-mcp-filter">
+											<input id="dtst_action_{{ action.ID }}" name="dtst_action[{{ action.ID }}]" type="checkbox" value="{{ action.ID }}"{% if action.S_SELECTED %} checked="checked"{% endif %}>
+											<i class="icon fa-square fa-fw"></i><i class="icon fa-check-square fa-fw"></i>
+											<span>{{ action.LANG }}</span>
+										</label>
+									{% endfor %}
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+
+				<div class="inner">
+					<div class="column1 dtst-mcp-filter-panel">
+						<h4>{{ lang('FROM')|capitalize }}</h4>
+						<div class="dtst-mcp-textarea-wrapper">
+							<a title="{{ lang('FIND_USERNAME') }}" href="{{ U_FIND_MEMBER ~ '&form=' ~ form ~ '&field=user_from' }}" class="dtst-mcp-textarea-search dtst-mcp-center">
+								<i class="icon fa-search fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('FIND_USERNAME') }}</span>
+							</a>
+							<textarea id="user_from" name="user_from" title="{{ lang('FROM')|capitalize }}" class="inputbox dtst-mcp-textarea">{{ DTST_FILTER_FROM }}</textarea>
+						</div>
+					</div>
+					<div class="column2 dtst-mcp-filter-panel">
+						<h4>{{ lang('DTST_REP_TO') }}</h4>
+						<div class="dtst-mcp-textarea-wrapper">
+							<a title="{{ lang('FIND_USERNAME') }}" href="{{ U_FIND_MEMBER ~ '&form=' ~ form ~ '&field=user_to' }}" class="dtst-mcp-textarea-search dtst-mcp-center">
+								<i class="icon fa-search fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('FIND_USERNAME') }}</span>
+							</a>
+							<textarea id="user_to" name="user_to" title="{{ lang('DTST_REP_TO') }}" class="inputbox dtst-mcp-textarea">{{ DTST_FILTER_TO }}</textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+{% endif %}
+
+		<div id="mcp_dtst_recent_list" class="panel">
+			<div class="inner">
+				<table class="table1 responsive">
+					<thead>
+						<tr>
+							<th class="name"><a href="{{ U_DTST_SORT_EVENT }}">{{ lang('DTST_EVENT') }}</a></th>
+							<th class="name"><a href="{{ U_DTST_SORT_ACTION }}">{{ lang('ACTION') }}</a></th>
+							<th class="name"><a href="{{ U_DTST_SORT_TIME }}">{{ lang('TIME') }}</a></th>
+							<th class="dtst-mcp-inline"><a href="{{ U_DTST_SORT_FROM }}">{{ lang('FROM')|capitalize }}</a></th>
+							<th class="dtst-mcp-inline">&nbsp;</th>
+							<th class="dtst-mcp-inline responsive-hide"><a href="{{ U_DTST_SORT_TO }}">{{ lang('DTST_REP_TO') }}</a></th>
+							<th class="dtst-mcp-inline"><a href="{{ U_DTST_SORT_POINTS }}">{{ DTST_REP_NAME }}</a></th>
+							<th class="dtst-mcp-inline">{{ lang('DELETE') }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for rep in reputation %}
+							<tr class="{% if loop.index is even %}bg2{% else %}bg1{% endif %}">
+								<td><a href="{{ rep.U_EVENT }}">{{ rep.EVENT }}</a></td>
+								<td><strong>{{ rep.ACTION }}</strong><br>&raquo; {{ rep.REASON }}</td>
+								<td>{{ rep.TIME }}</td>
+								<td class="center">{{ rep.GIVER }}</td>
+								<td class="responsive-hide"><i class="icon fa-angle-right fa-fw"></i></td>
+								<td class="center">{{ rep.RECEIVER }}</td>
+								<td class="center dtst-mcp-points {{ rep.CLASS }}"><strong>{{ rep.POINTS }}</strong></td>
+								<td class="center">
+									<a href="{{ rep.U_DELETE }}" title="{{ lang('DTST_REP_DELETE', DTST_REP_NAME|lower) }}" class="button dtst-button dtst-button-red">
+										<i class="icon fa-times fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang('DTST_REP_DELETE', DTST_REP_NAME|lower) }}</span>
+									</a>
+								</td>
+							</tr>
+						{% else %}
+							<tr class="bg1"><td colspan="8" class="dtst-mcp-center"><strong>{{ lang('MCP_DTST_RECENT_NONE', DTST_REP_NAME|lower ) }}</strong></td></tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+{% if not S_DTST_AJAX %}
+	</form>
+{% endif %}
+
+{% elseif S_DTST_MODE == 'adjust' %}
+
+	{# Declare some variables for the "find member" link #}
+	{% set form = 'mcp_dtst_adjust' %}
+	{% set field = 'username' %}
+	<form method="post" id="{{ form }}" action="{{ U_DTST_ACTION }}">
+		<h2>{{ PAGE_TITLE }}</h2>
+
+		<div class="panel">
+			<div class="inner">
+				<h3>{{ lang('MCP_DTST_ADJUST_SUBTITLE', DTST_REP_NAME|lower) }}</h3>
+				<p>{{ lang('MCP_DTST_ADJUST_EXPLAIN', DTST_REP_NAME|lower, '<u>' ~ lang('FIND_USERNAME') ~ '</u>') }}</p>
+
+				{% if S_ERROR %}
+					<p class="error">{{ ERROR_MSG }}</p>
+				{% endif %}
+				<fieldset>
+					<dl>
+						<dt><label for="{{ field }}">{{ lang('SELECT_USER') ~ lang('COLON') }}</label></dt>
+						<dd><input name="{{ field }}" id="{{ field }}" type="text" class="inputbox" required="required" value="{{ DTST_USERNAME }}" /></dd>
+						<dd>
+							<strong>
+								<a href="{{ U_FIND_MEMBER ~ '&form=' ~ form ~ '&field=' ~ field }}" onclick="find_username(this.href); return false;">
+									<i class="fa fa-search fa-fw" aria-hidden="true"></i><span>{{ lang('FIND_USERNAME') }}</span>
+								</a>
+							</strong>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label for="dtst_action_give">{{ lang('SELECT_ACTION') ~ lang('COLON') }}</label></dt>
+						<dd class="dtst-mcp-action">
+							<label for="dtst_action_give"><input id="dtst_action_give" name="action" value="+" type="radio"{% if DTST_ACTION == '+' %} checked="checked"{% endif %}><i class="icon fa-plus-square fa-fw"></i><span>{{ lang('MCP_DTST_ADJUST_GIVE') }}</span></label>
+							<label for="dtst_action_take"><input id="dtst_action_take" name="action" value="-" type="radio"{% if DTST_ACTION == '-' %} checked="checked"{% endif %}><i class="icon fa-minus-square fa-fw"></i><span>{{ lang('MCP_DTST_ADJUST_TAKE') }}</span></label>
+						</dd>
+					</dl>
+					<dl>
+						<dt><label for="reputation">{{ DTST_REP_NAME ~ lang('COLON') }}</label></dt>
+						<dd><input id="reputation" name="reputation" type="number" class="dtst-mcp-small" min="1" required="required" value="{{ DTST_REPUTATION }}"></dd>
+					</dl>
+					<dl>
+						<dt><label for="reason">{{ lang('REASON') ~ lang('COLON') }}</label></dt>
+						<dd><textarea id="reason" name="reason" class="inputbox" required="required">{{ DTST_REASON }}</textarea></dd>
+					</dl>
+				</fieldset>
+			</div>
+		</div>
+
+		<fieldset class="submit-buttons">
+			<input type="reset" name="reset" value="{{ lang('RESET') }}"  class="button2" />&nbsp;
+			<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1" />
+			{{ S_FORM_TOKEN }}
+		</fieldset>
+	</form>
+{% endif %}
+
+{% if not S_DTST_AJAX %}{% include 'mcp_footer.html' %}{% endif %}

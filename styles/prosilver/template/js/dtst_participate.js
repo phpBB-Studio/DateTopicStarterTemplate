@@ -14,7 +14,7 @@ $(function() {
 		$('#dtst_attendees_list').toggle('slow');
 	});
 
-	$('#phpbb_confirm, #dtst_manage').on('keyup', '[name$="[dtst_action_reason]"], #dtst_reason', function() {
+	$('#phpbb_confirm, #dtst_reason_form, #dtst_manage').on('keyup', '[name$="[dtst_action_reason]"], #dtst_reason', function() {
 		dtst.countCharacters($(this));
 	});
 
