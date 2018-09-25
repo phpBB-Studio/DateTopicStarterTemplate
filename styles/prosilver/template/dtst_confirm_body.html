@@ -1,4 +1,9 @@
-<form action="{S_CONFIRM_ACTION}" method="post">
+{% if S_DTST_NO_AJAX %}
+	{% include 'overall_header.html' %}
+	{% INCLUDEJS '@phpbbstudio_dtst/js/dtst_participate.js' %}
+{% endif %}
+
+<form id="dtst_reason_form" action="{{ S_CONFIRM_ACTION }}" method="post">
 	<h3>{{ lang('CONFIRM') }}</h3>
 	<p>{{ MESSAGE_TEXT }}</p>
 
@@ -11,7 +16,10 @@
 	{% endif %}
 
 	<fieldset class="submit-buttons">
-		<input type="button" name="confirm" value="{{ lang('SUBMIT') }}" class="button1" />&nbsp;
-		<input type="button" name="cancel" value="{{ lang('CANCEL') }}" class="button2" />
+		{{ S_FORM_TOKEN }}
+		<input type="{% if S_DTST_NO_AJAX %}submit{% else %}button{% endif %}" name="confirm" value="{{ lang('SUBMIT') }}" class="button1" />&nbsp;
+		<input type="{% if S_DTST_NO_AJAX %}submit{% else %}button{% endif %}" name="cancel" value="{{ lang('CANCEL') }}" class="button2" />
 	</fieldset>
 </form>
+
+{% if S_DTST_NO_AJAX %}{% include 'overall_footer.html' %}{% endif %}

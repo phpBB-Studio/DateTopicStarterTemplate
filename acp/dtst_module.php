@@ -41,6 +41,7 @@ class dtst_module
 
 		$dtst_utils = $phpbb_container->get('phpbbstudio.dtst.dtst_utils');
 		$dtst_privmsg = $table_prefix . 'dtst_privmsg';
+		$dtst_ranks = $table_prefix . 'dtst_ranks';
 
 		$phpbb_root_path = $phpbb_container->getParameter('core.root_path');
 		$php_ext = $phpbb_container->getParameter('core.php_ext');
@@ -83,7 +84,11 @@ class dtst_module
 						$string = implode(" ", $forum_dtst_preset_location_add);
 
 						/* No Emojis */
-						$string = $dtst_utils->dtst_strip_emojis($string);
+						if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $string, $matches))
+						{
+							$list = implode('<br>', $matches[0]);
+							$errors[] = $language->lang('ACP_DTST_ERR_LOCATION_EMOJIS_SUPPORT', $list);
+						}
 
 						/**
 						 * The first element of the array can not be overwritten despite is empty
@@ -121,7 +126,7 @@ class dtst_module
 						/* No errors? Great, let's go. */
 						if (!count($errors))
 						{
-							/* No Emojis for Logs */
+							/* No Emojis for Logs, be sure. */
 							$forum_dtst_preset_location_add = $dtst_utils->dtst_strip_emojis($forum_dtst_preset_location_add);
 
 							/* Correctly adds the new location at the end of the list, to be sorted later */
@@ -170,7 +175,7 @@ class dtst_module
 					}
 					else
 					{
-						confirm_box(false, $user->lang['ACP_REMOVE_PRESET_LOCATIONS_CONFIRM'], build_hidden_fields(array(
+						confirm_box(false, $language->lang('ACP_REMOVE_PRESET_LOCATIONS_CONFIRM'), build_hidden_fields(array(
 							'action'	=> $action))
 						);
 
@@ -287,9 +292,6 @@ class dtst_module
 			/* Set the page title */
 			$this->page_title = $language->lang('ACP_DTST_TITLE');
 
-			/* Request the action */
-			$action = $request->variable('action', '');
-
 			/* Do this now and forget */
 			$errors = array();
 
@@ -317,7 +319,7 @@ class dtst_module
 
 					/* Log the action and return */
 					$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'DTST_LOG_SETTINGS_SAVED');
-					trigger_error($user->lang('ACP_DTST_SETTING_SAVED') . adm_back_link($this->u_action));
+					trigger_error($language->lang('ACP_DTST_SETTING_SAVED') . adm_back_link($this->u_action));
 				}
 			}
 
@@ -394,19 +396,8 @@ class dtst_module
 				$pm_status_options .= '</option>';
 			}
 
-			/**
-			 * Returns a list of languages from the DB, those installed
-			 * Config [ default_lang ] could be the fall-back in case
-			 */
-			$sql = 'SELECT lang_id, lang_iso, lang_local_name
-					FROM ' . LANG_TABLE . '
-					ORDER BY lang_id';
-			$result = $db->sql_query($sql);
-			while ($row = $db->sql_fetchrow($result))
-			{
-				$lang_isos[$row['lang_iso']] = $row['lang_local_name'];
-			}
-			$db->sql_freeresult($result);
+			/* Query the langs table */
+			$lang_isos = $dtst_utils->dtst_langs_sql();
 
 			/* Set vars */
 			$pm_lang_options = '';
@@ -442,6 +433,18 @@ class dtst_module
 					trigger_error('FORM_INVALID', E_USER_WARNING);
 				}
 
+				/* No Emojis */
+				if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $dtst_pm_title, $matches))
+				{
+					$list = implode('<br>', $matches[0]);
+					$errors[] = $language->lang('ACP_DTST_ERR_PM_TITLE_EMOJIS_SUPPORT', $list);
+				}
+				if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $dtst_pm_message, $matches))
+				{
+					$list = implode('<br>', $matches[0]);
+					$errors[] = $language->lang('ACP_DTST_ERR_PM_MESSAGE_EMOJIS_SUPPORT', $list);
+				}
+
 				if (!$dtst_pm_status)
 				{
 					$errors[] = $language->lang('ACP_DTST_PM_STATUS_NONE');
@@ -475,7 +478,7 @@ class dtst_module
 					$row = $db->sql_fetchrow($result);
 					$db->sql_freeresult($result);
 
-					/* No Emojis */
+					/* No Emojis, extra layer.*/
 					$dtst_pm_message = $dtst_utils->dtst_strip_emojis($dtst_pm_message);
 					$dtst_pm_title = $dtst_utils->dtst_strip_emojis($dtst_pm_title);
 
@@ -511,7 +514,7 @@ class dtst_module
 
 					/* Log the action and return */
 					$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'DTST_LOG_PRIVMSG_SAVED');
-					trigger_error($user->lang('ACP_DTST_PRIVMSG_SAVED') . adm_back_link($this->u_action));
+					trigger_error($language->lang('ACP_DTST_PRIVMSG_SAVED') . adm_back_link($this->u_action));
 				}
 			}
 
@@ -597,7 +600,7 @@ class dtst_module
 				$preview_title	= str_replace(array($tokens[0], $tokens[1]), array($sender_name, $sender_name), $preview_ttl);
 				$preview_text	= str_replace($tokens, $token_replacements, $preview_message_show);
 
-				/* Ensure visive consistency in preview */
+				/* Ensure visible consistency in preview */
 				$preview_title	= htmlspecialchars_decode($preview_title, ENT_COMPAT);
 				$preview_text	= htmlspecialchars_decode($preview_text, ENT_COMPAT);
 
@@ -683,6 +686,388 @@ class dtst_module
 
 			/* Build smilies */
 			generate_smilies('inline', 0);
+		}
+
+		/**
+		* Mode LPR Settings
+		*/
+		if ($mode === 'lpr_settings')
+		{
+			/* Set the template file */
+			$this->tpl_name = 'dtst_lpr_settings';
+
+			/* Set the page title */
+			$this->page_title = $language->lang('ACP_DTST_TITLE');
+
+			/* Do this now and forget */
+			$errors = array();
+
+			/* Add a form key for security */
+			add_form_key('phpbbstudio_dtst_lpr_settings');
+
+			/**
+			 * Drop down construct for reputation time
+			 */
+			$time_modes = array(
+				ext::ONE_DAY	=> 'one_day',
+				ext::TWO_DAYS	=> 'two_days',
+				ext::THREE_DAYS	=> 'three_days',
+				ext::ONE_WEEK	=> 'one_week',
+				ext::TWO_WEEKS	=> 'two_weeks',
+				ext::ONE_MONTH	=> 'one_month',
+			);
+
+			$host_time = $rep_time = '';
+
+			foreach ($time_modes as $val => $time_mode)
+			{
+				$host_time	.= '<option value="' . $val . '"' . (($val == $config['dtst_host_time']) ? ' selected="selected"' : '') . '>';
+				$rep_time	.= '<option value="' . $val . '"' . (($val == $config['dtst_rep_time']) ? ' selected="selected"' : '') . '>';
+
+				$host_time	.= $language->lang('ACP_DTST_' . strtoupper($time_mode));
+				$rep_time	.= $language->lang('ACP_DTST_' . strtoupper($time_mode));
+
+				$host_time	.= '</option>';
+				$rep_time	.= '</option>';
+			}
+
+			/**
+			 * Let's see what happens if submit
+			 */
+			if ($request->is_set_post('submit'))
+			{
+				if (!check_form_key('phpbbstudio_dtst_lpr_settings'))
+				{
+					trigger_error('FORM_INVALID', E_USER_WARNING);
+				}
+
+				/* Emojis's  handling */
+				if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $request->variable('dtst_rep_name', '', true), $matches))
+				{
+					$list = implode('<br>', $matches[0]);
+					$errors[] = $language->lang('ACP_DTST_ERR_REP_NAME_EMOJIS_SUPPORT', $list);
+				}
+
+				/* No errors? Great, let's go. */
+				if (!count($errors))
+				{
+					$config->set('dtst_host_time', $request->variable('dtst_host_time', (int) $config['dtst_host_time']));// int
+					$config->set('dtst_rep_time', $request->variable('dtst_rep_time', (int) $config['dtst_rep_time']));// int
+					$config->set('dtst_rep_name', $request->variable('dtst_rep_name', (string) $config['dtst_rep_name'], '')); // string
+					//$config->set('dtst_rep_rank_starter', $request->variable('dtst_rep_rank_starter', (int) $config['dtst_rep_rank_starter']));// int
+					$config->set('dtst_rep_count_up', $request->variable('dtst_rep_count_up', (int) $config['dtst_rep_count_up']));// int
+					$config->set('dtst_rep_count_down', $request->variable('dtst_rep_count_down', (int) $config['dtst_rep_count_down']));// int
+					$config->set('dtst_rep_count_good', $request->variable('dtst_rep_count_good', (int) $config['dtst_rep_count_good']));// int
+					$config->set('dtst_rep_count_bad', $request->variable('dtst_rep_count_bad', (int) $config['dtst_rep_count_bad']));// int
+					//$config->set('dtst_rep_points_min', $request->variable('dtst_rep_points_min', (int) $config['dtst_rep_points_min']));// int
+					//$config->set('dtst_rep_points_max', $request->variable('dtst_rep_points_max', (int) $config['dtst_rep_points_max']));// int
+					$config->set('dtst_show_rep_points', $request->variable('dtst_show_rep_points', (int) $config['dtst_show_rep_points'])); // bool
+					$config->set('dtst_show_rep_rank', $request->variable('dtst_show_rep_rank', (int) $config['dtst_show_rep_rank'])); // bool
+					$config->set('dtst_show_mod_anon', $request->variable('dtst_show_mod_anon', (int) $config['dtst_show_mod_anon'])); // bool
+					//$config->set('dtst_show_reason_anon', $request->variable('dtst_show_reason_anon', (int) $config['dtst_show_reason_anon'])); // bool
+					$config->set('dtst_rep_users_page', $request->variable('dtst_rep_users_page', (int) $config['dtst_rep_users_page'])); // int
+
+					/* Log the action and return */
+					$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'DTST_LOG_REP_SETTINGS_SAVED');
+					trigger_error($language->lang('ACP_DTST_LPR_SETTING_SAVED') . adm_back_link($this->u_action));
+				}
+			}
+
+			$template->assign_vars(array(
+				'S_ERRORS'						=> ($errors) ? true : false,
+				'ERRORS_MSG'					=> implode('<br /><br />', $errors),
+				'U_ACTION'						=> $this->u_action,
+
+				'S_DTST_REP_HOST_TIME'			=> $host_time,
+				'DTST_REP_HOST_TIME'			=> (int) $config['dtst_host_time'],
+				'S_DTST_REP_TIME'				=> $rep_time,
+				'DTST_REP_TIME'					=> (int) $config['dtst_rep_time'],
+				'DTST_REP_NAME'					=> (string) $config['dtst_rep_name'],
+				//'DTST_REP_RANK_STARTER'			=> (int) $config['dtst_rep_rank_starter'],
+				'DTST_REP_COUNT_UP'				=> (int) $config['dtst_rep_count_up'],
+				'DTST_REP_COUNT_DOWN'			=> (int) $config['dtst_rep_count_down'],
+				'DTST_REP_COUNT_GOOD'			=> (int) $config['dtst_rep_count_good'],
+				'DTST_REP_COUNT_BAD'			=> (int) $config['dtst_rep_count_bad'],
+				//'DTST_REP_POINTS_MIN'			=> (int) $config['dtst_rep_points_min'],
+				//'DTST_REP_POINTS_MAX'			=> ext::DTST_MAX_REP,
+				'DTST_SHOW_REP_POINTS'			=> (bool) $config['dtst_show_rep_points'],
+				'DTST_SHOW_REP_RANK'			=> (bool) $config['dtst_show_rep_rank'],
+				'DTST_SHOW_MOD_ANON'			=> (bool) $config['dtst_show_mod_anon'],
+				//'DTST_SHOW_REASON_ANON'			=> (bool) $config['dtst_show_reason_anon'],
+				'DTST_USERS_PAGE'				=> (int) $config['dtst_rep_users_page'],
+			));
+		}
+
+		/**
+		* Mode LPR Reputation
+		*/
+		if ($mode === 'lpr_reputation')
+		{
+			/* Set the template file */
+			$this->tpl_name = 'dtst_lpr_reputation';
+
+			/* Set the page title */
+			$this->page_title = $language->lang('ACP_DTST_TITLE');
+
+			/* Do this now and forget */
+			$errors = array();
+
+			/* Add a form key for security */
+			add_form_key('phpbbstudio_dtst_lpr_reputation');
+
+			if ($request->is_set_post('submit'))
+			{
+				if (!check_form_key('phpbbstudio_dtst_lpr_reputation'))
+				{
+					trigger_error('FORM_INVALID', E_USER_WARNING);
+				}
+
+				/* No errors? Great, let's go. */
+				if (!count($errors))
+				{
+					$config->set('dtst_rep_points_host', $request->variable('dtst_rep_points_host', (int) $config['dtst_rep_points_host']));// int
+					$config->set('dtst_rep_points_noreply', $request->variable('dtst_rep_points_noreply', (int) $config['dtst_rep_points_noreply']));// int
+					$config->set('dtst_rep_points_cancel_event', $request->variable('dtst_rep_points_cancel_event', (int) $config['dtst_rep_points_cancel_event']));// int
+					$config->set('dtst_rep_points_good', $request->variable('dtst_rep_points_good', (int) $config['dtst_rep_points_good']));// int
+					$config->set('dtst_rep_points_attend', $request->variable('dtst_rep_points_attend', (int) $config['dtst_rep_points_attend']));// int
+					$config->set('dtst_rep_points_bad', $request->variable('dtst_rep_points_bad', (int) $config['dtst_rep_points_bad']));// int
+					$config->set('dtst_rep_points_noshow', $request->variable('dtst_rep_points_noshow', (int) $config['dtst_rep_points_noshow']));// int
+					$config->set('dtst_rep_points_up', $request->variable('dtst_rep_points_up', (int) $config['dtst_rep_points_up']));// int
+					$config->set('dtst_rep_points_down', $request->variable('dtst_rep_points_down', (int) $config['dtst_rep_points_down']));// int
+					$config->set('dtst_rep_points_withdraw', $request->variable('dtst_rep_points_withdraw', (int) $config['dtst_rep_points_withdraw'])); // int
+
+					/* Log the action and return */
+					$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'DTST_LOG_REP_VALUES_SAVED');
+					trigger_error($language->lang('ACP_DTST_LPR_REPUTATION_VALUES_SAVED') . adm_back_link($this->u_action));
+				}
+			}
+
+			$template->assign_vars(array(
+				'S_ERRORS'						=> ($errors) ? true : false,
+				'ERRORS_MSG'					=> implode('<br /><br />', $errors),
+				'U_ACTION'						=> $this->u_action,
+
+				'DTST_REP_POINTS_HOST'				=> (int) $config['dtst_rep_points_host'],
+				'DTST_REP_POINTS_NOREPLY'			=> (int) $config['dtst_rep_points_noreply'],
+				'DTST_REP_POINTS_CANCEL_EVENT'		=> (int) $config['dtst_rep_points_cancel_event'],
+				'DTST_REP_POINTS_GOOD'				=> (int) $config['dtst_rep_points_good'],
+				'DTST_REP_POINTS_ATTEND'			=> (int) $config['dtst_rep_points_attend'],
+				'DTST_REP_POINTS_BAD'				=> (int) $config['dtst_rep_points_bad'],
+				'DTST_REP_POINTS_NOSHOW'			=> (int) $config['dtst_rep_points_noshow'],
+				'DTST_REP_POINTS_UP'				=> (int) $config['dtst_rep_points_up'],
+				'DTST_REP_POINTS_DOWN'				=> (int) $config['dtst_rep_points_down'],
+				'DTST_REP_POINTS_WITHDRAW'			=> (int) $config['dtst_rep_points_withdraw'],
+			));
+		}
+
+		/**
+		* Mode LPR Ranks
+		*/
+		if ($mode === 'lpr_ranks')
+		{
+			/* Set the template file */
+			$this->tpl_name = 'dtst_lpr_ranks';
+
+			/* Set the page title */
+			$this->page_title = $language->lang('ACP_DTST_TITLE');
+
+			/* Request the action */
+			$action = $request->variable('action', '');
+
+			/* Do this now and forget */
+			$errors = array();
+
+			/* Add a form key for security */
+			add_form_key('phpbbstudio_dtst_lpr_ranks');
+
+			/* Request variables to work with */
+			$dtst_rank_isocode = $request->variable('dtst_rank_isocode', '', true);// MAX 255
+			$dtst_rank_value = $request->variable('dtst_rank_value', 0);
+			$dtst_rank_title = $request->variable('dtst_rank_title', '', true);// MAX 255
+			$dtst_rank_desc = $request->variable('dtst_rank_desc', '', true);// MAX 255
+			$dtst_rank_bckg = $request->variable('dtst_rank_bckg', '', true);// HexDec color MAX 7
+			$dtst_rank_text = $request->variable('dtst_rank_text', '', true);// HexDec color MAX 7
+
+			/**
+			 * Drop down constructs
+			 */
+			$rank_values = array(
+				ext::DTST_RANK_ZERO		=> 'zero',
+				ext::DTST_RANK_MIN		=> 'min',
+				ext::DTST_RANK_ONE		=> 'one',
+				ext::DTST_RANK_TWO		=> 'two',
+				ext::DTST_RANK_THREE	=> 'three',
+				ext::DTST_RANK_FOUR		=> 'four',
+				ext::DTST_RANK_FIVE		=> 'five',
+				ext::DTST_RANK_SIX		=> 'six',
+				ext::DTST_RANK_SEVEN	=> 'seven',
+				ext::DTST_RANK_EIGHT	=> 'eight',
+				ext::DTST_RANK_NINE		=> 'nine',
+				ext::DTST_RANK_TEN		=> 'ten',
+			);
+
+			/* Set var */
+			$rank_values_options = '';
+
+			foreach ($rank_values as $val => $rank_value)
+			{
+				$rank_values_options .= '<option value="' . $val . '"' . (($val == $dtst_rank_value) ? ' selected="selected"' : '') . '>';
+				$rank_values_options .= $language->lang('ACP_DTST_RANK_' . strtoupper($rank_value));
+				$rank_values_options .= '</option>';
+			}
+
+			/* Query the langs table */
+			$rank_lang_isos = $dtst_utils->dtst_langs_sql();
+
+			/* Set vars */
+			$rank_lang_options = '';
+
+			foreach ($rank_lang_isos as $key => $value)
+			{
+				$selected = ($key === $dtst_rank_isocode) ? ' selected="selected"' : '';
+				$rank_lang_options .= '<option value="' . $key . '"' . $selected . '>' . $value . '</option>';
+			}
+
+			/* Update the ranks */
+			if ($action === 'update' && $request->is_ajax())
+			{
+				/* Query our ranks table */
+				$sql = $dtst_utils->dtst_ranks_sql($dtst_rank_value, $dtst_rank_isocode);
+				$result = $db->sql_query($sql);
+				$rank = $db->sql_fetchrow($result);
+				$db->sql_freeresult($result);
+
+				$response = !empty($rank) ? array_change_key_case($rank, CASE_UPPER) : array('DTST_NO_RANK' => true);
+
+				$json_response = new \phpbb\json_response;
+				$json_response->send($response);
+			}
+
+			if ($request->is_set_post('submit'))
+			{
+				if (!check_form_key('phpbbstudio_dtst_lpr_ranks'))
+				{
+					trigger_error('FORM_INVALID', E_USER_WARNING);
+				}
+
+				/* Emojis's  handling */
+				if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $dtst_rank_title, $matches))
+				{
+					$list = implode('<br>', $matches[0]);
+					$errors[] = $language->lang('ACP_DTST_ERR_TITLE_EMOJIS_SUPPORT', $list);
+				}
+				if (preg_match_all('/[\x{10000}-\x{10FFFF}]/u', $dtst_rank_desc, $matches))
+				{
+					$list = implode('<br>', $matches[0]);
+					$errors[] = $language->lang('ACP_DTST_ERR_DESC_EMOJIS_SUPPORT', $list);
+				}
+
+				if (empty($dtst_rank_title))
+				{
+					$errors[] = $language->lang('ACP_DTST_ERR_RANK_TITLE_EMPTY');
+				}
+
+				if (utf8_strlen($dtst_rank_title >= 15))
+				{
+					$error[] = $language->lang('ACP_DTST_ERR_RANK_TITLE_LONG');
+				}
+
+				if (empty($dtst_rank_desc))
+				{
+					$errors[] = $language->lang('ACP_DTST_ERR_RANK_DESC_EMPTY');
+				}
+
+				if (utf8_strlen($dtst_rank_desc >= 25))
+				{
+					$error[] = $language->lang('ACP_DTST_ERR_RANK_DESC_LONG');
+				}
+
+				/* No errors? Great, let's go. */
+				if (!count($errors))
+				{
+					/* Query our ranks table */
+					$sql = $dtst_utils->dtst_ranks_sql($dtst_rank_value, $dtst_rank_isocode);
+					$result = $db->sql_query($sql);
+					$row = $db->sql_fetchrow($result);
+					$db->sql_freeresult($result);
+
+					/* No Emojis we said, let's be sure. */
+					$dtst_rank_title = $dtst_utils->dtst_strip_emojis($dtst_rank_title);
+					$dtst_rank_desc = $dtst_utils->dtst_strip_emojis($dtst_rank_desc);
+
+					/* If this rank does not exist let's create it */
+					if (!$row)
+					{
+						$rank_sql = array(
+							'dtst_rank_isocode'			=> $dtst_rank_isocode,
+							'dtst_rank_value'			=> $dtst_rank_value,
+							'dtst_rank_title' 			=> $dtst_rank_title,
+							'dtst_rank_desc'			=> $dtst_rank_desc,
+							'dtst_rank_bckg' 			=> $dtst_rank_bckg,
+							'dtst_rank_text'			=> $dtst_rank_text,
+						);
+
+						$sql = 'INSERT INTO ' . $dtst_ranks . '
+							' . $db->sql_build_array('INSERT', $rank_sql);
+						$db->sql_query($sql);
+					}
+					else
+					{
+						/* Let's update the rank */
+						$rank_sql = array(
+							'dtst_rank_isocode'			=> $dtst_rank_isocode,
+							'dtst_rank_value'			=> $dtst_rank_value,
+							'dtst_rank_title' 			=> $dtst_rank_title,
+							'dtst_rank_desc'			=> $dtst_rank_desc,
+							'dtst_rank_bckg' 			=> $dtst_rank_bckg,
+							'dtst_rank_text'			=> $dtst_rank_text,
+						);
+
+						$sql = 'UPDATE ' . $dtst_ranks . '
+							SET ' . $db->sql_build_array('UPDATE', $rank_sql) . '
+							WHERE dtst_rank_id = ' . (int) $row['dtst_rank_id'];
+						$db->sql_query($sql);
+					}
+
+					/* Log the action and return */
+					$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'DTST_LOG_REP_RANKS_SAVED');
+					trigger_error($language->lang('ACP_DTST_LPR_RANKS_SETTING_SAVED') . adm_back_link($this->u_action));
+				}
+			}
+
+			/* Set up default values */
+			if (!$request->is_set_post('submit'))
+			{
+				/* Query our ranks table */
+				$sql = 'SELECT *
+						FROM ' . $dtst_ranks . '
+						WHERE dtst_rank_value = ' . (int) array_keys($rank_values)[0] . '
+							AND dtst_rank_isocode = "' . $db->sql_escape(array_keys($rank_lang_isos)[0]) . '"';
+				$result = $db->sql_query($sql);
+				$row = $db->sql_fetchrow($result);
+				$db->sql_freeresult($result);
+
+				$dtst_rank_title = !empty($row) ? $row['dtst_rank_title'] : '';
+				$dtst_rank_desc = !empty($row) ? $row['dtst_rank_desc'] : '';
+				$dtst_rank_bckg = !empty($row) ? $row['dtst_rank_bckg'] : '';
+				$dtst_rank_text = !empty($row) ? $row['dtst_rank_text'] : '';
+			}
+
+			$template->assign_vars(array(
+				'S_ERRORS'						=> ($errors) ? true : false,
+				'ERRORS_MSG'					=> implode('<br /><br />', $errors),
+				'U_ACTION'						=> $this->u_action,
+
+				'S_DTST_RANK_VALUES'			=> $rank_values_options,
+				'S_DTST_RANKS_ISO'				=> $rank_lang_options,
+
+				'DTST_RANK_TITLE'				=> htmlspecialchars_decode($dtst_rank_title, ENT_COMPAT),
+				'DTST_RANK_DESC'				=> htmlspecialchars_decode($dtst_rank_desc, ENT_COMPAT),
+				'DTST_RANK_BCKG'				=> htmlspecialchars_decode($dtst_rank_bckg, ENT_COMPAT),
+				'DTST_RANK_TEXT'				=> htmlspecialchars_decode($dtst_rank_text, ENT_COMPAT),
+
+				'U_DTST_RANK_UPDATE'			=> $this->u_action . '&action=update',
+			));
 		}
 	}
 }

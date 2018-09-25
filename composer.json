@@ -3,8 +3,8 @@
 	"type": "phpbb-extension",
 	"description": "Have a topic starter calendar template on a per forum basis and many more, like it would be for a Meeting's forum.",
 	"homepage": "https://www.phpbbstudio.com",
-	"version": "1.5.0-beta",
-	"time": "2018-06-23",
+	"version": "2.0.0-b2",
+	"time": "2018-09-05",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{

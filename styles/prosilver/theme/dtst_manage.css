@@ -47,3 +47,8 @@ div.dtst-user-info:not(:last-child) {
 .dtst-user-error .dtst-user-reason-length {
 	color: #D31141;
 }
+
+.alert_text {
+	max-height: 460px;
+	overflow: auto;
+}

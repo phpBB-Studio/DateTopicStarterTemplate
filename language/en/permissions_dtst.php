@@ -22,4 +22,5 @@ $lang = array_merge($lang, array(
 	'ACL_U_ALLOW_DTST'			=> '<strong>Date Topic Event Calendar</strong> - Can post calendar topics',
 	'ACL_U_ALLOW_ATTENDEES'		=> '<strong>Date Topic Event Calendar</strong> - Can view the attendees',
 	'ACL_A_DTST_ADMIN'			=> '<strong>Date Topic Event Calendar</strong> - Can administer the extension',
+	'ACL_M_DTST_MOD'			=> '<strong>Date Topic Event Calendar</strong> - Can moderate reputation',
 ));

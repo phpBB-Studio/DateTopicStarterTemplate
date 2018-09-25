@@ -7,7 +7,7 @@
 		 * jQuery datepicker by fengyuanchen
 		 * https://github.com/fengyuanchen/datepicker
 		 */
-		$('#dtst_date').datepicker({
+		$('#dtst_date:not([data-dtst-date-disabled])').datepicker({
 			// The dateformat to output
 			autoShow: false,
 			autoHide: true,
@@ -16,6 +16,7 @@
 			format: 'dd-mm-yyyy',
 			weekStart: 1,
 			yearFirst: false,
+			startDate: true,
 		});
 
 		$('#dtst_date_reset').on('click', function(event) {

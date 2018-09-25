@@ -1,76 +1,77 @@
 {% if S_DTST_DISPLAY %}
-	<div class="forumbg dtst-filters">
-		<div class="inner">
-			<ul class="topiclist">
-				<li class="header">
-					<dl class="row-item">
-						<dt>
-							<i class="fa fa-sliders fa-fw" aria-hidden="true"></i> <span>{{ lang('DTST_FILTERS') }}</span>
-						</dt>
-					</dl>
-				</li>
-			</ul>
-
-			<form id="dtst_filters" name="dtst_filters" action="{{ U_DTST_FILTER_ACTION }}" method="get" {% if S_DTST_FILTERS_PERMS %}data-dtst-auto-reload="true"{% endif %}>
-				<input type="hidden" name="f" value="{{ FORUM_ID }}">
-
-				<ul class="topiclist topics bg1">
-					<li class="row bg1 dtst-filters-h-overflow">
-						<h4>{{ lang('DTST_EVENT_TYPE') }}</h4>
-						<ul>
-							{% for event_type in dtst_event_types %}
-								<li>
-									<input id="dtst_event_type_{{ event_type.INDEX }}" name="dtst_type[]" value="{{ event_type.INDEX }}" type="checkbox"{% if event_type.S_SELECTED_TYPES %} checked="checked"{% endif %}>
-									<label for="dtst_event_type_{{ event_type.INDEX }}" title="{{ event_type.NAME }}" class="dtst-label">{{ event_type.NAME }}</label>
-								</li>
-							{% endfor %}
-						</ul>
-					</li>
-
-					<li class="row bg1 dtst-filters-h-overflow">
-						<h4>{{ lang('DTST_LOCATION') }}</h4>
-						<ul>
-							{% for location in dtst_locations %}
-								<li>
-									<input id="dtst_location_{{ location.INDEX }}" name="dtst_location[]" value="{{ location.INDEX }}" type="checkbox"{% if location.S_SELECTED %} checked="checked"{% endif %}>
-									<label for="dtst_location_{{ location.INDEX }}" title="{{ location.LOCATION }}" class="dtst-label">{{ location.LOCATION }}</label>
-								</li>
-							{% endfor %}
-						</ul>
-					</li>
-
-					<li class="row bg1">
-						<h4>{{ lang('DTST_DATE') }}</h4>
-						<ul class="dtst-date-list">
-							<li class="dtst-li">
-								<div {% if DTST_DATE_AFTER %}class="dtst-input-icon dtst-date-reset" title="{{ lang('RESET') }}"{% else %}class="dtst-input-icon"{% endif %}><i class="fa {% if DTST_DATE_AFTER %}fa-refresh{% else %}fa-calendar-plus-o{% endif %} fa-fw"></i></div><input id="dtst_date_after" name="dtst_after" type="text" class="dtst-date dtst-input" readonly="readonly" value="{{ DTST_DATE_AFTER }}" title="{{ lang('DTST_AFTER') }}" placeholder="{{ lang('DTST_AFTER') }}">
-							</li>
-
-							<li class="dtst-li">
-								<div {% if DTST_DATE_BEFORE %}class="dtst-input-icon dtst-date-reset" title="{{ lang('RESET') }}"{% else %}class="dtst-input-icon"{% endif %}><i class="fa {% if DTST_DATE_BEFORE %}fa-refresh{% else %}fa-calendar-minus-o{% endif %} fa-fw"></i></div><input id="dtst_date_before" name="dtst_before" type="text" class="dtst-date dtst-input" readonly="readonly" value="{{ DTST_DATE_BEFORE }}" title="{{ lang('DTST_BEFORE') }}" placeholder="{{ lang('DTST_BEFORE') }}">
-							</li>
-						</ul>
-					</li>
-
-					<li class="row bg1" title="{{ lang('DTST_AGE_RANGE_ZERO') }}">
-						<h4>{{ lang('DTST_AGE_RANGE') }}</h4>
-						<input type="hidden" id="dtst_age" name="dtst_age" value="{{ DTST_AGE_RANGE }}">
-					</li>
-
-					<li class="row bg1" title="{{ lang('DTST_PARTICIPANTS_ZEROZERO') }}">
-						<h4>{{ lang('DTST_PARTICIPANTS') }}</h4>
-						<input type="hidden" id="dtst_participants" name="dtst_participants" value="{{ DTST_PARTICIPANTS_RANGE }}">
+	<div class="dtst-filters" {% if S_DTST_SIDEBAR %}data-filter="true"{% endif %}>
+	<div class="forumbg dtst-filters-inner">
+			<div class="inner">
+				<ul class="topiclist">
+					<li class="header">
+						<dl class="row-item">
+							<dt>
+								<i class="fa fa-sliders fa-fw" aria-hidden="true"></i> <span>{{ lang('DTST_FILTERS') }}</span>
+							</dt>
+						</dl>
 					</li>
 				</ul>
 
-				<div class="dtst-sorting-submit">
-					<a href="{{ U_DTST_FILTER_ACTION }}" class="button">{{ lang('RESET') }}</a>
-					<input type="submit" class="button" id="dtst-sorting-submit" value="{{ lang('SUBMIT') }}">
-				</div>
-			</form>
+				<form id="dtst_filters" name="dtst_filters" action="{{ U_DTST_FILTER_ACTION }}" method="get" {% if S_DTST_FILTERS_PERMS %}data-dtst-auto-reload="true"{% endif %}>
+					<input type="hidden" name="f" value="{{ FORUM_ID }}">
+
+					<ul class="topiclist topics bg1">
+						<li class="row bg1 dtst-filters-h-overflow">
+							<h4>{{ lang('DTST_EVENT_TYPE') }}</h4>
+							<ul>
+								{% for event_type in dtst_event_types %}
+									<li>
+										<input id="dtst_event_type_{{ event_type.INDEX }}" name="dtst_type[]" value="{{ event_type.INDEX }}" type="checkbox"{% if event_type.S_SELECTED_TYPES %} checked="checked"{% endif %}>
+										<label for="dtst_event_type_{{ event_type.INDEX }}" title="{{ event_type.NAME }}" class="dtst-label">{{ event_type.NAME }}</label>
+									</li>
+								{% endfor %}
+							</ul>
+						</li>
+
+						<li class="row bg1 dtst-filters-h-overflow">
+							<h4>{{ lang('DTST_LOCATION') }}</h4>
+							<ul>
+								{% for location in dtst_locations %}
+									<li>
+										<input id="dtst_location_{{ location.INDEX }}" name="dtst_location[]" value="{{ location.INDEX }}" type="checkbox"{% if location.S_SELECTED %} checked="checked"{% endif %}>
+										<label for="dtst_location_{{ location.INDEX }}" title="{{ location.LOCATION }}" class="dtst-label">{{ location.LOCATION }}</label>
+									</li>
+								{% endfor %}
+							</ul>
+						</li>
+
+						<li class="row bg1">
+							<h4>{{ lang('DTST_DATE') }}</h4>
+							<ul class="dtst-date-list">
+								<li class="dtst-li">
+									<div {% if DTST_DATE_AFTER %}class="dtst-input-icon dtst-date-reset" title="{{ lang('RESET') }}"{% else %}class="dtst-input-icon"{% endif %}><i class="fa {% if DTST_DATE_AFTER %}fa-refresh{% else %}fa-calendar-plus-o{% endif %} fa-fw"></i></div><input id="dtst_date_after" name="dtst_after" type="text" class="dtst-date dtst-input" readonly="readonly" value="{{ DTST_DATE_AFTER }}" title="{{ lang('DTST_AFTER') }}" placeholder="{{ lang('DTST_AFTER') }}">
+								</li>
+
+								<li class="dtst-li">
+									<div {% if DTST_DATE_BEFORE %}class="dtst-input-icon dtst-date-reset" title="{{ lang('RESET') }}"{% else %}class="dtst-input-icon"{% endif %}><i class="fa {% if DTST_DATE_BEFORE %}fa-refresh{% else %}fa-calendar-minus-o{% endif %} fa-fw"></i></div><input id="dtst_date_before" name="dtst_before" type="text" class="dtst-date dtst-input" readonly="readonly" value="{{ DTST_DATE_BEFORE }}" title="{{ lang('DTST_BEFORE') }}" placeholder="{{ lang('DTST_BEFORE') }}">
+								</li>
+							</ul>
+						</li>
+
+						<li class="row bg1" title="{{ lang('DTST_AGE_RANGE_ZERO') }}">
+							<h4>{{ lang('DTST_AGE_RANGE') }}</h4>
+							<input type="hidden" id="dtst_age" name="dtst_age" value="{{ DTST_AGE_RANGE }}">
+						</li>
+
+						<li class="row bg1" title="{{ lang('DTST_PARTICIPANTS_ZEROZERO') }}">
+							<h4>{{ lang('DTST_PARTICIPANTS') }}</h4>
+							<input type="hidden" id="dtst_participants" name="dtst_participants" value="{{ DTST_PARTICIPANTS_RANGE }}">
+						</li>
+					</ul>
+
+					<div class="dtst-sorting-submit">
+						<a href="{{ U_DTST_FILTER_ACTION }}" class="button">{{ lang('RESET') }}</a>
+						<input type="submit" class="button" id="dtst-sorting-submit" value="{{ lang('SUBMIT') }}">
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
-
 	{# Include Datepicker - CSS #}
 	{% if not definition.INCLUDED_DATEPICKERMINCSS %}
 		{% INCLUDECSS '@phpbbstudio_dtst/datepicker.min.css' %}

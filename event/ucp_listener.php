@@ -36,7 +36,7 @@ class ucp_listener implements EventSubscriberInterface
 	protected $dtst_utils;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * @param  \phpbb\request\request				$request		Request object
 	 * @param  \phpbb\template\template				$template		Template object
@@ -55,7 +55,7 @@ class ucp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Assign functions defined in this class to event listeners in the core
+	 * Assign functions defined in this class to event listeners in the core.
 	 *
 	 * @static
 	 * @return array
@@ -70,7 +70,12 @@ class ucp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Add configuration to Board preferences in UCP
+	 * Add configuration to Board preferences in UCP.
+	 *
+	 * @event  core.ucp.prefs_personal_data
+	 * @param  \phpbb\event\data		$event		The event object
+	 * @return void
+	 * @access public
 	 */
 	public function dtst_ucp_prefs_data($event)
 	{
@@ -99,7 +104,12 @@ class ucp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Updates configuration to Board preferences in UCP
+	 * Updates configuration to Board preferences in UCP.
+	 *
+	 * @event  core.ucp_prefs_personal_update_data
+	 * @param  \phpbb\event\data		$event		The event object
+	 * @return void
+	 * @access public
 	 */
 	public function dtst_ucp_prefs_update_data($event)
 	{
@@ -113,5 +123,4 @@ class ucp_listener implements EventSubscriberInterface
 			]);
 		}
 	}
-
 }

@@ -11,6 +11,11 @@
 namespace phpbbstudio\dtst\core;
 
 /**
+ * @ignore
+ */
+use phpbbstudio\dtst\ext;
+
+/**
  * Date Topic Event Calendar's helper service.
  */
 class operator
@@ -19,6 +24,7 @@ class operator
 	protected $auth;
 
 	/** @var \phpbb\config\config */
+	protected $config;
 
 	/** @var \phpbb\config\db_text */
 	protected $config_text;
@@ -45,6 +51,8 @@ class operator
 
 	protected $dtst_privmsg;
 
+	protected $dtst_ranks;
+
 	/**
 	 * Constructor
 	 *
@@ -59,9 +67,10 @@ class operator
 	 * @param string								$php_ext		PHP extension
 	 * @param string								$dtst_slots		DTST Slots table
 	 * @param string								$dtst_privmsg	DTST PMs table
+	 * @param  string								$dtst_ranks		DTST ranks table
 	 * @access public
 	 */
-	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\config\db_text $config_text, \phpbb\db\driver\driver_interface $db, \phpbb\language\language $lang, \phpbb\template\template $template, \phpbb\user $user, $root_path, $php_ext, $dtst_slots, $dtst_privmsg)
+	public function __construct(\phpbb\auth\auth $auth, \phpbb\config\config $config, \phpbb\config\db_text $config_text, \phpbb\db\driver\driver_interface $db, \phpbb\language\language $lang, \phpbb\template\template $template, \phpbb\user $user, $root_path, $php_ext, $dtst_slots, $dtst_privmsg, $dtst_ranks)
 	{
 		$this->auth			= $auth;
 		$this->config		= $config;
@@ -76,6 +85,7 @@ class operator
 
 		$this->dtst_slots	= $dtst_slots;
 		$this->dtst_privmsg	= $dtst_privmsg;
+		$this->dtst_ranks	= $dtst_ranks;
 	}
 
 	/**
@@ -86,7 +96,12 @@ class operator
 	public function dtst_template_switches_over_all()
 	{
 		$this->template->assign_vars(array(
+			'DTST_REP_NAME'			=> $this->config['dtst_rep_name'],
+
 			'S_DTST_FILTERS_PERMS'	=> (bool) $this->user->data['dtst_auto_reload'],
+			'S_DTST'				=> (bool) $this->is_authed(),
+			'S_DTST_SHOW_RANKS'		=> (bool) $this->config['dtst_show_rep_rank'],
+			'S_DTST_SHOW_POINTS'	=> (bool) $this->config['dtst_show_rep_points'],
 		));
 	}
 
@@ -574,15 +589,17 @@ class operator
 	}
 
 	/**
-	 * Post a reply in a existing topic
+	 * Post a reply in an existing topic
 	 *
-	 * @param int		$forum_id	the forum id where to post
-	 * @param int		$topic_id	the topic id where to post, 0 to post a new Topic instead
-	 * @param int		$user_id	the user id of the applicant
-	 * @param string	$reason		the reason of the applicant to be posted (only if has been accepted)
+	 * @param  string	$mode			The mode (reason|reputation_opened|reputation_closed)
+	 * @param  int		$forum_id		The forum id where to post
+	 * @param  int		$topic_id		The topic id where to post
+	 * @param  int		$user_id		The user id of poster
+	 * @param  string	$reason			The text to be posted
 	 * @return string
+	 * @access public
 	 */
-	public function dtst_post_reply($forum_id, $topic_id, $user_id, $reason)
+	public function dtst_post_reply($mode, $forum_id, $topic_id, $user_id, $text)
 	{
 		if (!function_exists('generate_text_for_storage'))
 		{
@@ -599,16 +616,30 @@ class operator
 
 		/* Call the main SQL query */
 		$row_user = $this->dtst_sql_users($user_id);
-		$username_title = $dtst_post_username = $row_user['username'];
+		$row_bot = ($user_id != $this->config['dtst_bot']) ? $this->dtst_bot() : false;
 
-		$reason_quote = $this->lang->lang('DTST_REASON_QUOTE') . $this->lang->lang('COMMA_SEPARATOR');
-		$post_text = '[quote=' . $reason_quote . ']' . $reason . '[/quote]';
+		switch ($mode)
+		{
+			case 'reputation_opened':
+			case 'reputation_closed':
+				$post_text = $this->lang->lang('DTST_' . utf8_strtoupper($mode) . '_TEXT', $this->config['dtst_rep_name']);
 
-		/* Has to be set, otherwise breaks 'last post' function */
-		$topic_title = $username_title . $this->lang->lang('COLON') . ' ' . $this->lang->lang('DTST_USER_STATUS_ACCEPTED');
+				/* Has to be set, otherwise breaks 'last post' function */
+				$topic_title = $this->lang->lang('DTST_' . utf8_strtoupper($mode) . '_TITLE', $this->config['dtst_rep_name']);
+			break;
+
+			case 'reason':
+			default:
+				$reason_quote = $this->lang->lang('DTST_REASON_QUOTE') . $this->lang->lang('COMMA_SEPARATOR');
+				$post_text = '[quote=' . $reason_quote . ']' . $text . '[/quote]';
+
+				/* Has to be set, otherwise breaks 'last post' function */
+				$topic_title = $row_user['username'] . $this->lang->lang('COLON') . ' ' . $this->lang->lang('DTST_USER_STATUS_ACCEPTED');
+			break;
+		}
 
 		/* Gets overwritten anyway */
-		$username = '';
+		$username = $row_bot ? $row_bot['username'] : $row_user['username'];
 
 		$poll = $uid = $bitfield = $options = '';
 		$allow_bbcode = $allow_urls = $allow_smilies = true;
@@ -635,10 +666,205 @@ class operator
 			'enable_indexing'		=> true,
 
 			's_dtst_reply'			=> true,
-			'dtst_poster_id'		=> (int) $user_id,
-			'dtst_post_username'	=> $dtst_post_username,
+			'dtst_user_id'			=> $row_bot ? (int) $row_bot['user_id'] : (int) $user_id,
+			'dtst_username'			=> $row_bot ? $row_bot['username'] : $row_user['username'],
+			'dtst_user_colour'		=> $row_bot ? $row_bot['user_colour'] : $row_user['user_colour']
 		);
 
 		return submit_post('reply', $topic_title, $username, POST_NORMAL, $poll, $data);
+	}
+
+	/**
+	 * DTST Bot
+	 *
+	 * @return mixed
+	 * @access private
+	 */
+	private function dtst_bot()
+	{
+		if ($this->config['dtst_use_bot'])
+		{
+			return $this->dtst_sql_users((int) $this->config['dtst_bot']);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Returns the SQL main SELECT statement used in various places.
+	 *
+	 * @param int		$dtst_rank_value	the dtst_rank_value
+	 * @param string	$user_lang			the user_lang isocode
+	 * @return string	$sql				the DBAL SELECT statement
+	 * @access public
+	 */
+	public function dtst_ranks_sql($dtst_rank_value, $user_lang)
+	{
+		$sql = 'SELECT *
+				FROM ' . $this->dtst_ranks . '
+				WHERE dtst_rank_value = ' . (int) $dtst_rank_value . '
+					AND dtst_rank_isocode = "' . $this->db->sql_escape($user_lang) . '"';
+
+		return $sql;
+	}
+
+	/**
+	 * Returns vars to be used in various places.
+	 *
+	 * @param int		$percent_rank	the dtst_rank_value
+	 * @return array	array			vars to be used in variouses places
+	 * @access public
+	 */
+	public function dtst_ranks_vars($percent_rank)
+	{
+		/* Query our ranks table */
+		$sql = $this->dtst_ranks_sql($percent_rank, $this->user->data['user_lang']);
+		$result = $this->db->sql_query($sql);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		/* Query our ranks table again to EN - cached */
+		$sqlen = $this->dtst_ranks_sql($percent_rank, 'en');
+		$resulten = $this->db->sql_query($sqlen, 86400);
+		$rowen = $this->db->sql_fetchrow($resulten);
+		$this->db->sql_freeresult($resulten);
+
+		$dtst_rank_title	= ($row['dtst_rank_title']) ? $row['dtst_rank_title'] : $rowen['dtst_rank_title'];
+		$dtst_rank_desc		= ($row['dtst_rank_desc']) ? $row['dtst_rank_desc'] : $rowen['dtst_rank_desc'];
+		$dtst_rank_bckg		= ($row['dtst_rank_bckg']) ? $row['dtst_rank_bckg'] : $rowen['dtst_rank_bckg'];
+		$dtst_rank_text		= ($row['dtst_rank_text']) ? $row['dtst_rank_text'] : $rowen['dtst_rank_text'];
+
+		return array($dtst_rank_title, $dtst_rank_desc, $dtst_rank_bckg, $dtst_rank_text);
+	}
+
+	/**
+	 * Returns a list of languages from the DB, those installed.
+	 *
+	 * @return array	$langs_iso		list of languages as lang_iso/lang_local_name
+	 * @access public
+	 */
+	public function dtst_langs_sql()
+	{
+		$langs_iso = array();
+
+		$sql = 'SELECT lang_id, lang_iso, lang_local_name
+				FROM ' . LANG_TABLE . '
+				ORDER BY lang_id';
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$langs_iso[$row['lang_iso']] = $row['lang_local_name'];
+		}
+
+		$this->db->sql_freeresult($result);
+
+		return $langs_iso;
+	}
+
+	/**
+	 * Computed percentage
+	 *
+	 * @param int		$reputation		the user's reputation/points
+	 *
+	 * @return double	$percent		the user's reputation/points's computed percentage
+	 * @access public
+	 */
+	public function dtst_percent($reputation)
+	{
+		$percent = ((int) $reputation / ext::DTST_MAX_REP) * ext::DTST_MAX_REP_MULTIPLIER;
+
+		return (double) $percent;
+	}
+
+	/**
+	 * Computed percentage for rateYo's library
+	 *
+	 * @param int		$percent			the user's reputation's percentage
+	 *
+	 * @return float	$percent_rateyo		the user's reputation/points's computed percentage for rateYo
+	 * @access public
+	 */
+	public function dtst_percent_rateyo($percent)
+	{
+		$percent_rateyo = number_format((float) $percent, 2, '.', ',');
+
+		if ($percent_rateyo > ext::DTST_RANK_TEN)
+		{
+			$percent_rateyo = ext::DTST_RANK_TEN;
+		}
+
+		return (double) $percent_rateyo;
+	}
+
+	/**
+	 * Percentage ranks
+	 *
+	 * @param int		$reputation		the user's reputation/points
+	 *
+	 * return int		$percent_rank	INT values
+	 * access public
+	 */
+	public function percentage($reputation)
+	{
+		/* Computed percentage */
+		$percent= $this->dtst_percent($reputation);
+
+		$percent_rank = '';
+
+		/* Now the values 0 and 1 - (considered particular values) */
+		if ($reputation <= 0)
+		{
+			$percent_rank = ext::DTST_RANK_ZERO;
+		}
+		if (($reputation > 0) && $percent < 10)
+		{
+			$percent_rank = ext::DTST_RANK_MIN;
+		}
+		/* Now the values 10 to 100)*/
+		if (($percent >= 10) && $percent < 20)
+		{
+			$percent_rank = ext::DTST_RANK_ONE;
+		}
+		if (($percent >= 20) && $percent < 30)
+		{
+			$percent_rank = ext::DTST_RANK_TWO;
+		}
+		if (($percent >= 30) && $percent < 40)
+		{
+			$percent_rank = ext::DTST_RANK_THREE;
+		}
+		if (($percent >= 40) && $percent < 50)
+		{
+			$percent_rank = ext::DTST_RANK_FOUR;
+		}
+		if (($percent >= 50) && $percent < 60)
+		{
+			$percent_rank = ext::DTST_RANK_FIVE;
+		}
+		if (($percent >= 60) && $percent < 70)
+		{
+			$percent_rank = ext::DTST_RANK_SIX;
+		}
+		if (($percent >= 70) && $percent < 80)
+		{
+			$percent_rank = ext::DTST_RANK_SEVEN;
+		}
+		if (($percent >= 80) && $percent < 90)
+		{
+			$percent_rank = ext::DTST_RANK_EIGHT;
+		}
+		if (($percent >= 90) && $percent < 100)
+		{
+			$percent_rank = ext::DTST_RANK_NINE;
+		}
+		if ($percent >= 100)
+		{
+			$percent_rank = ext::DTST_RANK_TEN;
+		}
+
+		return (int) $percent_rank;
 	}
 }

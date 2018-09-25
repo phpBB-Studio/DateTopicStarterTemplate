@@ -67,7 +67,6 @@
   height: 5px;
   border-radius: 2px;
   background-color: #eeeeee;
-  background-color: #e7e7e7;
   background-image: -moz-linear-gradient(top, #eeeeee, #dddddd);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#eeeeee), to(#dddddd));
   background-image: -webkit-linear-gradient(top, #eeeeee, #dddddd);
@@ -121,7 +120,6 @@
   height: 5px;
   border-radius: 2px;
   background-color: #eeeeee;
-  background-color: #e7e7e7;
   background-image: -moz-linear-gradient(top, #eeeeee, #dddddd);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#eeeeee), to(#dddddd));
   background-image: -webkit-linear-gradient(top, #eeeeee, #dddddd);

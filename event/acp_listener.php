@@ -24,7 +24,7 @@ class acp_listener implements EventSubscriberInterface
 	protected $request;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * @param  \phpbb\request\request				$request		Request object
 	 * @access public
@@ -35,7 +35,7 @@ class acp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * Assign functions defined in this class to event listeners in the core
+	 * Assign functions defined in this class to event listeners in the core.
 	 *
 	 * @static
 	 * @return array
@@ -51,7 +51,7 @@ class acp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * (Add/update actions) - Submit form
+	 * (Add/update actions) - Submit form.
 	 *
 	 * @event	core.acp_manage_forums_request_data
 	 * @param	\phpbb\event\data						$event		The event object
@@ -69,10 +69,10 @@ class acp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * New Forums added (default disabled)
+	 * New Forums added (default disabled).
 	 *
-	 * @event	core.acp_manage_forums_initialise_data
-	 * @param	\phpbb\event\data							$event		The event object
+	 * @event  core.acp_manage_forums_initialise_data
+	 * @param  \phpbb\event\data		$event		The event object
 	 * @return void
 	 * @access public
 	 */
@@ -90,10 +90,10 @@ class acp_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * ACP forums (template data)
+	 * ACP forums (template data).
 	 *
-	 * @event	core.acp_manage_forums_display_form
-	 * @param	\phpbb\event\data						$event		The event object
+	 * @event  core.acp_manage_forums_display_form
+	 * @param  \phpbb\event\data		$event		The event object
 	 * @return void
 	 * @access public
 	 */
