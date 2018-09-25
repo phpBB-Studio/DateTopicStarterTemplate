@@ -185,7 +185,6 @@ class profile_listener implements EventSubscriberInterface
 				'dtst_reason'		=> array('string', false, 1, 255),
 			);
 
-
 			$response = validate_data($event['data'], $validating);
 
 			$event['error'] = array_merge($event['error'], $response);

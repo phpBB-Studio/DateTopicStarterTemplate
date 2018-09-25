@@ -243,7 +243,7 @@ class reputation_functions
 		/* Update the hosts' reputation */
 		if ($reps)
 		{
-			foreach($reps as $host_id => $reputation_amount)
+			foreach ($reps as $host_id => $reputation_amount)
 			{
 				$this->set_reputation((int) $host_id, (int) $reputation_amount);
 			}
@@ -405,7 +405,7 @@ class reputation_functions
 			if (isset($event['attendees']))
 			{
 				/* Iterate over all the attendees for this event */
-				foreach($event['attendees'] as $user_id)
+				foreach ($event['attendees'] as $user_id)
 				{
 					/* If this user was the host and thus did attend, add the hosting reputation aswell */
 					$reputation = $this->config['dtst_rep_points_attend'];
